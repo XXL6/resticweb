@@ -1,0 +1,27 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+rope = "*"
+flake8 = "*"
+pytest = "*"
+pylint = "*"
+
+[packages]
+flask = "*"
+flask-sqlalchemy = "*"
+flask-bcrypt = "*"
+wtforms = "*"
+flask-wtf = "*"
+pycryptodome = "*"
+pywin32 = "*"
+sqlalchemy = "*"
+psutil = "*"
+flask-login = {git = "https://github.com/maxcountryman/flask-login.git"}
+humanize = "*"
+pylint = "*"
+
+[requires]
+python_version = "3.7"
