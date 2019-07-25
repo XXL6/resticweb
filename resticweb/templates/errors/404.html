@@ -1,0 +1,8 @@
+{% extends "app_layout.html" %}
+{% block tab_content %}
+    <div style="white-space: nowrap">
+    <h1>Page Not Found</h1>
+    <p>Wrong URL or the page hasn't been built yet.
+    <p><a href="{{ url_for('main.home') }}">Home</a>
+    </div>
+{% endblock tab_content %}

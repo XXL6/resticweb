@@ -1,0 +1,14 @@
+{% extends "repositories/repositories.html" %}
+{% set active_menu = "repository_list" %}
+{% block menu_content %}
+    <div class="property-select-form">
+        <form class="ub-form form-style-1" id="repository-type-select-form" method="POST">
+            <select class="form-control" name="repository-type-select">
+                {% for set, set_name in available_repository_types %}
+                    <option value="{{ set }}">{{ set_name }}</option>
+                {% endfor %}
+            </select>
+            <input class="form-control" type="submit" value="Next" /> 
+        </form>            
+    </div>
+{% endblock menu_content %}

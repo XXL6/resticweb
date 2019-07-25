@@ -1,0 +1,62 @@
+.menu-container {
+    /*background-color: #17181E;*/
+    height: calc(100vh - 60px);
+    grid-column: span 3;
+    /*height: 100vh;*/
+}
+
+@media screen and (max-width: 576px) {
+    .menu-container {
+        flex-direction: column;
+        display: none;
+        grid-column: span 20;
+    }
+}
+
+#v-pills-tab {
+    color: #eeeeee;
+}
+
+.menu-container .menu-item {
+    /*color: #eeeeee;*/
+    display: inline-block;
+    text-align: left;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    width: calc(100% - 10px); /* minus the padding on the left*/
+    text-decoration: none;
+    font-size: 17px;
+}
+
+.menu-container .menu-item:hover {
+    /*background-color: #71737D;
+    color: #111111;*/
+    border-left-style: solid;
+    border-left-width: 5px;
+    /*border-color: #eeeeee;*/
+    width: calc(100% - 15px); /* minus the padding on the left and border width */
+}
+
+/*.menu-container .menu-item.active:hover {
+    background-color: #71737D;
+    color: #111111;    
+}*/
+
+.menu-container .menu-item.active {
+    /*background-color: #71737D;*/
+    border-left-style: solid;
+    border-left-width: 5px;
+    /*border-color: #eeeeee;*/
+    width: calc(100% - 15px); /* minus the padding on the left and border width */
+}
+
+.menu-container .menu-item:active {
+    /*background-color: #71737D;
+    color: #111111;*/
+    transform: scale(0.99);
+}
+
+ul.menu-items {
+    padding-left: 0%;
+}

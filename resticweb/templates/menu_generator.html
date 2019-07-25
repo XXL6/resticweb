@@ -1,0 +1,276 @@
+{% macro generate_menu(menu_item_list, active_menu, menu_header="Menu", sep=False) %}
+<div class="menu-container">
+    <ul class="menu-items" aria-orientation="vertical">
+        {% for href, id, caption in menu_item_list %}
+            <a class="menu-item {% if active_menu == id %}active{% endif %}" role="tab" href="{{ href }}">{{ caption }}</a>
+        {% endfor %}
+    </ul>
+</div>
+{% endmacro %}
+
+{% macro generate_sidebar() %}
+<div class="sidebar-resize-bar"></div>
+<nav id="sidebar" class="sidebar-container w3-card-2">
+    <div class="container sidebar-content">
+
+    </div>
+</nav>
+<script type="text/javascript">
+    var handlerDragging = false;
+    var handler = $( ".sidebar-resize-bar" ).get(0);
+    var wrapper = $( ".flex-wrapper" ).get(0);
+
+    $( document ).mousedown(function(e) {
+        if (e.target === handler) {
+            handlerDragging = true;
+            $( document ).bind('mousemove', mouseDrag);
+            $( "body" ).css( "cursor", "ns-resize");
+        }
+    });
+
+    function handleTouchStart(e) {
+        if (e.target === handler) {
+            handlerDragging = true;
+            $( document ).bind('touchmove', touchDrag);
+        }
+    }
+
+    $( document ).bind("touchstart", handleTouchStart)
+
+    function disableSelect(event) {
+        event.preventDefault();
+    }
+
+    function touchDrag(e) {
+        if (!handlerDragging) {
+            return;
+            //super();
+        }
+        touches = e.touches;
+        if (touches.length > 0) {
+            yValue = touches[0].pageY;
+            window.addEventListener('selectstart', disableSelect);
+            var containerOffsetTop = wrapper.offsetTop;
+            var pointerRelativeYpos = yValue - containerOffsetTop - 15;
+            $( ".menu-content" ).css("height", (pointerRelativeYpos) + "px");
+            $( ".menu-content" ).css("flexGrow", "0");
+        }
+    }
+
+    function mouseDrag(e) {
+        if (!handlerDragging) {
+            return;
+            //super();
+        }
+        window.addEventListener('selectstart', disableSelect);
+        var containerOffsetTop = wrapper.offsetTop;
+        var pointerRelativeYpos = e.pageY - containerOffsetTop - 15;
+        $( ".menu-content" ).css("height", (pointerRelativeYpos) + "px");
+        $( ".menu-content" ).css("flexGrow", "0");
+    }
+
+    /*$( document ).mousemove(function(e) {
+        if (!handlerDragging) {
+            return;
+            //super();
+        }
+        var containerOffsetLeft = wrapper.offsetLeft;
+        var pointerRelativeXpos = e.pageX - containerOffsetLeft;
+
+        $( ".menu-content" ).css("width", (pointerRelativeXpos) + "px");
+        $( ".menu-content" ).css("flexGrow", "0");
+    });*/
+
+    $( document ).mouseup(function(e) {
+        handlerDragging = false;
+        window.removeEventListener('selectstart', disableSelect);
+        $( "body" ).css( "cursor", "default");
+        $ ( document ).unbind('mousemove.mouseDrag');
+    });
+
+    function handleTouchEnd(e) {
+        handlerDragging = false;
+        window.removeEventListener('selectstart', disableSelect);
+        $ ( document ).unbind('touchmove.mouseDrag');
+    }
+
+    $( document ).bind("touchend", handleTouchEnd);
+
+</script>
+{% endmacro %}
+
+{# we can use this to generate a simple action menu for list items
+    the action menu can include functionality of deleting items, adding new
+    items, editing items, and other such things #}
+{% macro generate_action_menu(action_item_list, action_script_root, items, page_url) %}
+<div class="action-menu">
+    <ul class='action-menu-item-list action-menu-left'>
+        {% for item in action_item_list %}
+            <li class="action-menu-item variant-{{ item['variant'] }}" action="{{item['action']}}">
+                <button class="action-menu-button" onclick="handleAction('{{item['action']}}')"> {# this might look like an error, but it works #}
+                    {#<i class="action-menu-button-icon" src="{{item['icon']}}" alt="{{item['action_name']}}"></i>#}
+                    <i class="action-menu-button-icon {{item['icon']}}"></i>
+                    <span class="button-text">
+                        {{item['action_name']}}
+                    </span>
+                </button>
+            </li>
+        {% endfor %}
+            {% if items %}
+                <li class="pagination">
+                    <ul>
+                        <li class="pager_label">
+                            Page:
+                        </li>
+                        {% for page_num in items.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                            {% if page_num %}
+                                {% if items.page == page_num %}
+                                    <li class="pager_item active">
+                                        <a class="pager_link" href="{{ url_for(page_url, page=page_num) }}">{{ page_num }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="pager_item">
+                                        <a class="pager_link" href="{{ url_for(page_url, page=page_num) }}">{{ page_num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% else %}
+                                ...
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endif %}
+    </ul>
+</div>
+<script type="text/javascript">
+    function handleAction(action_name) {
+        switch(action_name) {
+            case "delete":
+                var value = confirm("Delete selected items?");
+                if (value) {
+                    var itemsToDelete = getCheckedItemIds();
+                    $.ajax({
+                        type: "POST",
+                        url: $SCRIPT_ROOT + "{{action_script_root + '_delete'|safe}}",
+                        contentType: "application/json",
+                        data: JSON.stringify({item_ids: itemsToDelete}),
+                        dataType: "json",
+                        success: function(response) {
+                            location.reload();
+                        },
+                        error: function(error) {
+                            location.reload();
+                        }
+                    });
+                }
+                break;
+            case "edit":
+                // should only have one item checked in the 'edit' function which is why we only get the first item
+                var itemToEdit = getCheckedItemIds()[0];
+                /*$.get($SCRIPT_ROOT + "{{action_script_root + '_edit'|safe}}", {
+                        item_id: item_id
+                    }, function(data) {
+                        populateSidebar(data);
+                    }
+                );*/
+                window.location.replace("{{ action_script_root + '_edit/' }}" + itemToEdit)
+                break;
+            case "add":
+                window.location.replace("{{ action_script_root + '_add' }}")
+                break;
+
+            case "run_jobs":
+                var itemsToRun = getCheckedItemIds();
+                $.ajax({
+                    type: "POST",
+                    url: $SCRIPT_ROOT + "{{action_script_root + '_run_jobs'|safe}}",
+                    contentType: "application/json",
+                    data: JSON.stringify({item_ids: itemsToRun}),
+                    dataType: "json",
+                    success: function(response) {
+                        location.reload();
+                        console.log(response);
+                    },
+                    error: function(error) {
+                        location.reload();
+                        console.log(error);
+                    }
+                });
+                break;
+            case "terminate":
+                var value = confirm("Terminate selected processes?");
+                if (value) {
+                    var itemsToTerminate = getCheckedItemIds();
+                    $.ajax({
+                        type: "POST",
+                        url: $SCRIPT_ROOT + "{{action_script_root + '_terminate'|safe}}",
+                        contentType: "application/json",
+                        data: JSON.stringify({item_ids: itemsToTerminate}),
+                        dataType: "json",
+                        success: function(response) {
+                            location.reload();
+                        },
+                        error: function(error) {
+                            location.reload();
+                        }
+                    });
+                }
+                break;
+            case "forget":
+                var value = confirm("Forget selected snapshot?");
+                if (value) {
+                    var itemsToTerminate = getCheckedItemIds();
+                    var itemToTerminate = itemsToTerminate[0];
+                    $.ajax({
+                        type: "POST",
+                        url: $SCRIPT_ROOT + "{{action_script_root + '_forget_snapshot'|safe}}",
+                        contentType: "application/json",
+                        data: JSON.stringify({item_id: itemToTerminate}),
+                        dataType: "json",
+                        success: function(response) {
+                            location.reload();
+                        },
+                        error: function(data) {
+                            new Noty({ theme: 'relax', text: data.responseJSON.errormsg, layout: 'bottomCenter', type: 'error' }).show();
+                            location.reload();
+                        }
+                    });
+                }
+                break;
+            default:
+                alert("Unsupported function");
+        }
+    }
+    
+    // chooses which action menu button variant to disable
+    // variants are essentially based on how many list items are selected
+    // variant 0, visible all the time
+    // variant 1, visible when one or more items selected
+    // variant 2, visible when two or more items selected
+    /*function displayActionMenuVariant(variant) {
+        $( ".action-menu-item-list" ).css("display", "none");
+        $( ".action-menu-item-list.variant-" + variant.toString()).css("display", "inline");
+        $( ".action-menu-item-list.variant-3" ).css("display", "inline");
+    }*/
+    function displayActionMenuVariant(variant) {
+        $( ".action-menu-item button" ).prop("disabled", true);
+        switch (variant) {
+            case 0:     
+                $( ".action-menu-item.variant-0 button").removeAttr("disabled");
+                break;
+            case 1:
+                $( ".action-menu-item.variant-0 button").removeAttr("disabled");
+                $( ".action-menu-item.variant-1 button").removeAttr("disabled");
+                $( ".action-menu-item.variant-2 button").removeAttr("disabled");
+                break;
+            case 2:
+                $( ".action-menu-item.variant-0 button").removeAttr("disabled");
+                $( ".action-menu-item.variant-2 button").removeAttr("disabled");
+                break;
+            default:
+                break;
+        }
+    }
+    displayActionMenuVariant(0);
+</script>
+{% endmacro %}

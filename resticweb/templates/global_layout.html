@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+{# Layout template for all of the pages of the app. Created mainly to include things like jquery, and
+    bootstrap which will be used throughout the interface #}
+{% from "flashed_messages.html" import render_flashed_messages, snackbar_script, render_flashed_messages_snack %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>resticweb</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {# css files separated out during development. Will be minified into one with release #}
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='normalize.css') }}">
+    {#<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">#}
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='global.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='snackbar.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='app_layout.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='menu.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='sidebar.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='preloader/style.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='preloader/dot_spinner_big.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='preloader/dot_spinner_small.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='action_menu.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='color_scheme_v1.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='form_style_1.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='fontawesome/css/all.min.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='sidebar_tables.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='table_stylesheet.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='noty/lib/noty.css') }}" />
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='noty/lib/themes/relax.css') }}" />
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='w3.css') }}" />
+    {# jstree stuff #}
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='jstree/themes/custom/style.css') }}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='jstree/file_select_container.css') }}">
+    
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='animate.css') }}" />
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='modaal/source/css/modaal.css') }}" />
+
+</head>
+{#<script type="text/javascript" src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>#}
+<script type="text/javascript" src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='global.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='jstree/jstree.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='noty/lib/noty.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='modaal/source/js/modaal.js') }}"></script>
+{#<script type="text/javascript" src="{{ url_for('static', filename='vex/dist/js/vex.combined.min.js') }}"></script>
+<script>vex.defaultOptions.className = 'vex-theme-os'</script>#}
+<!--<script src="{{ url_for('static', filename='bootstrap.js') }}"></script>-->
+<script type="text/javascript">
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+{#{ snackbar_script() }#}
+{% block app_content %}
+{% endblock app_content %}
+
+
+</html>

@@ -1,0 +1,21 @@
+{% extends "app_layout.html" %}
+{% set active_tab = "system" %}
+{% set menu_list = [
+    (url_for('system.account'), 'account', 'Account'),
+    (url_for('system.settings'), 'settings', 'Settings'),
+    (url_for('system.credentials'), 'credentials', 'Credentials'),
+    (url_for('system.processes'), 'processes', 'Processes')
+] -%}
+{% from "menu_generator.html" import generate_menu, generate_sidebar %}
+{% block tab_content %}
+    {{ generate_menu(menu_list, active_menu, 'System') }}
+    <div class="flex-wrapper">
+        <div class="flex-col menu-content">
+            {% block menu_content %}
+            {% endblock menu_content %}
+            {#{{ render_flashed_messages() }}#}
+            {{ render_flashed_messages_snack() }}
+        </div>
+        {{ generate_sidebar() }}
+    </div>
+{% endblock tab_content %}

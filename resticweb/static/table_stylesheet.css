@@ -1,0 +1,190 @@
+.table-view {
+    overflow: auto;
+    height: calc(100% - 76px);
+}
+
+.table-group {
+    padding-left: 0px;
+    border-radius: 0px;
+}
+
+.table-group-item {
+    /*background-color: #898376;*/
+    /*line-height: 1.2em;
+    padding-top: 0%;
+    padding-bottom: 0%;
+    margin-bottom: 3px;
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);*/
+}
+
+.ub-table-data-row.hover {
+    cursor: default;
+}
+
+.ub-table-data-row {
+    width: 100%;
+    height: 30px;
+}
+
+.ub-table {
+    width: 100%;
+    border-spacing: 0px 3px;
+}
+/*
+.ub-table-header-item {
+    margin-bottom: 3px;
+    border-bottom-style: solid;
+    border-bottom-width: 3px;
+    padding-top: 0%;
+    padding-bottom: 0%;
+    display: grid;
+    position: sticky;
+    top: 50px;
+    height: 18px;
+    overflow: hidden;
+    grid-template-columns: repeat(16, 1fr);
+}*/
+
+.table-data-item.hover {
+    /*background-color: #B8B2A2;*/
+    cursor: pointer;
+}
+
+.table-data-item {
+    border-right-style: hidden;
+    border-left-style: hidden;
+}
+
+.ub-table-anchor {
+    color: rgb(0, 247, 255);
+    text-decoration: none;
+}
+
+.ub-table-anchor:hover {
+    text-decoration: underline;
+}
+
+.inline-table-content {
+    position: relative; 
+    overflow: hidden;   
+    margin-right: 10px;
+}
+
+.table-checkbox-div {
+    display: none; /* don't display the checkbox unless the item select script is associated with the table*/
+    /*float: left;*/
+    /*position: relative;*/
+    height: 100%;
+    /*border-right-style: solid;*/
+    /*border-color: #33353C;*/
+    /*grid-column: span 1;*/
+    min-width: 35px;
+    -ms-transform: translateY(25%);
+    transform: translateY(25%);
+    /*background-color: #33353C;*/
+}
+
+.table-content-group {
+    top: 0px;
+    position: relative;
+    padding-left: 5px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    grid-column: span 15;
+    grid-template-columns: repeat(15, 1fr);
+    display: grid;
+}
+/*
+.table-checkbox {
+    left: 40%;
+    position: relative;
+    top: 40%;
+    transform: scale(1.5);
+}*/
+
+.table-checkbox {
+}
+
+
+.table-content {
+    position: relative;
+}
+
+.ub-table-header-item {
+    text-align: left;
+}
+
+.ub-table-header {
+    overflow-y: auto;
+    height: 50px;
+    position: sticky;
+}
+
+.ub-table-header .ub-table-header-row {
+    position: sticky;
+    top: 50px;
+}
+
+.ub-table-header .ub-table-header-row th{
+    position: sticky;
+    top: 60px;
+}
+
+.table-col-05 {
+    width: 5%;
+}
+
+.table-col-1 {
+    width: 10%;
+}
+
+.table-col-2 {
+    width: 20%;
+}
+
+.table-col-3 {
+    width: 30%;
+}
+
+.table-col-4 {
+    width: 40%;
+}
+
+.table-col-5 {
+    width: 50%;
+}
+
+.table-col-6 {
+    width: 60%;
+}
+
+.table-col-7 {
+    width: 70%;
+}
+
+.table-col-8 {
+    width: 80%;
+}
+
+.table-col-9 {
+    width: 90%;
+}
+
+.ub-table-button-remove {
+    background-color: transparent;
+    border: 0;
+}
+
+.ub-table-button-remove:hover {
+    cursor: pointer;
+    color: red;
+}
+
+.ub-table-button-remove-header {
+    width: 1%;
+}
+
+.job-progress-list {
+    padding-left: 0;
+}

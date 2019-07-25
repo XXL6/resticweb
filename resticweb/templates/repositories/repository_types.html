@@ -1,0 +1,32 @@
+{% extends "repositories/repositories.html" %}
+{% set active_menu = "repository_types" %}
+{% from "menu_generator.html" import generate_action_menu %}
+{% from "list_generators.html" import item_select_script_table %}
+{% set action_menu_list = [
+        {'action_name': 'Add', 'action': 'add', 'icon': 'fas fa-plus-square', 'variant': '0'},
+        {'action_name': 'Edit', 'action': 'edit', 'icon': 'fas fa-edit', 'variant': '1'},
+        {'action_name': 'Delete', 'action': 'delete', 'icon': 'fas fa-trash', 'variant': '2'}
+    ]
+-%}
+{% block menu_content %}
+    {{ generate_action_menu(action_menu_list, '/repositories/repository_types/', items, 'repositories.repository_types') }}
+    <table class="ub-table">
+        <tr class="ub-table-header-row">
+            <th class="ub-table-header-item table-col-05">Check</th>
+            <th class="ub-table-header-item table-col-05">Id</th>
+            <th class="ub-table-header-item table-col-2">Name</th>
+            <th class="ub-table-header-item table-col-7">Type</th>
+        </tr>
+        {% for repository_type in items.items %}
+            <tr class="ub-table-data-row" id="{{ repository_type['id'] }}">
+                <td class="ub-table-data table-col-05 table-checkbox-div">
+                    <input type="checkbox" class="table-checkbox list-checkbox" autocomplete="off" value="{{repository_type['id']}}" id="{{repository_type['id']}}-box">
+                </td>
+                <td class="ub-table-data table-data-item">{{ repository_type['id'] }}</td>
+                <td class="ub-table-data table-data-item">{{ repository_type['name'] }}</td>
+                <td class="ub-table-data table-data-item">{{ repository_type['type'] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    {{ item_select_script_table('/repositories/repository_types/_get_type_info') }}
+{% endblock menu_content %}

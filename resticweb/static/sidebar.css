@@ -1,0 +1,37 @@
+.sidebar-container {
+    /*background-color: #17181E;*/
+    overflow: auto;
+    padding-left: 0%;
+    padding-right: 0%;
+    box-sizing: border-box;
+    /*min-width: 300px;*/
+    display: none;
+    white-space: nowrap;
+    flex: 1 999 auto;
+    width: calc(100% - 20px);
+    margin: 5px 10px 10px 10px;
+    height: calc(100% - 15px);
+}
+
+.sidebar-resize-bar {
+    /*position: sticky;*/
+    left: 0;
+    float: left;
+    z-index: 100;
+    height: 5px;
+    width: 100%;
+    cursor: ns-resize;
+    /*background-color: #17181E; /* same color as the .sidebar-container border-color as this is now its' "border" instead of using border-left
+    we do this so we have a border that we can have the cursor change to the resize cursor*/
+    /*flex: 0 0 auto;*/
+}
+
+.sidebar-content {
+    padding-right: 15px;
+    padding-left: 15px;
+    width: calc(100% - 30px); /* minus padding and the resize-bar */
+    height: 100%;
+    overflow: auto;
+    position: relative;
+    display: flex;
+}

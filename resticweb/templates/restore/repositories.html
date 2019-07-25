@@ -1,0 +1,48 @@
+{% extends "restore/restore.html" %}
+{% set active_menu = "repositories" %}
+{% from "menu_generator.html" import generate_action_menu, generate_sidebar %}
+{% from "list_generators.html" import item_select_script_table %}
+{% block menu_content %}
+    {{ generate_action_menu([], "", repositories, 'restore.repositories')}}
+    <table class="ub-table" id="repository-table">
+        <tr class="ub-table-header-row">
+            <th class="ub-table-header-item table-col-05">Check</th>
+            <th class="ub-table-header-item table-col-05">Id</th>
+            <th class="ub-table-header-item table-col-2">Name</th>
+            <th class="ub-table-header-item table-col-5">Address</th>
+            <th class="ub-table-header-item table-col-2">Status</th>
+        </tr>
+        {% for repository in repositories.items %}
+            <tr class="ub-table-data-row" id="{{ repository['id'] }}">
+                <td class="ub-table-data table-col-05 table-checkbox-div">
+                    <input type="checkbox" class="table-checkbox list-checkbox" autocomplete="off" value="{{repository['id']}}" id="{{repository['id']}}-box">
+                </td>
+                <td class="ub-table-data table-data-item">{{ repository['id'] }}</td>
+                <td class="ub-table-data table-data-item">
+                    <a href="{{ url_for('restore.repository_snapshots', repository_id=repository['id']) }}" class="ub-table-anchor">{{ repository['internal_name'] }}</a>
+                </td>
+                <td class="ub-table-data table-data-item">{{ repository['address'] }}</td>
+                <td class="ub-table-data table-data-item list-update" id="status">
+                    <div class="lds-spin-small" style="width:100%;height:100%"><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    {{ item_select_script_table('/repositories/repository_list/_get_repository_info') }}
+    <script type="text/javascript">
+        function updateLocationStatus() {
+            repository_ids = getVisibleItemIds();
+            var i;
+            for (i = 0; i < repository_ids.length; i++) {
+                $.get($SCRIPT_ROOT + "/repositories/repository_list/_get_repository_status", {
+                            id: repository_ids[i]
+                        }, function(data) {
+                            var data = JSON.parse(data);
+                            $( "#" + data.id + ".ub-table-data-row " + "#" + data.name + ".list-update"  ).html(data.data);
+                        }
+                    );
+            }
+        }
+        updateLocationStatus();
+    </script>
+{% endblock menu_content %}

@@ -1,0 +1,18 @@
+{% extends "app_layout.html" %}
+{% set active_tab = "restore" %}
+{% set menu_list = [
+    (url_for('restore.repositories'), 'repositories', 'Repositories')
+] -%}
+{% from "menu_generator.html" import generate_menu %}
+{% block tab_content %}
+    {{ generate_menu(menu_list, active_menu, 'Restore') }}
+    <div class="flex-wrapper">
+            <div class="flex-col menu-content">
+                {% block menu_content %}
+                {% endblock menu_content %}
+                {#{{ render_flashed_messages() }}#}
+                {{ render_flashed_messages_snack() }}
+            </div>
+            {{ generate_sidebar() }}
+    </div>
+{% endblock tab_content %}

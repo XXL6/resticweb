@@ -1,0 +1,65 @@
+{% extends "repositories/repositories.html" %}
+{% set active_menu = "physical_locations" %}
+{% block menu_content %}
+    <form class="ub-form form-style-1" method="POST" action="" enctype="multipart/form-data"><!-- enctype required for images or something -->
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom">Physical Location</legend>
+            <div class="form-group">
+                {{ form.name.label(class="form-control-label") }}
+                {% if form.name.errors %}
+                {{ form.name(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.name(class="form-control") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                    {{ form.address.label(class="form-control-label") }}
+                    {% if form.address.errors %}
+                    {{ form.address(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.address.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.address(class="form-control") }}
+                    {% endif %}
+            </div>
+            <div class="form-group">
+                    {{ form.type.label(class="form-control-label") }}
+                    {% if form.type.errors %}
+                    {{ form.type(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.type.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.type(class="form-control") }}
+                    {% endif %}
+            </div>
+            <div class="form-group">
+                    {{ form.concurrent_jobs.label(class="form-control-label") }}
+                    {% if form.concurrent_jobs.errors %}
+                    {{ form.concurrent_jobs(class="form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.concurrent_jobs.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.concurrent_jobs(class="form-control") }}
+                    {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.submit(class="form-control") }}
+            </div>
+        </fieldset>
+    </form>
+{% endblock menu_content %}

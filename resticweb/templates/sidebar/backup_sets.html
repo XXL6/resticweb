@@ -1,0 +1,37 @@
+{#Id: {{ info_dict["id"] }}<br>
+Name: {{ info_dict["name"] }}<br>
+Type: {{ info_dict["type"] }}<br>
+Time Added: {{ info_dict["time_added"] }}<br>
+Data:<br> {{ info_dict["data"] }}<br>#}
+<table class="sidebar-info-table">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Parameter Data</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Name</td>
+            <td>{{ info_dict['name'] }}</td>
+        </tr>
+        <tr>
+            <td>Source location</td>
+            <td>{{ info_dict['source'] }}</td>
+        </tr>
+        <tr>
+            <td>Type</td>
+            <td>{{ info_dict['type_name'] }}</td>
+        </tr>
+        <tr>
+            <td>Time Added</td>
+            <td>{{ info_dict['time_added'] }}</td>
+        </tr>
+
+    </tbody>
+</table>
+<ul id="backup-set-contents">
+    {% for item in set_items %}
+        <li>{{ item }}</li>
+    {% endfor %}
+</ul>

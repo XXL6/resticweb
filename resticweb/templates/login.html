@@ -1,0 +1,50 @@
+{% extends "global_layout.html" %}
+{% block app_content %}
+<body>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="login-container">
+            <fieldset class="form-group col-md-4 offset-md-4">
+                <legend class="border-bottom mb-4 mt-4">Log In</legend>
+                <div class="form-group">
+                    {{ form.username.label(class="form-control-label") }}
+                    {% if form.username.errors %}
+                        {{ form.username(class="login-form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.username.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.username(class="login-form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.password.label(class="form-control-label") }}
+                    {% if form.password.errors %}
+                        {{ form.password(class="login-form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.password(class="login-form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.submit.label(class="form-control-label") }}
+                    {{ form.submit(class="login-form-control form-control-lg") }}
+                </div>
+                <div class="form-group">
+                    {{ form.remember_me.label(class="form-control-label") }}
+                    {{ form.remember_me(class="form-control") }}
+                </div>
+            </fieldset>
+        </div>
+    </form>
+    <div class="form-group col-md-4 offset-md-4">
+        {{ render_flashed_messages() }}
+    </div>
+</body>
+{% endblock app_content %}

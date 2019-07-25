@@ -1,0 +1,31 @@
+{% extends "backup/backup.html" %}
+{% set active_menu = "saved_jobs" %}
+{% from "menu_generator.html" import generate_action_menu %}
+{% from "list_generators.html" import item_select_script_table %}
+{% set action_menu_list = [
+    {'action_name': 'Add', 'action': 'add', 'icon': 'fas fa-plus-square', 'variant': '0'},
+    {'action_name': 'Edit', 'action': 'edit', 'icon': 'fas fa-edit', 'variant': '1'},
+    {'action_name': 'Delete', 'action': 'delete', 'icon': 'fas fa-trash', 'variant': '2'},
+    {'action_name': 'Run Now', 'action': 'run_jobs', 'icon': 'fas fa-play-circle', 'variant': '2'}
+]
+-%}
+{% block menu_content %}
+    {{ generate_action_menu(action_menu_list, '/backup/saved_jobs/', items, 'backup.saved_jobs') }}
+    <table class="ub-table">
+            <tr class="ub-table-header-row">
+                <th class="ub-table-header-item table-col-05">Check</th>
+                <th class="ub-table-header-item table-col-05">Id</th>
+                <th class="ub-table-header-item table-col-9">Name</th>
+            </tr>
+            {% for item in items.items %}
+                <tr class="ub-table-data-row" id="{{ item['id'] }}">
+                    <td class="ub-table-data table-checkbox-div">
+                        <input type="checkbox" class="table-checkbox list-checkbox" autocomplete="off" value="{{item['id']}}" id="{{item['id']}}-box">
+                    </td>
+                    <td class="ub-table-data table-data-item">{{ item['id'] }}</td>
+                    <td class="ub-table-data table-data-item">{{ item['name'] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {{ item_select_script_table('/backup/saved_jobs/_get_saved_job_info') }}
+{% endblock menu_content %}

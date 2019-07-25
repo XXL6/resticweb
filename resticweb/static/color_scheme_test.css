@@ -1,0 +1,120 @@
+/* background for the app */
+body {
+    background-color: #33353C;
+    color: #eeeeee;
+}
+/*-------------------------*/
+
+/* colors related to the default rendered list */
+.list-group-item {
+    background-color: #898376;
+}
+
+.list-group-item.active {
+    background-color: #B8B2A2;
+}
+
+.list-group-item.hover {
+    background-color: #B8B2A2;
+}
+
+.list-checkbox-div {
+    /*background-color: #33353C; /* same as the body's background color if need to appear transparent */
+    /*border-color: #33353C;*/
+    background-color: transparent;
+    border-color: transparent;
+}
+/*---------------------------------------------*/
+
+/* colors related to the left side menu */
+.menu-container {
+    background-color: #17181E;
+}
+
+.menu-container .menu-item {
+    color: #eeeeee;
+}
+
+.menu-container .menu-item:hover {
+    background-color: #71737D;
+    color: #111111;
+    border-color: #eeeeee;
+}
+
+.menu-container .menu-item.active:hover {
+    background-color: #71737D;
+    color: #111111;    
+}
+
+.menu-container .menu-item.active {
+    background-color: #71737D;
+    border-color: #eeeeee;
+}
+
+.menu-container .menu-item:active {
+    background-color: #71737D;
+    color: #111111;
+}
+/*------------------------------------------*/
+
+/* colors relating to the the navigation bar on top of the application */
+.navigation-bar {
+    color: #eeeeee;
+    background-color: #17181E;
+}
+
+.corner-title {
+    background-color: #33353C;
+}
+
+.pill-bar {
+    background-color: #17181E;
+}
+
+.pill-bar .nav-pills > li > a {
+    color: #eeeeee;
+}
+
+.pill-bar .nav-pills > li > a:hover {
+    background-color: #71737D;
+    color: #111111;
+}
+
+.pill-bar .nav-pills > li > a:active {
+    background-color: #71737D;
+    color: #111111;
+}
+
+.pill-bar .nav-pills .active > a {
+    background-color: #71737D;
+    color: #ffffff;
+}
+/*------------------------------------------*/
+
+/* colors relating to the right hand sidebar */
+.sidebar-container {
+    background-color: #17181E;
+}
+
+.sidebar-resize-bar {
+    background-color: #17181E; /* same color as the .sidebar-container border-color as this is now its' "border" instead of using border-left
+    we do this so we have a border that we can have the cursor change to the resize cursor*/
+}
+/*---------------------------------------------*/
+
+/* colors relating to the info snackbar */
+#snackbar.danger {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+#snackbar.info {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+#snackbar.success {
+    background-color: #28a745;
+    color: #fff;
+}
+/*------------------------------------------------*/

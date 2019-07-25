@@ -1,0 +1,127 @@
+{% extends "repositories/repositories.html" %}
+{% set active_menu = "repository_list" %}
+{% block menu_content %}
+    <form id="repository-form" class="ub-form form-style-1" method="POST" action="" enctype="multipart/form-data"><!-- enctype required for images or something -->
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom">General Repository Attributes</legend>
+            <div class="form-group">
+                {{ form.address.label(class="form-control-label") }}
+                <div class="path-input-div">
+                    {% if form.address.errors %}
+                    {{ form.address(class="form-control is-invalid path-input-data") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.address.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.address(class="form-control path-input-data") }}
+                    {% endif %}
+                    <button class="path-input-button" value="Test" href="#destination-select-modal">
+                        <i class="fas fa-folder-open">Browse</i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.internal_name.label(class="form-control-label") }}
+                {% if form.internal_name.errors %}
+                {{ form.internal_name(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.internal_name.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.internal_name(class="form-control") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.description.label(class="form-control-label") }}
+                {% if form.description.errors %}
+                {{ form.description(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.description.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.description(class="form-control") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.cache_repo.label(class="form-control-label") }}
+                {% if form.cache_repo.errors %}
+                {{ form.cache_repo(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.cache_repo.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.cache_repo(class="form-control") }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="form-control") }}
+        </div>
+    </form>
+    <div id="destination-select-modal" style="display: none">
+        <div class="ub-file-select">
+            <div id="destination-selector" class="form-control"></div>
+        </div>
+        <div>
+            <button class="destination-select-button" onclick=addDestinationValue()>Ok</button>
+        </div> 
+    </div>
+    <script>
+        $(function () {
+            $("#destination-selector").jstree({
+                'core': {
+                    "multiple": false,
+                    "animation": 50,
+                    'data': {
+                        'url': $SCRIPT_ROOT + "/restore/repositories/_get_directory_listing",
+                        'data': function (node) {
+                            return {
+                                'id': node.id,
+                                'path': $("#destination-selector").jstree().get_path(node.id, "/") + "/"
+                            }
+                        },
+                        'dataType': 'json',
+                        'error': function (data) {
+                            new Noty({ theme: 'relax', timeout: 5000, progressBar: true, closeWith: ['click', 'button'], animation: {open: 'animated slideInUp', close: 'animated fadeOut'}, text: data.responseJSON.errormsg, layout: 'bottomCenter', type: 'error' }).show();
+                        }
+                    },
+                    'themes': {
+                        'name': 'custom',
+                        'dots': 'true',
+                        'responsive': 'true',
+                        'stripes': 'false'
+                    },
+                    'loaded_state': true
+                },
+                'plugins': [
+                    'wholerow'
+                ]
+            });
+        });
+        $(function () {
+            $(".path-input-button").modaal();
+        });
+
+        function addDestinationValue() {
+            var tree_object = $("#destination-selector").jstree();
+            var selected_path = ""
+            try {
+                selected_path = "/" + tree_object.get_path(tree_object.get_selected()[0], "/");
+            } catch(err) {
+                selected_path = ""
+            }
+
+            document.getElementById("address").value = selected_path;
+            $(".path-input-button").modaal('close');
+        }
+    </script>
+{% endblock menu_content %}

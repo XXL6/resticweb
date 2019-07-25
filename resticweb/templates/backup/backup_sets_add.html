@@ -1,0 +1,14 @@
+{% extends "backup/backup_sets.html" %}
+{% set active_menu = "backup_sets" %}
+{% block menu_content %}
+    <div class="property-select-form">
+        <form class="ub-form form-style-1" id="backup-set-select-form" method="POST">
+            <select class="form-control" name="backup-set-select">
+                {% for set, set_name in available_backup_sets %}
+                    <option value="{{ set }}">{{ set_name }}</option>
+                {% endfor %}
+            </select>
+            <input class="form-control" type="submit" value="Next" /> 
+        </form>            
+    </div>
+{% endblock menu_content %}

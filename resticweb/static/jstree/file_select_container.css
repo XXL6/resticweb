@@ -1,0 +1,32 @@
+.ub-file-select {
+    background: white;
+    /*max-width: 400px;*/
+    height: 300px;
+    color: black;
+    margin-top: 10px !important;
+    overflow: auto;
+    padding: 0px 0px 0px 0px !important;
+    /*border: 2px 2px 2px 2px;
+    border-style: solid;*/
+}
+
+button.destination-select-button {
+    background: #4B99AD;
+    width: 100px;
+    float: right;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    height: 100%;
+	padding: 8px 15px 8px 15px;
+    border: none;
+    border-radius: 0;
+	color: #fff;
+}
+
+button.destination-select-button:hover {
+    background: #4691A4;
+	box-shadow:none;
+	-moz-box-shadow:none;
+    -webkit-box-shadow:none;
+    cursor: pointer;
+}

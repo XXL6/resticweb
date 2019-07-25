@@ -1,0 +1,25 @@
+body {
+    /*background-color: #33353C;
+    color: #eeeeee;*/
+    height: 100%;
+}
+
+html, .container-fluid {
+    height: 100%;
+}
+
+html * {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+ul {
+    list-style-type: none;
+}
+
+.container {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+  }

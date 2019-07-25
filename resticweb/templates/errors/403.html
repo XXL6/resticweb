@@ -1,0 +1,9 @@
+{% extends "app_layout.html" %}
+{% block tab_content %}
+    <div style="white-space: nowrap">
+    <h1>Unauthorized access</h1>
+    <p>Unauthorized access. Method 'GET' or 'POST'
+    <p>may not have been specified for the flask route.
+    <p><a href="{{ url_for('main.home') }}">Home</a>
+    </div>
+{% endblock tab_content %}

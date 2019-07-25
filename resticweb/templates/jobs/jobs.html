@@ -1,0 +1,20 @@
+{% extends "app_layout.html" %}
+{% set active_tab = "jobs" %}
+{% set menu_list = [
+    (url_for('jobs.job_queue'), 'job_queue', 'Job Queue'),
+    (url_for('jobs.saved_jobs'), 'saved_jobs', 'Saved Jobs'),
+    (url_for('jobs.job_history'), 'job_history', 'Job History')
+] -%}
+{% from "menu_generator.html" import generate_menu, generate_sidebar %}
+{% block tab_content %}
+{{ generate_menu(menu_list, active_menu, 'Jobs') }}
+    <div class="flex-wrapper">
+        <div class="flex-col menu-content">
+            {% block menu_content %}
+            {% endblock menu_content %}
+            {#{{ render_flashed_messages() }}#}
+            {{ render_flashed_messages_snack() }}
+        </div>
+        {{ generate_sidebar() }}
+    </div>
+{% endblock tab_content %}

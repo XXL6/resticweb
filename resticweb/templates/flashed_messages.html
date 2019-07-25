@@ -1,0 +1,58 @@
+{# macro only really works well when there's only a single flashed message #}
+{% macro render_flashed_messages_snack2(sep=False) %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div id="snackbar" class="show {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            <script>
+                setTimeout(function() {
+                    $( "#snackbar" ).removeClass( "show" );
+                }, 6000);
+            </script>
+        {% endif %}
+    {% endwith %}
+{% endmacro %}
+
+{% macro render_flashed_messages_snack(sep=False) %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <script>
+            {% for category, message in messages %}
+                new Noty({ theme: 'relax', text: "{{message}}", animation: {open: 'animated slideInUp', close: 'animated fadeOut'}, layout: 'bottomCenter', type: '{{category}}' }).show();
+            {% endfor %}
+            </script>
+        {% endif %}
+    {% endwith %}
+{% endmacro %}
+
+
+{% macro render_flashed_messages(sep=False) %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+{% endmacro %}
+
+{% macro snackbar_script() %}
+    <div id="snackbar" class=""></div>
+    <script>
+    function renderSnackbar(message, category="info") {
+        var snackbar = $( "#snackbar" );
+        snackbar.html(message);
+        snackbar.removeClass(); // remove any previously added classes to prevent category conflicts
+        snackbar.addClass(category);
+        snackbar.addClass( "show" );
+        setTimeout(function() {
+            $( "#snackbar" ).removeClass( "show" );
+        }, 4000);
+    }
+    </script>
+{% endmacro %}

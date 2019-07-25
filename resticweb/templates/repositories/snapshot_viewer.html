@@ -1,0 +1,36 @@
+{% extends "repositories/repositories.html" %}
+{% set active_menu = "repository_list" %}
+{% from "menu_generator.html" import generate_action_menu, generate_sidebar %}
+{% from "list_generators.html" import item_select_script_table %}
+{#{% set action_menu_list = [
+    {'action_name': 'Forget', 'action': 'forget', 'icon': 'fas fa-trash', 'variant': '2'}
+]
+-%}#}
+{% block menu_content %}
+    <h4>Opened snapshot: {{snapshot_id}}</h4>
+    <label class="form-control-label">View Only</label>
+    <div class="ub-file-select">
+        <div id="file-selector" class="form-control"></div>
+    </div>
+    
+    <script>
+        $( function () { $("#file-selector").jstree({ 
+                'core' : {
+                    "multiple": false,
+                    "animation": 50,
+                    'data': JSON.parse({{node_list|tojson|safe}}),
+                    'themes': {
+                        'name': 'custom',
+                        'dots': true,
+                        'responsive': true,
+                        'stripes': true
+                    },
+                    'loaded_state': true
+                },
+                'plugins': [
+                    'wholerow'
+                ]
+        })
+        });
+    </script>
+{% endblock menu_content %}

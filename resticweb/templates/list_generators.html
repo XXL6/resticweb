@@ -1,0 +1,410 @@
+{% macro generate_credential_list(groups) %}
+    <ul class="list-group">
+        {% for group in groups %}
+            <li class="list-group-item" id="{{group['group_id']}}">
+                <div class="list-checkbox-div">
+                    {# autocomplete=off so that checkbox doesn't stay checked after refresh #}
+                    <input type="checkbox" class="list-checkbox" autocomplete="off" value="{{group['group_id']}}" id="{{group['group_id']}}-box">
+                </div>
+                <div class="list-content-group">
+                    <div class="list-content col-15">
+                        Service Name: {{ group['service_name'] }}<br>
+                        Service Id: {{ group['service_id'] }}<br>
+                        Description: {{ group['description'] }}
+                    </div>
+                    {# decided against displaying credentials directly in the list items for now
+                        {% for credential in group['credentials'] %}
+                            <div class="list-content col-md-10">
+                                {{credential.credential_role}}: {{credential.credential_data}}
+                            </div>
+                        {% endfor %}
+                    #}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+    {{ item_select_script('/system/credentials/_get_item_info') }}
+{% endmacro %}
+
+
+{% macro item_select_script(info_script_location) %}
+<script>
+    $( ".list-checkbox-div" ).css("display", "block");
+    $( ".list-content-group" ).click(function() {
+        var groupId = $(this).parent().attr("id");
+        // get the value of the clicked item's checkbox so we can check it
+        // when deciding whether to deselect it
+        var itemChecked = $( "#" + groupId + "-box" ).prop( "checked" )
+        deselectAllItems();
+        if (itemChecked)
+        {
+            $( "#" + groupId + "-box" ).prop( "checked", false );
+        } else {
+            $( "#" + groupId + "-box" ).prop( "checked", true );
+        }
+        $( "#" + groupId + "-box" ).change();
+    });
+
+    $( ".list-checkbox" ).change(function() {
+        var checkedItems = getCheckedItemIds();
+        if ($(this).prop( "checked" ) == true) {
+            if (checkedItems.length == 1) {
+                startLoader();
+                getItemInfo($(this).val());
+            } else {
+                emptySidebar();
+            }
+            // if checkbox checked, we highlight the item itself
+            $( ".list-group-item[id='" + $( this ).val() + "']" ).addClass( 'active' );
+        }
+        else  {
+            // if a single item remains selected, we want to populate its info in the sidebar
+            if (checkedItems.length == 1) {
+                startLoader();
+                getItemInfo(checkedItems[0]);
+            } else {
+                // if final item gets unchecked, we clean the sidebar
+                emptySidebar();
+            }
+            $( ".list-group-item[id='" + $( this ).val() + "']" ).removeClass( 'active' );
+        }
+
+        if (typeof displayActionMenuVariant === "function") {
+            switch (checkedItems.length) {
+                case 0: 
+                    displayActionMenuVariant(0);
+                    break;
+                case 1:
+                    displayActionMenuVariant(1);
+                    break;
+                default:
+                    displayActionMenuVariant(2);
+                    break;
+            }
+        }
+    });
+
+    /*  
+        hovers and mousedowns done in JS as I need the parent to get the property when hovering over one of the child elements
+        doesn't seem to be possible in pure CSS
+    */
+    $( ".list-content-group" ).hover(function() {
+        $( this ).parent().addClass( 'hover' );
+    }, function() {
+        $( this ).parent().removeClass( 'hover' );
+    });
+
+    /*  
+        following code is in case you want the list item to become a little smaller while being clicked
+        I decided against it for now as I think it looks a bit classier if it just changes color 
+    */
+    /*
+    $( ".list-content-group" ).mousedown(function() {
+        $( this ).parent().css( "transform", "scale(0.99)" );
+    });
+
+    $( ".list-content-group" ).mouseup(function() {
+        $( this ).parent().css( "transform", "scale(1)" );
+    });
+    */
+
+    function deselectAllItems() {
+        $( "input:checkbox" ).prop( "checked", false );
+        $( ".list-group-item" ).removeClass( 'active' );
+        //$( ".list-checkbox" ).change();
+    };
+
+    function getItemInfo(item_id) {
+        $.get($SCRIPT_ROOT + "{{info_script_location|safe}}", {
+                    id: item_id
+                }, function(data) {
+                    populateSidebar(data);
+                }
+            );
+    }
+
+    function getCheckedItemIds() {
+        var itemList = $( ".list-checkbox:checked" ).get();
+        var idList = [];
+        for (var i = 0; i < itemList.length; i++) {
+            idList.push(itemList[i].value);
+        }
+        return idList;
+    }
+
+    function hideSidebar() {
+        $( ".sidebar-container" ).css('height' , '0px');
+    }
+
+    function autoExpandSidebar() {
+        $( ".sidebar-container" ).css('height', '200px');
+        console.log($( ".sidebar-cointainer" ).css('height'));
+    }
+
+    function emptySidebar() {
+        $( ".sidebar-content" ).empty();
+        hideSidebar();
+    }
+
+    // clears the sidebar before adding any new information
+    function populateSidebar(data) {
+        $( ".sidebar-content" ).empty();
+        $( ".sidebar-content" ).append( data );
+        autoExpandSidebar();
+    }
+
+    function appendToSidebar(data) {
+        $( ".sidebar-content" ).append( data );
+    }
+
+    // spinny thing when item is checked while AJAX retrieves the info
+    function startLoader() {
+        $( ".sidebar-content" ).empty();
+        $( ".sidebar-content" ).append( "<div class='lds-dual-ring'></div>")
+        autoExpandSidebar();
+    }
+</script>
+{% endmacro %}
+
+{# updates items from a list based on their class name and id #}
+{# requirements for item updating:
+    the item must be under a general container with the incoming id.
+        ex: if updating things on a table data item, the table row
+        id must have the id of the incoming event source item
+    the item itself must have the id attribute be the same as one 
+    of the keys in the incoming dictionary so that it knows which item to 
+    actually update #}
+{% macro item_update_script(script_location) %}
+    <script type="text/javascript">
+        if (typeof(EventSource)!=="undefined") {
+            var eSource = new EventSource("{{ script_location|safe }}");
+            // event: 
+            //  id: id of the item to update, 
+            //  name: the id of the list-content to update,
+            //  data: the data to insert
+            eSource.onmessage = function(event) {
+                // data will contain a list of the rows that will need updating
+                var data = JSON.parse(event.data);
+                // get all items on screen
+                var visibleIds = getVisibleItemIds();
+                var i, j;
+                var tempList = [];
+                // create a temp list of just item ids we got from the server
+                for (i = 0; i < data.length; i++) {
+                    tempList.push(data[i]['id']);
+                }
+                // use the aforementioned temp list to see whether we have any items that are displayed, but are not
+                // actually on the server. We can remove those items
+                for (i = 0; i < visibleIds.length; i++) {
+                    if (tempList.indexOf(visibleIds[i]) < 0) {
+                        removeItem(visibleIds[i]);
+                    }
+                }
+                for (i = 0; i < data.length; i++) {
+                    // the following if statement checks if the item that we have gotten from the server
+                    // matches one of the items that are already on the screen so we can proceed with updating them
+                    if (visibleIds.indexOf(data[i]['id']) >= 0) {
+                        // find all the items that have a class of item-update under the specified row id
+                        toUpdate = $( "#" + data[i]['id'] + " .item-update" );
+                        var j;
+                        
+                        for (j = 0; j < toUpdate.length; j++) {
+                            if (toUpdate[j].classList.contains("item-update-value")) {
+                                toUpdate[j].value = data[i][toUpdate[j].getAttribute('data-id')];
+                            } else if (toUpdate[j].classList.contains("item-update-html")) {
+                                toUpdate[j].innerHTML = data[i][toUpdate[j].getAttribute('data-id')];
+                            } else if (toUpdate[j].classList.contains("item-update-progress")) {
+                                // right now there's a CSS spinner for items that are in the queue but do not have
+                                // a numeric progress value. If a progress value comes in through the event source,
+                                // then we want to replace the spinner with the progress bar, otherwise we just update
+                                // the progress bar with new value
+                                var progress_bar = $(".item-update-progress progress");
+                                if (progress_bar.length > 0 && !(isNaN(data[i]['progress'])) && data[i]['progress'] > 0) {
+                                    progress_bar[0].value = data[i]['progress'];
+                                } else if (progress_bar.length == 0 && !(isNaN(data[i]['progress'])) && data[i]['progress'] > 0) {
+                                    toUpdate[j].innerHTML = '<progress class="custom-progress" max="100" value="' + data[i]['progress'] + '"></progress>';
+                                } else if (data[i]['progress'] < 0) {
+                                    toUpdate[j].innerHTML = "";
+                                } else if (toUpdate[j].innerHTML != '<div class="lds-dual-ring-small"></div>') {
+                                    toUpdate[j].innerHTML = '<div class="lds-dual-ring-small"></div>';
+                                }
+                            }
+                        }
+                    } else {
+                        addNewItem(data[i]);
+                    }
+                }
+            };
+        }
+    </script>
+{% endmacro %}
+
+{# virtually the same as the macro 'item_update_script' except this one is smaller 
+as it's just concerned with one of a kind items in the document. Basically it's for anything
+else to update that's not a table. #}
+{% macro misc_update_script(script_location) %}
+    <script type="text/javascript">
+        if (typeof(EventSource)!=="undefined") {
+            var misc_source = new EventSource("{{ script_location|safe }}");
+            misc_source.onmessage = function(event) {
+                var data = JSON.parse(event.data);
+                // get all items on screen
+                var id = data['id'];
+                var tempList = [];
+                toUpdate = $(".misc-update " + "[data-id=" + id + "]" + " .item-update" );
+                var j;
+                for (j = 0; j < toUpdate.length; j++) {
+                    if (toUpdate[j].classList.contains("item-update-value")) {
+                        toUpdate[j].value = data[toUpdate[j].getAttribute('data-id')];
+                    } else if (toUpdate[j].classList.contains("item-update-html")) {
+                        toUpdate[j].innerHTML = data[toUpdate[j].getAttribute('data-id')];
+                    }
+                }
+            }
+        };
+    </script>
+{% endmacro %}
+
+{% macro item_select_script_table(info_script_location) %}
+    <script>
+        $( ".table-checkbox-div" ).css("display", "block");
+        // when any table cell that is not a checkbox cell gets
+        // clicked, we want to check its corresponding checkbox and
+        // deselect other items.
+
+        /*
+            If an anchor within table gets clicked, we do not want to select
+            that row as chances are the anchor is going to lead to another 
+            page or something so no need for extra processing.
+        */
+        $(document).on('click', '.ub-table-anchor', function(e) {
+            e.stopPropagation();
+        });
+
+        $(document).on('click', '.table-data-item', function() {
+            var groupId = $(this).parent().attr("id");
+            // get the value of the clicked item's checkbox so we can check it
+            // when deciding whether to deselect it
+            //var itemChecked = $( "#" + groupId + "-box" ).prop( "checked" );
+            deselectAllItems();
+            // following code can be uncommented so that item cannot be reselected
+            // that will cause an item to not be selected if it's clicked and other
+            // items are selected at the same time
+            /*if (itemChecked)
+            {
+                $( "#" + groupId + "-box" ).prop( "checked", false );
+            } else {
+                $( "#" + groupId + "-box" ).prop( "checked", true );
+            }*/
+            $( "#" + groupId + "-box" ).prop( "checked", true );
+            $( "#" + groupId + "-box" ).change();
+        });
+
+        $(document).on('mouseover', '.table-data-item', function() {
+            $( this ).parent().addClass( 'hover' );
+        });
+
+        $(document).on('mouseout', '.table-data-item', function() {
+            $( this ).parent().removeClass( 'hover' );
+        });
+
+        $(document).on('change', '.table-checkbox', function() {
+            var checkedItems = getCheckedItemIds();
+            if ($(this).prop( "checked" ) == true) {
+                if (checkedItems.length == 1) {
+                    startLoader();
+                    getItemInfo($(this).val());
+                } else {
+                    emptySidebar();
+                }
+                // if checkbox checked, we highlight the item itself
+                $( ".ub-table-data-row[id='" + $( this ).val() + "']" ).addClass( 'active' );
+            }
+            else  {
+                // if a single item remains selected, we want to populate its info in the sidebar
+                if (checkedItems.length == 1) {
+                    startLoader();
+                    getItemInfo(checkedItems[0]);
+                } else {
+                    // if final item gets unchecked, we clean the sidebar
+                    emptySidebar();
+                }
+                $( ".ub-table-data-row[id='" + $( this ).val() + "']" ).removeClass( 'active' );
+            }
+
+            if (typeof displayActionMenuVariant === "function") {
+                switch (checkedItems.length) {
+                    case 0: 
+                        displayActionMenuVariant(0);
+                        break;
+                    case 1:
+                        displayActionMenuVariant(1);
+                        break;
+                    default:
+                        displayActionMenuVariant(2);
+                        break;
+                }
+            }
+        }); 
+
+        function deselectAllItems() {
+            $( "input:checkbox" ).prop( "checked", false );
+            $( ".ub-table-data-row" ).removeClass( 'active' );
+            //$( ".table-checkbox" ).change();
+        };
+
+        function getItemInfo(item_id) {
+            $.get($SCRIPT_ROOT + "{{info_script_location|safe}}", {
+                        id: item_id
+                    }, function(data) {
+                        populateSidebar(data);
+                    }
+                );
+        } 
+
+        function getCheckedItemIds() {
+            var itemList = $( ".table-checkbox:checked" ).get();
+            var idList = [];
+            for (var i = 0; i < itemList.length; i++) {
+                idList.push(itemList[i].value);
+            }
+            return idList;
+        }
+
+        function hideSidebar() {
+            $( ".sidebar-container" ).css('display', 'none');
+            $( ".menu-content" ).css('height', '100%');
+        }
+
+        function autoExpandSidebar() {
+            if ($( ".sidebar-container" ).css('display') != 'block') {
+                $( ".menu-content" ).css('height', '50%');
+            }
+            $( ".sidebar-container" ).css('display', 'block');
+        }
+
+        function emptySidebar() {
+            $( ".sidebar-content" ).empty();
+            hideSidebar();
+        }
+
+        // clears the sidebar before adding any new information
+        function populateSidebar(data) {
+            $( ".sidebar-content" ).empty();
+            $( ".sidebar-content" ).append( data );
+            autoExpandSidebar();
+        }
+
+        function appendToSidebar(data) {
+            $( ".sidebar-content" ).append( data );
+        }
+
+        // spinny thing when item is checked while AJAX retrieves the info
+        function startLoader() {
+            $( ".sidebar-content" ).empty();
+            //$( ".sidebar-content" ).append( "<div class='lds-dual-ring'></div>")
+            $( ".sidebar-content" ).append( '<div class="lds-spin" style="width:100%;height:100%"><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div>');
+            autoExpandSidebar();
+        }
+    </script>
+{% endmacro %}

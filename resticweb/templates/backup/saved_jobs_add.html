@@ -1,0 +1,66 @@
+{% extends "backup/saved_jobs.html" %}
+{% set active_menu = "saved_jobs" %}
+{% block menu_content %}
+
+    <form class="ub-form form-style-1" method="POST" action="" enctype="multipart/form-data"><!-- enctype required for images or something -->
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group-fieldset">
+            <legend class="border-bottom">General Backup Job Attributes</legend>
+            <div class="form-group">
+                {{ form.internal_name.label(class="form-control-label") }}
+                {% if form.internal_name.errors %}
+                {{ form.internal_name(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.internal_name.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.internal_name(class="form-control input-field") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.description.label(class="form-control-label") }}
+                {% if form.description.errors %}
+                {{ form.description(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.description.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.description(class="form-control input-field") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.backup_set.label(class="form-control-label") }}
+                {% if form.backup_set.errors %}
+                {{ form.backup_set(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.backup_set.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.backup_set(class="form-control input-field") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.repository.label(class="form-control-label") }}
+                {% if form.repository.errors %}
+                {{ form.repository(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.repository.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.repository(class="form-control input-field") }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="form-control input-field") }}
+        </div>
+    </form>
+{% endblock menu_content %}

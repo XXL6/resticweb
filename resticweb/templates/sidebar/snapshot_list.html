@@ -1,0 +1,36 @@
+<table class="sidebar-info-table">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Parameter Data</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Snapshot Id</td>
+            <td>{{ info_dict['snap_id'] }}</td>
+        </tr>
+        <tr>
+            <td>Snapshot Time</td>
+            <td>{{ info_dict['snap_time'] }}</td>
+        </tr>
+        <tr>
+            <td>Hostname</td>
+            <td>{{ info_dict['hostname'] }}</td>
+        </tr>
+        <tr>
+            <td>Username</td>
+            <td>{{ info_dict['username'] }}</td>
+        </tr>
+        <tr>
+            <td>Tree</td>
+            <td>{{ info_dict['tree'] }}</td>
+        </tr>
+    </tbody>
+</table>
+<h2>Snapshot Paths</h2>
+<ul>
+    {% for item in info_dict['paths'] %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>

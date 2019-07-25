@@ -1,0 +1,15 @@
+{% extends "jobs/saved_jobs.html" %}
+{% set active_menu = "saved_jobs" %}
+{% block menu_content %}
+    <span>Choose Job Type</span>
+    <div class="property-select-form">
+        <form class="ub-form form-style-1" id="job-class-select-form" method="POST">
+            <select class="form-control" name="job-class-select">
+                {% for class, class_name in available_engine_classes %}
+                    <option value="{{ class }}">{{ class_name }}</option>
+                {% endfor %}
+            </select>
+            <input class="form-control" type="submit" value="Next" /> 
+        </form>            
+    </div>
+{% endblock menu_content %}

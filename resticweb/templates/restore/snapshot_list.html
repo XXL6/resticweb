@@ -1,0 +1,29 @@
+{% extends "restore/restore.html" %}
+{% set active_menu = "repositories" %}
+{% from "menu_generator.html" import generate_action_menu, generate_sidebar %}
+{% from "list_generators.html" import item_select_script_table %}
+{% block menu_content %}
+    <h4>Opened repository: {{repository_name}}</h4>
+    <table class="ub-table" id="snapshot-table">
+        <tr class="ub-table-header-row">
+            <th class="ub-table-header-item table-col-05">Check</th>
+            <th class="ub-table-header-item table-col-1">Snap Id</th>
+            <th class="ub-table-header-item table-col-2">Snap Time</th>
+            <th class="ub-table-header-item table-col-2">Hostname</th>
+        </tr>
+        {% for snapshot in snapshots %}
+            <tr class="ub-table-data-row" id="{{ snapshot['snap_id'] }}">
+                <td class="ub-table-data table-col-05 table-checkbox-div">
+                    <input type="checkbox" class="table-checkbox list-checkbox" autocomplete="off" value="{{snapshot['snap_id']}}" id="{{snapshot['snap_id']}}-box">
+                </td>
+                <td class="ub-table-data table-data-item">
+                    <a href="{{ url_for('restore.snapshot_list', snapshot_id=snapshot['snap_id']) }}" class="ub-table-anchor">{{ snapshot['snap_short_id'] }}</a>
+                </td>
+                <td class="ub-table-data table-data-item">{{ snapshot['snap_time'] }}</td>
+                <td class="ub-table-data table-data-item">{{ snapshot['hostname'] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    {{ item_select_script_table('/repositories/repository_list/_get_snapshot_info') }}
+    
+{% endblock menu_content %}

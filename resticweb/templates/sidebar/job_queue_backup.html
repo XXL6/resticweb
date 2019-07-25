@@ -1,0 +1,54 @@
+{% from "list_generators.html" import misc_update_script %}
+
+{{ misc_update_script('/jobs/job_queue/_update_job_info/' + info_dict['id']|string) }}
+
+<table class="sidebar-info-table misc-update">
+    <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Parameter Data</th>
+        </tr>
+    </thead>
+    <tbody data-id="{{info_dict['id']}}">
+        <tr>
+            <td>Job Id</td>
+            <td>{{ info_dict['id'] }}</td>
+        </tr>
+        <tr>
+            <td>Name</td>
+            <td>{{info_dict['name']}}</td>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td class="item-update item-update-html" data-id="status">{{info_dict['status']}}</td>
+        </tr>
+        <tr>
+            <td>Total Files</td>
+            <td class="item-update item-update-html" data-id="total_files">{{info_dict['total_files']}}</td>
+        </tr>
+        <tr>
+            <td>Files Done</td>
+            <td class="item-update item-update-html" data-id="files_done">{{info_dict['files_done']}}</td>
+        </tr>
+        <tr>
+            <td>Total Bytes</td>
+            <td class="item-update item-update-html" data-id="total_bytes">{{info_dict['total_bytes']}}</td>
+        </tr>
+        <tr>
+            <td>Bytes Done</td>
+            <td class="item-update item-update-html" data-id="bytes_done">{{info_dict['bytes_done']}}</td>
+        </tr>
+        <tr>
+            <td>Current Files</td>
+            <td class="item-update item-update-html" data-id="current_files">{{info_dict['current_files']}}</td>
+        </tr>
+        <tr>
+            <td>Seconds Elapsed</td>
+            <td class="item-update item-update-html" data-id="seconds_elapsed">{{info_dict['seconds_elapsed']}}</td>
+        </tr>
+        <tr>
+            <td>Seconds Remaining</td>
+            <td class="item-update item-update-html" data-id="seconds_remaining">{{info_dict['seconds_remaining']}}</td>
+        </tr>
+    </tbody>
+</table>

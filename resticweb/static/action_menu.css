@@ -1,0 +1,151 @@
+.action-menu {
+    width:100%;
+    position: sticky;
+    top: 0;
+    border-bottom-style: solid;
+    border-bottom-width: 3px;
+    /*max-height: 100px;
+    min-height: 50px;*/
+    height: 50px;
+    overflow: hidden;
+    z-index: 2;
+    background-color: inherit;
+}
+
+.action-menu-item-list {
+    width: 100%;
+    height: 100%;
+    padding-left: 0px;
+    margin: 0px 0px 0px 0px;
+    display: grid;
+    grid-template-columns: repeat(60, 1fr);
+}
+
+
+.action-menu-item {
+    position: relative;
+    grid-column: span 6;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.action-menu-button {
+        /*background-color: DodgerBlue; /* Blue background */
+        background-color: transparent;
+        border: 2px solid; /* Remove borders */
+        padding: 12px 4px; /* Some padding */
+        font-size: 16px; /* Set a font size */
+        width: 95%;
+}
+
+@media screen and (max-width: 1400px) {
+
+    .action-menu-item-list {
+        grid-template-columns: repeat(48, 1fr);
+    }
+}
+
+@media screen and (max-width: 1111px) {
+    .action-menu-item-list {
+        grid-template-columns: repeat(40, 1fr);
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .action-menu-item-list {
+        grid-template-columns: repeat(40, 1fr);
+    }
+
+    .action-menu-button > .button-text {
+        display: none;
+    }
+}
+
+.action-menu-button:hover {
+    cursor: pointer;
+}
+
+.action-menu-button:active {
+    transform: scale(0.95);
+}
+
+.action-menu-button:disabled {
+    cursor: default;
+}
+
+.action-menu-button:disabled:active {
+    transform: none;
+}
+
+/* ------------------------------ */
+/* pagination */  
+/* paging stylesheet found on https://codepen.io/ElmiraMukhamedjanova/pen/XGazrK */
+  .pager {
+    margin: 0 0 3.75rem;
+    font-size: 0;
+    text-align: center;
+  }
+  .pager_item {
+    display: inline-block;
+    vertical-align: top;
+    font-size: 1.125rem;
+    font-weight: bold;
+    margin: 0 2px;
+  }
+  .pager_item.active .pager_link {
+    text-decoration: none;
+  }
+  .pager_item--prev svg, .pager_item--next svg {
+    width: 8px;
+    height: 12px;
+  }
+  .pager_item--next .pager_link svg {
+    -webkit-transform: rotate(180deg);
+            transform: rotate(180deg);
+    -webkit-transform-origin: center center;
+            transform-origin: center center;
+  }
+  .pager_link {
+    position: relative;
+    border-radius: 4px;
+    display: block;
+    text-align: center;
+    width: 1.625rem;
+    height: 1.625rem;
+    line-height: 1.625rem;
+    margin-left: -1px;
+    text-decoration: none;
+    transition: 0.3s;
+  }
+  .pager_link:hover, .pager_link:focus, .pager_link:active {
+    text-decoration: none;
+  }
+  
+  @media screen and (max-width: 576px) {
+    .pager_item {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+    .pager_item.active, .pager_item:first-of-type, .pager_item:last-of-type, .pager_item:nth-of-type(2), .pager_item:nth-last-of-type(2) {
+      position: initial;
+      top: initial;
+      left: initial;
+    }
+    .pager_item.active + li {
+      position: initial;
+      top: initial;
+      left: initial;
+    }
+  }
+
+li.pagination {
+    grid-column: -1;
+    float: right;
+    position: static;
+}
+
+.pager_label {
+    float: left;
+    margin-top: 2%;
+}

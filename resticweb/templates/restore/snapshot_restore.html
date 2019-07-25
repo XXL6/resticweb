@@ -1,0 +1,142 @@
+{% extends "restore/restore.html" %}
+{% set active_menu = "repositories" %}
+{% from "menu_generator.html" import generate_action_menu, generate_sidebar %}
+{% from "list_generators.html" import item_select_script_table %}
+{% block menu_content %}
+    <h4>Opened snapshot: {{snapshot_id}}</h4>
+    <form class="ub-form form-style-1" method="POST" action="" enctype="multipart/form-data"><!-- enctype required for images or something -->
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom">File/Folder Restore</legend>
+            <label class="form-control-label">File/Folder select</label>
+            <div class="ub-file-select">
+                <div id="file-selector" class="form-control"></div>
+            </div>
+            <div class="form-group">
+                {{ form.destination.label(class="form-control-label") }}
+                <div class="path-input-div">
+                    {% if form.destination.errors %}
+                    {{ form.destination(class="form-control is-invalid path-input-data") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.destination.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    {{ form.destination(class="form-control path-input-data") }}
+                    {% endif %}
+                    <button class="path-input-button" value="Test" href="#destination-select-modal">
+                        <i class="fas fa-folder-open">Browse</i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.file_data(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.submit(class="form-control") }}
+            </div> 
+        </fieldset>
+    </form>
+    <div id="destination-select-modal" style="display: none">
+        <div class="ub-file-select">
+            <div id="destination-selector" class="form-control"></div>
+        </div>
+        <div>
+            <button class="destination-select-button" onclick=addDestinationValue()>Ok</button>
+        </div> 
+    </div>
+    <script>
+        $( function () { 
+            $("#file-selector").jstree({ 
+                'core' : {
+                    "animation": 50,
+                    'data': JSON.parse({{node_list|tojson|safe}}),
+                    'themes': {
+                        'name': 'custom',
+                        'dots': 'true',
+                        'responsive': 'true',
+                        'stripes': 'false'
+                    },
+                    'loaded_state': true
+                },
+                'plugins': [
+                    'checkbox', 'wholerow'
+                ],
+                'checkbox': {
+                    //"keep_selected_style": false,
+                    'three_state': true,
+                    "tie_selection": false,
+                    "whole_node": false
+                }
+            });
+        });
+
+        $(function () {
+            $("#destination-selector").jstree({
+                'core': {
+                    "multiple": false,
+                    "animation": 50,
+                    'data': {
+                        'url': $SCRIPT_ROOT + "/restore/repositories/_get_directory_listing",
+                        'data': function (node) {
+                            return {
+                                'id': node.id,
+                                'path': $("#destination-selector").jstree().get_path(node.id, "/") + "/"
+                            }
+                        },
+                        'dataType': 'json',
+                        'error': function (data) {
+                            new Noty({ theme: 'relax', timeout: 5000, progressBar: true, closeWith: ['click', 'button'], animation: {open: 'animated slideInUp', close: 'animated fadeOut'}, text: data.responseJSON.errormsg, layout: 'bottomCenter', type: 'error' }).show();
+                        }
+                    },
+                    'themes': {
+                        'name': 'custom',
+                        'dots': 'true',
+                        'responsive': 'true',
+                        'stripes': 'false'
+                    },
+                    'loaded_state': true
+                },
+                'plugins': [
+                    'wholerow'
+                ]
+            });
+        });
+        $(function () {
+            $(".path-input-button").modaal();
+        });
+
+        function addDestinationValue() {
+            var tree_object = $("#destination-selector").jstree();
+            var selected_path = ""
+            try {
+                selected_path = "/" + tree_object.get_path(tree_object.get_selected()[0], "/");
+            } catch(err) {
+                selected_path = ""
+            }
+
+            document.getElementById("destination").value = selected_path;
+            $(".path-input-button").modaal('close');
+        }
+
+        $(function () {
+            $('form').submit(function () {
+                var tree_object = $("#file-selector").jstree();
+                // if the snapshot root node is selected, we'll restore the whole snapshot
+                if (tree_object.is_checked("snapshot_root")) {
+                    document.getElementById('file_data').value = "full_snapshot";
+                } else {
+                    var temp_list = tree_object.get_top_checked(true);
+                    var file_list = []
+                    temp_list.forEach(function (element) {
+                        var temp = tree_object.get_path(element.id).slice(1);
+                        file_list.push(temp.join("/"));
+                    });
+                    document.getElementById('file_data').value = JSON.stringify(file_list);
+                }
+            });
+        });
+
+    </script>
+{% endblock menu_content %}
