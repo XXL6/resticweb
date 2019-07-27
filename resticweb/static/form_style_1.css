@@ -158,12 +158,13 @@ fieldset {
     cursor: pointer;
 }
 
-#exclude-item-button {
+.form-style-1 input[type=button].exclude-button {
     float: left;
     height: 25px;
+    width: 120px;
     background-color: rgba(177, 92, 61, 0.692);
 }
 
-#exclude-item-button:hover {
+.form-style-1 input[type=button].exclude-button:hover {
     background-color: rgba(131, 68, 45, 0.692);
 }

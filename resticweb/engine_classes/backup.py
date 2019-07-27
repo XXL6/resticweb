@@ -101,10 +101,11 @@ class Backup(RVProcess):
                 line = self.clean_json_string(line)
                 line = json.loads(line)
             except ValueError as e:
-                self.log(f"Message: {line}")
+                if len(line) > 0:
+                    self.log(f"Restic: {line}")
                 return
             except Exception as e:
-                self.log(f"An exception occured trying to parse a string to json: {e}")
+                self.log(f"A non ValueError exception occured trying to parse a string to json: {e}")
                 self.log(f'TRACE: {traceback.format_exc()}')
                 self.log(line)
                 return
@@ -180,7 +181,7 @@ class Backup(RVProcess):
                 self.log(f'Exception while creating the file list: {e}')
                 self.status('error')
                 self.terminate()
-            exclusion_file_list_name = f'exclusion_file_list_{i}'
+            exclusion_file_list_name = full_path
             break
         if exclusion_file_list_name:
             return exclusion_file_list_name

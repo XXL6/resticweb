@@ -31,7 +31,10 @@
                 {{ form.submit(class="form-control") }}
             </div>
             <div class="form-group">
-                <input id="exclude-item-button" type="button" onclick="addExclusion()" value="Exclude Item">
+                <input class="exclude-button" id="exclude-item-button" type="button" onclick="addExclusion()" value="Exclude Item">
+            </div>
+            <div class="form-group">
+                <input class="exclude-button" id="exclude-item-button-custom" type="button" onclick="addExclusionCustom()" value="Exclude Custom">
             </div>
             <table id="exclusion-table" class="ub-table">
                 <caption>Excluded items</caption>
@@ -96,23 +99,34 @@
         function addExclusion() {
             var selectedArray = $("#file-selector").jstree().get_selected();
             var i;
-            var table = document.getElementById("exclusion-table").getElementsByTagName('tbody')[0];
             for (i = 0; i < selectedArray.length; i++)
             {
                 var duplicateRow = document.getElementById(selectedArray[i] + "-row");
                 if (!duplicateRow) {
                     var pathToAdd = $("#file-selector").jstree().get_path(selectedArray[i], "/");
-                    var row = table.insertRow(-1);
-                    row.classList.add("ub-table-data-row");
-                    row.id = selectedArray[i] + "-row";
-                    var cell1 = row.insertCell(0);
-                    var cell2 = row.insertCell(1);
-                    cell1.innerHTML = '<button class="ub-table-button-remove" onclick="removeTableExclusion(this.value)" value="' + selectedArray[i] + '" id="' + selectedArray[i] + '-button"><i class="fa fa-times-circle"></i></button>';
-                    cell2.innerHTML = pathToAdd;
-                    cell1.classList.add("ub-table-data");
-                    cell2.classList.add("ub-table-data");
-                    cell2.classList.add("table-data-item");
+                    addToTable(pathToAdd, selectedArray[i]);
                 }
+            }
+        }
+
+        function addToTable(path, id) {
+            var table = document.getElementById("exclusion-table").getElementsByTagName('tbody')[0];
+            var row = table.insertRow(-1);
+            row.classList.add("ub-table-data-row");
+            row.id = id + "-row";
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            cell1.innerHTML = '<button class="ub-table-button-remove" onclick="removeTableExclusion(this.value)" value="' + id + '" id="' + id + '-button"><i class="fa fa-times-circle"></i></button>';
+            cell2.innerHTML = path;
+            cell1.classList.add("ub-table-data");
+            cell2.classList.add("ub-table-data");
+            cell2.classList.add("table-data-item");
+        }
+
+        function addExclusionCustom() {
+            exclusion_input = prompt("Enter the custom exclusion filter.");
+            if (exclusion_input) {
+                addToTable(exclusion_input, exclusion_input.replace(/ /g, ''));
             }
         }
 
