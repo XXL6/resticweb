@@ -325,8 +325,12 @@ def get_history_info():
     if info_dict.result:
         try:
             info_dict.result = json.loads(info_dict.result)
-            info_dict.result['data_added'] = humanize.naturalsize(info_dict.result.get('data_added'), binary=True)
-            info_dict.result['total_bytes_processed'] = humanize.naturalsize(info_dict.result.get('total_bytes_processed'), binary=True)
+            if info_dict.result:
+                try:
+                    info_dict.result['data_added'] = humanize.naturalsize(info_dict.result.get('data_added'), binary=True)
+                    info_dict.result['total_bytes_processed'] = humanize.naturalsize(info_dict.result.get('total_bytes_processed'), binary=True)
+                except Exception:
+                    pass
         except json.decoder.JSONDecodeError:
             pass
     return render_template('sidebar/job_history_backup.html', info_dict=info_dict)
