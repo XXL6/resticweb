@@ -160,7 +160,7 @@ def get_saved_job_info():
             if param.param_name == 'repository':
                 repository = Repository.query.filter_by(id=param.param_value).first()
         if repository:
-            info_dict['repository'] = repository.internal_name
+            info_dict['repository'] = repository.name
         else:
             info_dict['repository'] = "undefined"
         return render_template('sidebar/saved_jobs_check.html', info_dict=info_dict)
@@ -230,7 +230,7 @@ def add_saved_job_check():
     form.repository.choices = available_repositories
     if form.validate_on_submit():
         new_info = dict(
-            name=form.internal_name.data,
+            name=form.name.data,
             notes=form.description.data,
             engine_class=engine_class,
             params=dict(repository=form.repository.data)
@@ -249,7 +249,7 @@ def edit_saved_job_check(saved_job):
     form.saved_job_id.data = saved_job.id
     if form.validate_on_submit():
         new_info = dict(
-            name=form.internal_name.data,
+            name=form.name.data,
             notes=form.description.data,
             params=dict(repository=form.repository.data),
             saved_job_id=form.saved_job_id.data
@@ -263,7 +263,7 @@ def edit_saved_job_check(saved_job):
                 form.repository.default = param.param_value
                 form.process()
         form.description.data = saved_job.notes
-        form.internal_name.data = saved_job.name
+        form.name.data = saved_job.name
         form.saved_job_id.data = saved_job.id
     return render_template("jobs/saved_jobs_add_check.html", form=form)
 
@@ -276,7 +276,7 @@ def add_saved_job_prune():
     form.repository.choices = available_repositories
     if form.validate_on_submit():
         new_info = dict(
-            name=form.internal_name.data,
+            name=form.name.data,
             notes=form.description.data,
             engine_class=engine_class,
             params=dict(repository=form.repository.data)
@@ -295,7 +295,7 @@ def edit_saved_job_prune(saved_job):
     form.saved_job_id.data = saved_job.id
     if form.validate_on_submit():
         new_info = dict(
-            name=form.internal_name.data,
+            name=form.name.data,
             notes=form.description.data,
             params=dict(repository=form.repository.data),
             saved_job_id=form.saved_job_id.data
@@ -309,7 +309,7 @@ def edit_saved_job_prune(saved_job):
                 form.repository.default = param.param_value
                 form.process()
         form.description.data = saved_job.notes
-        form.internal_name.data = saved_job.name
+        form.name.data = saved_job.name
         form.saved_job_id.data = saved_job.id
     return render_template("jobs/saved_jobs_add_prune.html", form=form)
 

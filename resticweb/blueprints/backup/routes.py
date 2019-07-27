@@ -75,13 +75,13 @@ def add_saved_job():
     form.backup_set.choices = available_backup_sets
     if form.validate_on_submit():
         new_info = dict(
-            name=form.internal_name.data,
+            name=form.name.data,
             notes=form.description.data,
             engine_class=engine_class)
         param_dict = {}
         credential_dict = {}
         for item in form:
-            if item.id != 'csrf_token' and item.id != 'submit' and item.id != 'internal_name' and item.id != 'description':
+            if item.id != 'csrf_token' and item.id != 'submit' and item.id != 'name' and item.id != 'description':
                 if item.type == 'UBCredentialField':
                     credential_dict[item.id] = item.data
                 else:
@@ -113,7 +113,7 @@ def edit_saved_job_backup(saved_job):
     form.saved_job_id.data = saved_job.id
     if form.validate_on_submit():
         new_info = dict(
-            name=form.internal_name.data,
+            name=form.name.data,
             notes=form.description.data,
             params=dict(repository=form.repository.data, backup_set=form.backup_set.data),
             saved_job_id=form.saved_job_id.data
@@ -129,7 +129,7 @@ def edit_saved_job_backup(saved_job):
                 form.backup_set.default = param.param_value
         form.process()
         form.description.data = saved_job.notes
-        form.internal_name.data = saved_job.name
+        form.name.data = saved_job.name
         form.saved_job_id.data = saved_job.id
     return render_template("backup/saved_jobs_add.html", form=form)
 

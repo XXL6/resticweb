@@ -98,24 +98,20 @@ def update_backup_set(data):
             current_set.source = data['source']
         current_set.data = display_state
         if platform.system() == 'Windows':
-            remove_trailing_slash = True
-        else:
-            remove_trailing_slash = False
-        for backup_object in backup_object_list:
-            if remove_trailing_slash:
-                backup_object = backup_object[:1] + backup_object[2:]
-            existing_backup_object = session.query(BackupObject).filter_by(backup_set_id=current_set.id, data=backup_object).first()
-            if not existing_backup_object:
-                new_backup_object = BackupObject(
-                    data=backup_object,
-                    backup_set_id=current_set.id)
-                session.add(new_backup_object)
+            backup_object_list[:] = [backup_object[:1] + backup_object[2:] for backup_object in backup_object_list]
         existing_backup_object_list = session.query(BackupObject).filter_by(backup_set_id=current_set.id)
         for existing_backup_object in existing_backup_object_list:
             try:
                 backup_object_list.index(existing_backup_object.data)
             except ValueError:
                 session.delete(existing_backup_object)
+        for backup_object in backup_object_list:
+            existing_backup_object = session.query(BackupObject).filter_by(backup_set_id=current_set.id, data=backup_object).first()
+            if not existing_backup_object:
+                new_backup_object = BackupObject(
+                    data=backup_object,
+                    backup_set_id=current_set.id)
+                session.add(new_backup_object)
         session.commit()
 
 

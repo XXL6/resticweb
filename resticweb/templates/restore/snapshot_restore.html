@@ -37,6 +37,8 @@
                 {{ form.submit(class="form-control") }}
             </div> 
         </fieldset>
+        <h4><span style="color: red">Note:</span>Do not explicitly select files/folders that have square brackets in their name as Restic seems to have trouble parsing those from an --include filter</h4>
+        <h4>ie.: only select the parent folder of the file/folder with square brackets.</h4>
     </form>
     <div id="destination-select-modal" style="display: none">
         <div class="ub-file-select">

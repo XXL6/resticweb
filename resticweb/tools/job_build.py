@@ -6,6 +6,7 @@ from resticweb.misc.credential_manager import credential_manager
 from resticweb.engine_classes.class_name_map import get_class_from_name
 import resticweb.tools.job_callbacks as job_callbacks
 from resticweb.dictionary.resticweb_variables import Config
+from resticweb.interfaces.repository_list import get_formatted_repository_interface_from_id
 
 # this class is meant to consolidate all job creation into one class.
 # job parameters get passed in via the parameters argument and are used
@@ -60,74 +61,58 @@ class JobBuilder():
             return
 
     def construct_job_object_backup(self):
+        repository = get_formatted_repository_interface_from_id(self.parameter_dictionary['repository'])
+        if not repository:
+            raise Exception("Invalid repository or repository has been deleted")
         with LocalSession() as session:
-            repository = session.query(Repository).filter_by(id=self.parameter_dictionary['repository']).first()
-            if not repository:
-                raise Exception("Invalid repository or repository has been deleted")
-            repo_address = repository.address
             backup_objects = session.query(BackupObject).filter_by(backup_set_id=self.parameter_dictionary['backup_set'])
             if not backup_objects:
                 raise Exception("Backup set has been deleted or the backup is empty")
             object_list = [bak_object.data for bak_object in backup_objects]
-        repo_password = credential_manager.get_group_credentials(repository.credential_group_id).get('repo_password')
-        process_object = self.job_class(address=repo_address, repo_password=repo_password, object_list=object_list, engine_location=Config.ENGINE_COMMAND)
+        process_object = self.job_class(repository=repository, object_list=object_list)
         self.job_object = job_tools.JobObject(name=self.job_name, process=process_object)
 
     def construct_job_object_repository(self):
-        process_object = self.job_class(address=self.parameter_dictionary['address'],
-                                        repo_password=self.parameter_dictionary['repo_password'],
-                                        field_dict=self.parameter_dictionary['field_dict'],
-                                        engine_location=Config.ENGINE_COMMAND)
+        from resticweb.interfaces.repository import ResticRepository
+        repository_interface = ResticRepository(self.parameter_dictionary['address'], self.parameter_dictionary['repo_password'], self.parameter_dictionary.get('global_credentials'))
+        process_object = self.job_class(repository=repository_interface, field_dict=self.parameter_dictionary.get('field_dict'))
         self.job_object = job_tools.JobObject(name=self.job_name, process=process_object)
         self.job_object.success_callback = job_callbacks.repository_add_to_db
 
     def construct_job_object_restore(self):
-        repo_password = credential_manager.get_group_credentials(self.parameter_dictionary['repository'].credential_group_id).get('repo_password')
-        repo_address = self.parameter_dictionary['repository'].address
-        process_object = self.job_class(repo_address=repo_address,
-                                        repo_password=repo_password,
+        repository = get_formatted_repository_interface_from_id(self.parameter_dictionary['repository'].id)
+        process_object = self.job_class(repository=repository,
                                         destination_address=self.parameter_dictionary['destination_address'],
-                                        engine_location=Config.ENGINE_COMMAND,
                                         object_list=self.parameter_dictionary.get('object_list'),
                                         snapshot_id=self.parameter_dictionary['snapshot_id'])
         self.job_object = job_tools.JobObject(name=self.job_name, process=process_object)
 
     def construct_job_object_forget(self):
-        with LocalSession() as session:
-            repository = session.query(Repository).filter_by(id=self.parameter_dictionary['repository']).first()
-            if not repository:
-                raise Exception("Invalid repository or repository has been deleted")
-            repo_address = repository.address
-        repo_password = credential_manager.get_group_credentials(repository.credential_group_id).get('repo_password')
-        process_object = self.job_class(address=repo_address, repo_password=repo_password, engine_location=Config.ENGINE_COMMAND, snapshot_id=self.parameter_dictionary['snapshot_id'])
+        repository = get_formatted_repository_interface_from_id(self.parameter_dictionary['repository'])
+        if not repository:
+            raise Exception("Invalid repository or repository has been deleted")
+        process_object = self.job_class(repository=repository, snapshot_id=self.parameter_dictionary['snapshot_id'])
         self.job_object = job_tools.JobObject(name=self.job_name, process=process_object)
 
     def construct_job_object_check(self):
-        with LocalSession() as session:
-            repository = session.query(Repository).filter_by(id=self.parameter_dictionary['repository']).first()
-            if not repository:
-                raise Exception("Invalid repository or repository has been deleted")
-        repo_password = credential_manager.get_group_credentials(repository.credential_group_id).get('repo_password')
-        repo_address = repository.address
-        process_object = self.job_class(repo_address=repo_address, repo_password=repo_password, engine_location=Config.ENGINE_COMMAND)
+        repository = get_formatted_repository_interface_from_id(self.parameter_dictionary['repository'])
+        if not repository:
+            raise Exception("Invalid repository or repository has been deleted")
+        process_object = self.job_class(repository=repository)
         self.job_object = job_tools.JobObject(name=self.job_name, process=process_object)
 
     def construct_job_object_prune(self):
-        with LocalSession() as session:
-            repository = session.query(Repository).filter_by(id=self.parameter_dictionary['repository']).first()
-            if not repository:
-                raise Exception("Invalid repository or repository has been deleted")
-        repo_password = credential_manager.get_group_credentials(repository.credential_group_id).get('repo_password')
-        repo_address = repository.address
-        process_object = self.job_class(repo_address=repo_address, repo_password=repo_password, engine_location=Config.ENGINE_COMMAND)
+        repository = get_formatted_repository_interface_from_id(self.parameter_dictionary['repository'])
+        if not repository:
+            raise Exception("Invalid repository or repository has been deleted")
+        process_object = self.job_class(repository=repository)
         self.job_object = job_tools.JobObject(name=self.job_name, process=process_object)
 
     def construct_job_object_repository_sync(self):
-        with LocalSession() as session:
-            repository = session.query(Repository).filter_by(id=self.parameter_dictionary['repository']).first()
-            if not repository:
-                raise Exception("Invalid repository or repository has been deleted")
-        process_object = self.job_class(repo_id=repository.id)
+        repository = get_formatted_repository_interface_from_id(self.parameter_dictionary['repository'])
+        if not repository:
+            raise Exception("Invalid repository or repository has been deleted")
+        process_object = self.job_class(repository=repository)
         self.job_object = job_tools.JobObject(name=self.job_name, process=process_object)
         
     def run_job(self, background=True):

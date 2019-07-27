@@ -89,7 +89,7 @@ class Repository(db.Model):
     __bind_key__ = 'general'
     __tablename__ = 'repository'
     id = db.Column(db.Integer, primary_key=True, nullable=False)
-    internal_name = db.Column(db.String, index=True)
+    name = db.Column(db.String, index=True)
     repo_id = db.Column(db.String)
     description = db.Column(db.Text)
     cache_repo = db.Column(db.Boolean, default=False)

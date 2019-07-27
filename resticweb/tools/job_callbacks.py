@@ -8,18 +8,20 @@ import json
 def repository_add_to_db(job):
     data_dict = {}
     for key, value in job.process.field_dict.items():
-        if ((key != 'internal_name')
+        if ((key != 'name')
            and (key != 'description') 
            and (key != 'location')
            and (key != 'repository_id')):
             data_dict[key] = value
+    global_credentials = job.process.repository_interface.global_credentials
+    global_credentials['repo_password'] = global_credentials.pop('RESTIC_PASSWORD')
     credential_group_id = credential_manager.add_credentials_from_dict(
         'repository', 
-        job.process.field_dict['internal_name'],
-        {'repo_password': job.process.repo_password})
+        job.process.field_dict['name'],
+        global_credentials)
     repo_id = repository_interface.add_repository(
         dict(
-            internal_name=job.process.field_dict['internal_name'],
+            name=job.process.field_dict['name'],
             description=job.process.field_dict['description'],
             repo_id=job.process.data.get('repo_id'),
             address=job.process.field_dict['address'],

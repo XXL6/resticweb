@@ -6,8 +6,8 @@ from resticweb.dateutil import parser
 
 class ResticRepositoryFormatted(ResticRepository):
 
-    def __init__(self, address, password):
-        super().__init__(address, password)
+    def __init__(self, address, password, global_credentials=None):
+        super().__init__(address, password, global_credentials)
 
     def get_snapshots(self):
         snapshots = super().get_snapshots()

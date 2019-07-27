@@ -10,76 +10,72 @@ class Repository(RVProcess):
 
     def __init__(self, **kwargs):
         super().__init__()
-        self.address = kwargs['address']
-        self.repo_password = kwargs['repo_password']
-        self.global_parameters = kwargs.get('global_parameters')
+        #self.address = kwargs['address']
+        #self.repo_password = kwargs['repo_password']
+        #self.global_parameters = kwargs.get('global_parameters')
         self.field_dict = kwargs['field_dict']
-        self.engine_location = kwargs.get('engine_location')
+        #self.engine_location = kwargs.get('engine_location')
+        self.repository_interface = kwargs['repository']
         self.repository_id_found = False
 
     # field_list[{'name': name, 'data': data}]
     def run(self):
         super().run()
-        os.environ["RESTIC_PASSWORD"] = self.repo_password
-        if self.global_parameters:
-            for key, value in self.global_parameters:
-                os.environ[key] = value
-        self.log(self.engine_location)
-        self.log(self.address)
-        command = [self.engine_location, '--json', '--repo', self.address, 'init']
-        self.step('Creating the repository')
-        try:
-            self.task = subprocess.run(
-                command,
-                capture_output=True,
-                encoding='utf-8',
-                shell=False)
-            # stdout, stderr = self.task.communicate()
-        except Exception as e:
-            self.log(f'Exception 1: {e}')
-            self.log(f'Traceback: {traceback.format_exc()}')
-            self.status('error')
-            return
-        self.parse_input(self.task.stdout)
-        if len(self.task.stderr) > 0:
-            self.log(f"Errors: {self.task.stderr}")
-        # repo id has been found so we can put the repo information into the
-        # database
-        if self.repository_id_found:
-            self.status('success')
-            return
-        else:
-            self.log('Unable to create repository at the specified location.')
-            if "config file already exists" in self.task.stderr:
-                self.log('However this location does appear to have a pre-existing repository.')
-                self.log('Will attempt to import the repository.')
-            else:
+        with self.repository_interface.get_credential_context():
+            command = self.repository_interface.repo_command + ['--json', 'init']
+            self.step('Creating the repository')
+            try:
+                self.task = subprocess.run(
+                    command,
+                    capture_output=True,
+                    encoding='utf-8',
+                    shell=False)
+                # stdout, stderr = self.task.communicate()
+            except Exception as e:
+                self.log(f'Exception 1: {e}')
+                self.log(f'Traceback: {traceback.format_exc()}')
                 self.status('error')
                 return
-        self.step("Importing the specified repository.")
-        command = [self.engine_location, '--repo', self.address, 'stats']
-        try:
-            self.task = subprocess.run(
-                command,
-                capture_output=True,
-                encoding='utf-8',
-                shell=False)
-        except Exception as e:
-            self.log(f'Exception 1: {e}')
-            self.log(f'Traceback: {traceback.format_exc()}')
-            self.status('error')
-            return
-        self.parse_input(self.task.stdout, repo_import=True)
-        if len(self.task.stderr) > 0:
-            self.log(f"Errors: {self.task.stderr}")
-        if self.repository_id_found:
-            self.log("Imported repo successfully.")
-            self.status('success')
-            return
-        else:
-            self.log('Unable to import repository from the specified location.')
-            self.status('error')
-            return
+            self.parse_input(self.task.stdout)
+            if len(self.task.stderr) > 0:
+                self.log(f"Errors: {self.task.stderr}")
+            # repo id has been found so we can put the repo information into the
+            # database
+            if self.repository_id_found:
+                self.status('success')
+                return
+            else:
+                self.log('Unable to create repository at the specified location.')
+                if "config file already exists" in self.task.stderr:
+                    self.log('However this location does appear to have a pre-existing repository.')
+                    self.log('Will attempt to import the repository.')
+                else:
+                    self.status('error')
+                    return
+            self.step("Importing the specified repository.")
+            command = self.repository_interface.repo_command + ['stats']
+            try:
+                self.task = subprocess.run(
+                    command,
+                    capture_output=True,
+                    encoding='utf-8',
+                    shell=False)
+            except Exception as e:
+                self.log(f'Exception 1: {e}')
+                self.log(f'Traceback: {traceback.format_exc()}')
+                self.status('error')
+                return
+            self.parse_input(self.task.stdout, repo_import=True)
+            if len(self.task.stderr) > 0:
+                self.log(f"Errors: {self.task.stderr}")
+            if self.repository_id_found:
+                self.log("Imported repo successfully.")
+                self.status('success')
+                return
+            else:
+                self.log('Unable to import repository from the specified location.')
+                self.status('error')
+                return
         
     def parse_input(self, input, repo_import=False):
         # temp = os.read(input.fileno(), 128)

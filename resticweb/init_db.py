@@ -60,11 +60,19 @@ def init_db():
     )
     db.session.add(db_initialized)
 
-    # add a default physical location type which is just localhost local file system
+    # add default repository types
     repository_type_type = RepositoryType(
+        id=1,
         name="Local Filesystem",
         type="local",
         description="Location type referencing a place in the filesystem on the same machine as the server")
+    db.session.add(repository_type_type)
+
+    repository_type_type = RepositoryType(
+        id=2,
+        name="Amazon S3",
+        type="cloud",
+        description="Repository type referencing a place in an Amazon S3 bucket.")
     db.session.add(repository_type_type)
 
     db.session.commit()

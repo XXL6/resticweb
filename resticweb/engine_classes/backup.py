@@ -12,25 +12,18 @@ class Backup(RVProcess):
 
     def __init__(self, **kwargs):
         super().__init__()
-        self.address = kwargs['address']
-        self.repo_password = kwargs['repo_password']
-        self.global_parameters = kwargs.get('global_parameters')
+        self.repository_interface = kwargs['repository']
         object_list = kwargs['object_list']
         self.file_include_list = [file[1:] for file in object_list if file[0] == MiscResticConstants.FILE_INCLUSION_KEY]
         self.file_exclude_list = [file[1:] for file in object_list if file[0] == MiscResticConstants.FILE_EXCLUSION_KEY]
-        self.engine_location = kwargs.get('engine_location')
         self.temp_folder_location = os.path.join(os.path.dirname(__file__), os.pardir, '.temp')
         self.errors = []
 
     # field_list[{'name': name, 'data': data}]
     def run(self):
         super().run()
-        os.environ["RESTIC_PASSWORD"] = self.repo_password
-        if self.global_parameters:
-            for key, value in self.global_parameters:
-                os.environ[key] = value
-        if not self.repository_online():
-            self.log(f"Repository at address {self.address} cannot be reached. Job aborting.")
+        if not self.repository_interface.is_online():
+            self.log(f"Repository at address {self.repository_interface.address} cannot be reached. Job aborting.")
             self.status('error')
             return
         self.progress_tracker.set_json('percent_done')
@@ -53,52 +46,53 @@ class Backup(RVProcess):
         if len(self.file_exclude_list) > 0:
             exclusion_filename = self.create_exclusions_file()
             exclusion_command = ['--exclude-file', exclusion_filename]
-        command = [self.engine_location, '--json', '--repo', self.address, "backup", "--files-from", backup_object_filename]
+        command = self.repository_interface.repo_command + ['--json', "backup", "--files-from", backup_object_filename]
         if exclusion_command:
             command = command + exclusion_command
-        try:
-            self.task = subprocess.Popen(
-                command,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                encoding='utf-8',
-                shell=False)
-            # stdout, stderr = self.task.communicate()
-        except Exception as e:
-            self.log(f'Exception 1: {e}')
-            self.log(f'Traceback: {traceback.format_exc()}')
-            self.status('error')
-            self.delete_file_list(backup_object_filename)
-            return
-        Thread(target=self.error_reader, args=[self.task.stderr], daemon=True).start()
-        try:
-            while self.task.poll() is None:
-                self.parse_input(self.task.stdout)
-        except Exception as e:
-            self.log(f'Exception 2: {e}')
-            self.log(f'Traceback: {traceback.format_exc()}')
-            self.status('error')
-            self.delete_file_list(backup_object_filename)
-            return
-        self.delete_file_list(backup_object_filename)
-        if (exclusion_filename):
-            self.delete_exclusions_file(exclusion_filename)
-        # self.log(f'Errors: {self.task.stderr}')
-        # self.send_data('progress', self.progress_tracker.get_current_progress())
-        self.send_data('result', self.result_tracker.get_result_dictionary())
-        if len(self.errors) > 0:
-            self.log('Errors encountered while backing up.')
-            for error in self.errors:
-                self.log(error)
-            self.status('error')
-            return
-        if self.result_tracker.is_empty():
-            self.log('''The job result set is empty. An error might have been encountered while running
-                    the job, or the job has been declared finished before the backup could actually be
-                    completed''')
-            self.status('warning')
-            return
-        self.status('success')
+        with self.repository_interface.get_credential_context():
+            try:
+                self.task = subprocess.Popen(
+                    command,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    encoding='utf-8',
+                    shell=False)
+                # stdout, stderr = self.task.communicate()
+            except Exception as e:
+                self.log(f'Exception 1: {e}')
+                self.log(f'Traceback: {traceback.format_exc()}')
+                self.status('error')
+                self.delete_file_list(backup_object_filename)
+                return
+            Thread(target=self.error_reader, args=[self.task.stderr], daemon=True).start()
+            try:
+                while self.task.poll() is None:
+                    self.parse_input(self.task.stdout)
+            except Exception as e:
+                self.log(f'Exception 2: {e}')
+                self.log(f'Traceback: {traceback.format_exc()}')
+                self.status('error')
+                self.delete_file_list(backup_object_filename)
+                return
+            # self.delete_file_list(backup_object_filename)
+            if (exclusion_filename):
+                self.delete_exclusions_file(exclusion_filename)
+            # self.log(f'Errors: {self.task.stderr}')
+            # self.send_data('progress', self.progress_tracker.get_current_progress())
+            self.send_data('result', self.result_tracker.get_result_dictionary())
+            if len(self.errors) > 0:
+                self.log('Errors encountered while backing up.')
+                for error in self.errors:
+                    self.log(error)
+                self.status('error')
+                return
+            if self.result_tracker.is_empty():
+                self.log('''The job result set is empty. An error might have been encountered while running
+                        the job, or the job has been declared finished before the backup could actually be
+                        completed''')
+                self.status('warning')
+                return
+            self.status('success')
         
     def parse_input(self, input):
         line = input.readline()
@@ -107,6 +101,7 @@ class Backup(RVProcess):
                 line = self.clean_json_string(line)
                 line = json.loads(line)
             except ValueError as e:
+                self.log(f"Message: {line}")
                 return
             except Exception as e:
                 self.log(f"An exception occured trying to parse a string to json: {e}")
@@ -207,14 +202,3 @@ class Backup(RVProcess):
         except OSError as e:
             self.log(f'Unable to delete file \'{exclusion_file_list_name}\'. Program may have still executed as expected. Exception: {e} ')
             self.status('warning')
-
-    def repository_online(self):
-        command = [self.engine_location, '--repo', self.address, 'list', 'keys', '--json']
-        task = subprocess.run(
-                command,
-                capture_output=True,
-                shell=False)
-        if len(task.stderr) > 0:
-            return False
-        else:
-            return True

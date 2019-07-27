@@ -231,9 +231,9 @@
                             location.reload();
                         },
                         error: function(data) {
-                            new Noty({ theme: 'relax', text: data.responseJSON.errormsg, layout: 'bottomCenter', type: 'error' }).show();
-                            location.reload();
-                        }
+                            new Noty({ theme: 'relax', text: data.responseJSON.errormsg, layout: 'bottomCenter', type: 'error' }).show(); 
+                        },
+                        timeout: 10000
                     });
                 }
                 break;

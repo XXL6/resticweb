@@ -19,7 +19,7 @@
                 </td>
                 <td class="ub-table-data table-data-item">{{ repository['id'] }}</td>
                 <td class="ub-table-data table-data-item">
-                    <a href="{{ url_for('restore.repository_snapshots', repository_id=repository['id']) }}" class="ub-table-anchor">{{ repository['internal_name'] }}</a>
+                    <a href="{{ url_for('restore.repository_snapshots', repository_id=repository['id']) }}" class="ub-table-anchor">{{ repository['name'] }}</a>
                 </td>
                 <td class="ub-table-data table-data-item">{{ repository['address'] }}</td>
                 <td class="ub-table-data table-data-item list-update" id="status">

@@ -15,7 +15,7 @@ from resticweb.dateutil import parser
 def add_repository(info):
     with LocalSession() as session:
         repository = Repository(
-            internal_name=info['internal_name'],
+            name=info['name'],
             description=info.get('description'),
             repo_id=info.get('repo_id'),
             address=info['address'],
@@ -31,16 +31,16 @@ def add_repository(info):
 def update_repository(info, repo_id, sync_db=False, unsync_db=False):
     with LocalSession() as session:
         repository = session.query(Repository).filter_by(id=repo_id).first()
-        if repository.internal_name != info['internal_name']:
-            credential_manager.set_service_id(repository.credential_group_id, info['internal_name'])
-        repository.internal_name = info['internal_name']
+        if repository.name != info['name']:
+            credential_manager.set_service_id(repository.credential_group_id, info['name'])
+        repository.name = info['name']
         repository.description = info.get('description')
         repository.address = info['address']
         repository.cache_repo = info['cache_repo']
         session.commit()
         from resticweb.tools.job_build import JobBuilder
         if sync_db:
-            job_builder = JobBuilder(job_name=f"Sync repo {repository.internal_name}", job_class='repository_sync', parameters=dict(repository=repository.id))
+            job_builder = JobBuilder(job_name=f"Sync repo {repository.name}", job_class='repository_sync', parameters=dict(repository=repository.id))
             job_builder.run_job()
         if unsync_db:
             for snapshot in repository.snapshots:
@@ -66,7 +66,7 @@ def get_engine_repositories():
     with LocalSession() as session:
         repositories = session.query(Repository).filter_by()
         for repository in repositories:
-            repository_list.append((repository.id, repository.internal_name))
+            repository_list.append((repository.id, repository.name))
     return repository_list
 
 
@@ -95,7 +95,7 @@ def get_info(id):
             except TypeError:
                 misc_data = dict(data=repository.data)
         info_dict = dict(
-            name=repository.internal_name,
+            name=repository.name,
             description=repository.description,
             repo_id=repository.repo_id,
             address=repository.address,
@@ -240,7 +240,7 @@ def get_repository_name(id):
     with LocalSession() as session:
         repository = session.query(Repository).filter_by(id=id).first()
         if repository:
-            return repository.internal_name
+            return repository.name
         else:
             return None
 
@@ -258,5 +258,16 @@ def get_repository_password(id):
         repository = session.query(Repository).filter_by(id=id).first()
         if repository:
             return credential_manager.get_credential(repository.credential_group_id, "repo_password")
+        else:
+            return None
+
+def get_formatted_repository_interface_from_id(id):
+    with LocalSession() as session:
+        repository = session.query(Repository).filter_by(id=id).first()
+        if repository:
+            credential_list = credential_manager.get_group_credentials(repository.credential_group_id)
+            repo_password = credential_list.pop('repo_password')
+            respository_interface = ResticRepositoryFormatted(repository.address, repo_password, credential_list if len(credential_list) > 0 else None)
+            return respository_interface
         else:
             return None

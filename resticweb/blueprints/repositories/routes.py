@@ -126,24 +126,40 @@ def add_repository(repository_type):
     form = get_add_repository_form(repository_type)
     if form.validate_on_submit():
         new_info = {}
-        if platform.system() == 'Windows':
-            if form.address.data[0] == '/':
-                form.address.data = form.address.data[1:]
-            form.address.data = form.address.data.replace('/', os.sep)
+        address = repo_address_format(repository_type, form)
+        global_credentials = {}
         for item in form:
             if item.id != 'csrf_token' and item.id != 'submit':
-                new_info[item.id] = item.data
+                if type(item).__name__ == 'UBCredentialField':
+                    global_credentials[item.id] = item.data
+                else:
+                    new_info[item.id] = item.data
+
         new_info['repository_type_id'] = repository_type
         job_builder = JobBuilder(job_class='repository', job_name='Repository Create', parameters=dict(
-                address=form.address.data,
+                address=address,
                 repo_password=form.repo_password.data,
-                field_dict=new_info
+                field_dict=new_info,
+                global_credentials=global_credentials if len(global_credentials) > 0 else None
             ))
         job_builder.run_job()
         flash("Repository job added to queue", category='success')
         return redirect(url_for('repositories.repository_list'))
-    return render_template("repositories/repository_list_add.html", form=form)
+    return render_template(f"repositories/repository_list_add_{repository_type}.html", form=form)
 
+
+def repo_address_format(repository_type, form):
+    if repository_type == 1:
+        if platform.system() == 'Windows':
+            if form.address.data[0] == '/':
+                form.address.data = form.address.data[1:]
+            form.address.data = form.address.data.replace('/', os.sep)
+        return form.address.data
+    elif repository_type == 2:
+        address = f's3:s3.amazonaws.com/{form.bucket_name.data}'
+        return address
+    else:
+        return None
 
 @repositories.route(f'/{repositories.name}/repository_list/_edit/<int:repository_id>', methods=['GET', 'POST'])
 def edit_repository(repository_id):
@@ -166,9 +182,9 @@ def edit_repository(repository_id):
         repository.address = form.address.data
         repository.cache_repo = form.cache_repo.data
         repository.description = form.description.data
-        repository.internal_name = form.internal_name.data
+        repository.name = form.name.data
         update_info = dict(
-            internal_name=form.internal_name.data,
+            name=form.name.data,
             address=form.address.data,
             description=form.description.data,
             cache_repo=form.cache_repo.data
@@ -186,7 +202,7 @@ def edit_repository(repository_id):
         form.address.data = repository.address
         form.cache_repo.data = repository.cache_repo
         form.description.data = repository.description
-        form.internal_name.data = repository.internal_name
+        form.name.data = repository.name
     return render_template("repositories/repository_list_edit.html", form=form)
 
 

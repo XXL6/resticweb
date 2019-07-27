@@ -6,16 +6,16 @@
         <fieldset class="form-group-fieldset">
             <legend class="border-bottom">General Repository Prune Job Attributes</legend>
             <div class="form-group">
-                {{ form.internal_name.label(class="form-control-label") }}
-                {% if form.internal_name.errors %}
-                {{ form.internal_name(class="form-control is-invalid input-field") }}
+                {{ form.name.label(class="form-control-label") }}
+                {% if form.name.errors %}
+                {{ form.name(class="form-control is-invalid input-field") }}
                 <div class="invalid-feedback">
-                    {% for error in form.internal_name.errors %}
+                    {% for error in form.name.errors %}
                         <span>{{ error }}</span>
                     {% endfor %}
                 </div>
                 {% else %}
-                {{ form.internal_name(class="form-control input-field") }}
+                {{ form.name(class="form-control input-field") }}
                 {% endif %}
             </div>
             <div class="form-group">

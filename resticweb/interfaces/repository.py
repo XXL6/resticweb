@@ -10,88 +10,108 @@ import os
 
 class ResticRepository(RVProcessFG):
 
-    def __init__(self, address, password):
+    def __init__(self, address, password, global_credentials=None):
         super().__init__()
         self.address = address
         self.restic_location = Config.ENGINE_COMMAND
         self.password = password
+        self.global_credentials = global_credentials
+        if not self.global_credentials:
+            self.global_credentials = {}
+        self.global_credentials["RESTIC_PASSWORD"] = self.password
+        self.repo_command = [self.restic_location, '--repo', self.address]
+
+    def get_credential_context(self):
+        return ResticCredentials(self.global_credentials)
 
     def is_online(self):
-        # os.environ["RESTIC_PASSWORD"] = self.password
-        command = [self.restic_location, '--repo', self.address, 'list', 'keys', '--json']
-        task = subprocess.run(
-                command,
-                capture_output=True,
-                input=self.password,
-                encoding='utf-8',
-                shell=False)
-        if len(task.stderr) > 0:
-            return False
-        else:
-            return True
+        with ResticCredentials(self.global_credentials):
+            command = self.repo_command + ['list', 'keys', '--json']
+            task = subprocess.run(
+                    command,
+                    capture_output=True,
+                    encoding='utf-8',
+                    shell=False)
+            if len(task.stderr) > 0:
+                
+                return False
+            else:
+                return True
 
     # returns "total_size", "total_file_count"
     def get_stats(self):
-        return_json = {}
-        # os.environ["RESTIC_PASSWORD"] = self.password
-        command = [self.restic_location, '--repo', self.address, 'stats', '--json']
-        task = subprocess.run(
-                command,
-                capture_output=True,
-                input=self.password,
-                encoding='utf-8',
-                shell=False)
-        line = task.stdout
-        if len(line) > 0:
-            try:
-                line = self.clean_json_string(line)
-                return_json = json.loads(line)
-            except ValueError:
-                pass
-            except Exception:
-                pass
-        return return_json
-
-    def get_snapshots(self):
-        return_json = []
-        # os.environ["RESTIC_PASSWORD"] = self.password
-        command = [self.restic_location, '--repo', self.address, 'snapshots', '--json']
-        task = subprocess.run(
-                command,
-                capture_output=True,
-                input=self.password,
-                encoding='utf-8',
-                shell=False)
-        line = task.stdout
-        if len(line) > 0:
-            try:
-                line = self.clean_json_string(line)
-                return_json = json.loads(line)
-            except ValueError:
-                pass
-            except Exception:
-                pass
-        return return_json
-
-    def get_snapshot_ls(self, snapshot_id):
-        return_json = []
-        # os.environ["RESTIC_PASSWORD"] = self.password
-        command = [self.restic_location, '--repo', self.address, 'ls', snapshot_id, '--json']
-        task = subprocess.run(
-                command,
-                capture_output=True,
-                input=self.password,
-                encoding='utf-8',
-                shell=False)
-        line = task.stdout
-        if len(line) > 0:
-            lines = line.split("\n")
-            for item in lines:
+        with ResticCredentials(self.global_credentials):
+            return_json = {}
+            command = self.repo_command + ['stats', '--json']
+            task = subprocess.run(
+                    command,
+                    capture_output=True,
+                    encoding='utf-8',
+                    shell=False)
+            line = task.stdout
+            if len(line) > 0:
                 try:
-                    item = self.clean_json_string(item)
-                    return_json.append(json.loads(item))
+                    line = self.clean_json_string(line)
+                    return_json = json.loads(line)
                 except ValueError:
                     pass
                 except Exception:
                     pass
-        return return_json
+            return return_json
+
+    def get_snapshots(self):
+        with ResticCredentials(self.global_credentials):
+            return_json = []
+            command = self.repo_command + ['snapshots', '--json']
+            task = subprocess.run(
+                    command,
+                    capture_output=True,
+                    encoding='utf-8',
+                    shell=False)
+            line = task.stdout
+            if len(line) > 0:
+                try:
+                    line = self.clean_json_string(line)
+                    return_json = json.loads(line)
+                except ValueError:
+                    pass
+                except Exception:
+                    pass
+            return return_json
+
+    def get_snapshot_ls(self, snapshot_id):
+        with ResticCredentials(self.global_credentials):
+            return_json = []
+            command = self.repo_command + ['ls', snapshot_id, '--json']
+            task = subprocess.run(
+                    command,
+                    capture_output=True,
+                    encoding='utf-8',
+                    shell=False)
+            line = task.stdout
+            if len(line) > 0:
+                lines = line.split("\n")
+                for item in lines:
+                    try:
+                        item = self.clean_json_string(item)
+                        return_json.append(json.loads(item))
+                    except ValueError:
+                        pass
+                    except Exception:
+                        pass
+            return return_json
+
+
+# by using this class, we should hopefully avoid having the global
+# credentials in the global vars for longer than necessary
+class ResticCredentials():
+    def __init__(self, credentials):
+        self.credentials = credentials
+
+    def __enter__(self):
+        for key, value in self.credentials.items():
+            os.environ[key] = value
+    
+    def __exit__(self, type, value, traceback):
+        for key, value in self.credentials.items():
+            os.environ[key] = ""

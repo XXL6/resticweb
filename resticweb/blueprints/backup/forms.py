@@ -34,7 +34,7 @@ class BSForm0Edit(FlaskForm):
 
 
 class AddBackupJobForm(FlaskForm):
-    internal_name = StringField('Job Name', validators=[DataRequired()])
+    name = StringField('Job Name', validators=[DataRequired()])
     description = TextAreaField('Description')
     backup_set = SelectField('Backup Set', coerce=int)
     repository = SelectField('Repository', coerce=int)
@@ -43,7 +43,7 @@ class AddBackupJobForm(FlaskForm):
 
 class EditBackupJobForm(FlaskForm):
     saved_job_id = HiddenField('Id')
-    internal_name = StringField('Job Name', validators=[DataRequired()])
+    name = StringField('Job Name', validators=[DataRequired()])
     description = TextAreaField('Description')
     backup_set = SelectField('Backup Set', coerce=int)
     repository = SelectField('Repository', coerce=int)
