@@ -27,11 +27,15 @@ class ResticRepository(RVProcessFG):
     def is_online(self):
         with ResticCredentials(self.global_credentials):
             command = self.repo_command + ['list', 'keys', '--json']
-            task = subprocess.run(
-                    command,
-                    capture_output=True,
-                    encoding='utf-8',
-                    shell=False)
+            try:
+                task = subprocess.run(
+                        command,
+                        capture_output=True,
+                        encoding='utf-8',
+                        shell=False,
+                        timeout=10)
+            except subprocess.TimeoutExpired:
+                return False
             if len(task.stderr) > 0:
                 return False
             else:
@@ -42,11 +46,15 @@ class ResticRepository(RVProcessFG):
     def is_offline(self):
         with ResticCredentials(self.global_credentials):
             command = self.repo_command + ['list', 'keys', '--json']
-            task = subprocess.run(
-                    command,
-                    capture_output=True,
-                    encoding='utf-8',
-                    shell=False)
+            try:
+                task = subprocess.run(
+                        command,
+                        capture_output=True,
+                        encoding='utf-8',
+                        shell=False,
+                        timeout=10)
+            except subprocess.TimeoutExpired as e:
+                return f"Error getting status: {e}"
             if len(task.stderr) > 0:
                 return task.stderr
             else:

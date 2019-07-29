@@ -81,9 +81,7 @@ def get_info(id):
     info_dict = {}
     with LocalSession() as session:
         repository = session.query(Repository).filter_by(id=id).first()
-        address = repository.address
-        repo_password = credential_manager.get_credential(repository.credential_group_id, "repo_password")
-        repository_interface = ResticRepositoryFormatted(address, repo_password)
+        repository_interface = get_formatted_repository_interface_from_id(id)
         misc_data = None
         repo_status = repository_interface.is_offline()
         if not repo_status:
@@ -225,10 +223,7 @@ def get_snapshot_info(id):
 
 def get_repository_status(id):
     with LocalSession() as session:
-        repository = session.query(Repository).filter_by(id=id).first()
-        address = repository.address
-        repo_password = credential_manager.get_credential(repository.credential_group_id, "repo_password")
-        repository_interface = ResticRepositoryFormatted(address, repo_password)
+        repository_interface = get_formatted_repository_interface_from_id(id)
         status = repository_interface.is_online()
         if status is None:
             return "Couldn't get status"
