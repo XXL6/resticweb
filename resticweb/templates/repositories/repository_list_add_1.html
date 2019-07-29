@@ -21,14 +21,14 @@
             <div class="form-group">
                 {{ form.repo_password.label(class="form-control-label") }}
                 {% if form.repo_password.errors %}
-                {{ form.repo_password(class="form-control is-invalid") }}
+                {{ form.repo_password(class="form-control is-invalid", autocomplete='off') }}
                 <div class="invalid-feedback">
                     {% for error in form.repo_password.errors %}
                         <span>{{ error }}</span>
                     {% endfor %}
                 </div>
                 {% else %}
-                {{ form.repo_password(class="form-control") }}
+                {{ form.repo_password(class="form-control", autocomplete='off') }}
                 {% endif %}
             </div>
             <div class="form-group">

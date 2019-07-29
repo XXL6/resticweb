@@ -21,14 +21,14 @@
             <div class="form-group">
                 {{ form.repo_password.label(class="form-control-label") }}
                 {% if form.repo_password.errors %}
-                {{ form.repo_password(class="form-control is-invalid") }}
+                {{ form.repo_password(class="form-control is-invalid", autocomplete='off') }}
                 <div class="invalid-feedback">
                     {% for error in form.repo_password.errors %}
                         <span>{{ error }}</span>
                     {% endfor %}
                 </div>
                 {% else %}
-                {{ form.repo_password(class="form-control") }}
+                {{ form.repo_password(class="form-control", autocomplete='off') }}
                 {% endif %}
             </div>
             <div class="form-group">
@@ -63,40 +63,40 @@
             <div class="form-group">
                 {{ form.bucket_name.label(class="form-control-label") }}
                 {% if form.bucket_name.errors %}
-                {{ form.bucket_name(class="form-control is-invalid path-input-data") }}
+                {{ form.bucket_name(class="form-control is-invalid") }}
                 <div class="invalid-feedback">
                     {% for error in form.bucket_name.errors %}
                         <span>{{ error }}</span>
                     {% endfor %}
                 </div>
                 {% else %}
-                {{ form.bucket_name(class="form-control path-input-data") }}
+                {{ form.bucket_name(class="form-control") }}
                 {% endif %}
             </div>
             <div class="form-group">
                 {{ form.AWS_ACCESS_KEY_ID.label(class="form-control-label") }}
                 {% if form.AWS_ACCESS_KEY_ID.errors %}
-                {{ form.AWS_ACCESS_KEY_ID(class="form-control is-invalid path-input-data") }}
+                {{ form.AWS_ACCESS_KEY_ID(class="form-control is-invalid", autocomplete='off') }}
                 <div class="invalid-feedback">
                     {% for error in form.AWS_ACCESS_KEY_ID.errors %}
                         <span>{{ error }}</span>
                     {% endfor %}
                 </div>
                 {% else %}
-                {{ form.AWS_ACCESS_KEY_ID(class="form-control path-input-data") }}
+                {{ form.AWS_ACCESS_KEY_ID(class="form-control", autocomplete='off') }}
                 {% endif %}
             </div>
             <div class="form-group">
                 {{ form.AWS_SECRET_ACCESS_KEY.label(class="form-control-label") }}
                 {% if form.AWS_SECRET_ACCESS_KEY.errors %}
-                {{ form.AWS_SECRET_ACCESS_KEY(class="form-control is-invalid path-input-data") }}
+                {{ form.AWS_SECRET_ACCESS_KEY(class="form-control is-invalid", autocomplete='off') }}
                 <div class="invalid-feedback">
                     {% for error in form.AWS_SECRET_ACCESS_KEY.errors %}
                         <span>{{ error }}</span>
                     {% endfor %}
                 </div>
                 {% else %}
-                {{ form.AWS_SECRET_ACCESS_KEY(class="form-control path-input-data") }}
+                {{ form.AWS_SECRET_ACCESS_KEY(class="form-control", autocomplete='off') }}
                 {% endif %}
             </div>
         </fieldset>
