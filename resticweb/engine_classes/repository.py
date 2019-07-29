@@ -46,7 +46,8 @@ class Repository(RVProcess):
                 return
             else:
                 self.log('Unable to create repository at the specified location.')
-                if "config file already exists" in self.task.stderr:
+                if "config file already exists" in self.task.stderr or\
+                        "initialized" in self.task.stderr:
                     self.log('However this location does appear to have a pre-existing repository.')
                     self.log('Will attempt to import the repository.')
                 else:

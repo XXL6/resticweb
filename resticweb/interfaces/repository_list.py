@@ -85,7 +85,8 @@ def get_info(id):
         repo_password = credential_manager.get_credential(repository.credential_group_id, "repo_password")
         repository_interface = ResticRepositoryFormatted(address, repo_password)
         misc_data = None
-        if repository_interface.is_online():
+        repo_status = repository_interface.is_offline()
+        if not repo_status:
             misc_data = repository_interface.get_stats()
             repository.data = json.dumps(misc_data)
             session.commit()
@@ -94,6 +95,7 @@ def get_info(id):
                 misc_data = json.loads(repository.data)
             except TypeError:
                 misc_data = dict(data=repository.data)
+            misc_data['status'] = repo_status
         info_dict = dict(
             name=repository.name,
             description=repository.description,

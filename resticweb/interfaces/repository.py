@@ -33,10 +33,24 @@ class ResticRepository(RVProcessFG):
                     encoding='utf-8',
                     shell=False)
             if len(task.stderr) > 0:
-                
                 return False
             else:
                 return True
+
+    # basically identical to is_online but it returns the offline error
+    # message if the repo is offline.
+    def is_offline(self):
+        with ResticCredentials(self.global_credentials):
+            command = self.repo_command + ['list', 'keys', '--json']
+            task = subprocess.run(
+                    command,
+                    capture_output=True,
+                    encoding='utf-8',
+                    shell=False)
+            if len(task.stderr) > 0:
+                return task.stderr
+            else:
+                return False
 
     # returns "total_size", "total_file_count"
     def get_stats(self):

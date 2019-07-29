@@ -24,7 +24,7 @@ def repository_add_to_db(job):
             name=job.process.field_dict['name'],
             description=job.process.field_dict['description'],
             repo_id=job.process.data.get('repo_id'),
-            address=job.process.field_dict['address'],
+            address=job.process.repository_interface.address,
             data=job.process.field_dict.get('data'),
             cache_repo=job.process.field_dict.get('cache_repo'),
             repository_type_id=job.process.field_dict['repository_type_id'],
