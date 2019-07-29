@@ -105,11 +105,7 @@ def get_info(id):
     return info_dict
 
 def get_snapshots(id, use_cache=False):
-    with LocalSession() as session:
-        repository = session.query(Repository).filter_by(id=id).first()
-    address = repository.address
-    repo_password = credential_manager.get_credential(repository.credential_group_id, "repo_password")
-    repository_interface = ResticRepositoryFormatted(address, repo_password)
+    repository_interface = get_formatted_repository_interface_from_id(id)
     snapshots = []
     if repository_interface.is_online() and not use_cache:
         snapshots = repository_interface.get_snapshots()
@@ -120,7 +116,7 @@ def get_snapshots(id, use_cache=False):
             return {}
     else:
         with LocalSession() as session:
-            snapshots = session.query(Snapshot).filter_by(repository_id=repository.id).all()
+            snapshots = session.query(Snapshot).filter_by(repository_id=id).all()
             return snapshots
 
 
@@ -154,9 +150,7 @@ def get_snapshot_objects(snap_id):
     with LocalSession() as session:
         snapshot = session.query(Snapshot).filter_by(snap_id=snap_id).first()
         repository = session.query(Repository).filter_by(id=snapshot.repository_id).first()
-    address = repository.address
-    repo_password = credential_manager.get_credential(repository.credential_group_id, "repo_password")
-    repository_interface = ResticRepositoryFormatted(address, repo_password)
+    repository_interface = get_formatted_repository_interface_from_id(snapshot.repository_id)
     if repository_interface.is_online():
         # if the repo is online, we can purge the snapshots from db as we will
         # just re-add them fresh from the actual repo

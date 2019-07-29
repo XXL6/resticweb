@@ -8,9 +8,7 @@ import json
 # following methods sync the objects in an actual repository with the
 # objects in the database. They also return the objects in case that's needed
 def sync_snapshots(repo_id):
-    repo_address = repository_list_interface.get_repository_address(repo_id)
-    repo_password = repository_list_interface.get_repository_password(repo_id)
-    repo_formatted = ResticRepositoryFormatted(repo_address, repo_password)
+    repo_formatted = repository_list_interface.get_formatted_repository_interface_from_id(repo_id)
     snapshots = repo_formatted.get_snapshots()
     with LocalSession() as session:
         session.query(Snapshot).filter_by(repository_id=repo_id).delete()
@@ -34,9 +32,7 @@ def sync_repository_info(repo_id):
     repository_list_interface.get_info(repo_id)
 
 def sync_snapshot_objects(repo_id, snapshot_id):
-    repo_address = repository_list_interface.get_repository_address(repo_id)
-    repo_password = repository_list_interface.get_repository_password(repo_id)
-    repo_formatted = ResticRepositoryFormatted(repo_address, repo_password)
+    repo_formatted = repository_list_interface.get_formatted_repository_interface_from_id(repo_id)
     snapshot_objects = repo_formatted.get_snapshot_ls(snapshot_id)
     with LocalSession() as session:
         for snapshot_object in snapshot_objects:
