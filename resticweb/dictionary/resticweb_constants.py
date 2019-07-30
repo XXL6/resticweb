@@ -40,6 +40,12 @@ class BackupSetList:
     }
 
 
+class RepositoryTypeBindings:
+    REPOSITORY_LOCAL = 'local'
+    REPOSITORY_AMAZON_S3 = 'amazons3'
+    binding_list = [REPOSITORY_LOCAL, REPOSITORY_AMAZON_S3]
+
+
 class Credential:
     CREDENTIAL_ENVIRONMENT_VAR_NAME = "UB_CREDENTIAL_STORE_PASSWORD"
     CREDENTIAL_KEY_GROUP_NAME = "CREDENTIAL_PASSWORD"

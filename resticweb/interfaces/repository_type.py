@@ -11,6 +11,7 @@ def get_repository_types():
                 id=type.id,
                 name=type.name,
                 type=type.type,
+                internal_binding=type.internal_binding,
                 description=type.description
             ))
     return return_list
@@ -25,6 +26,7 @@ def get_repository_type(id):
                 id=type.id,
                 name=type.name,
                 type=type.type,
+                internal_binding=type.internal_binding,
                 description=type.description
             )
     return return_dict
@@ -36,6 +38,7 @@ def add_repository_type(info):
             RepositoryType(
                 name=info['name'],
                 type=info['type'],
+                internal_binding=info['internal_binding'],
                 description=info.get('description')
             )
         )
@@ -49,6 +52,7 @@ def set_repository_type(id, info):
         if type:
             type.name = info.get('name')
             type.type = info.get('type')
+            type.internal_binding = info.get('internal_binding')
             type.description = info.get('description')
             session.commit()
 

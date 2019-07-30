@@ -4,14 +4,23 @@ from wtforms import StringField, IntegerField, SubmitField, ValidationError, \
 from resticweb.tools.local_session import LocalSession
 from resticweb.models.general import Repository, RepositoryType
 from wtforms.validators import DataRequired
+from resticweb.dictionary.resticweb_constants import RepositoryTypeBindings
 
 
 class AddRepositoryTypeForm(FlaskForm):
     name = StringField('Name')
     type = StringField('Type')
     description = TextAreaField('Description')
+    internal_binding = SelectField('Internal Binding')
     submit = SubmitField('Submit')
 
+    def __init__(self):
+        super().__init__()
+        bindings = []
+        for item in RepositoryTypeBindings.binding_list:
+            bindings.append((item, item))
+        self.internal_binding.choices = bindings
+    
     def validate_name(self, name):
         with LocalSession() as session:
             repository_type = session.query(RepositoryType).filter_by(name=name.data).first()
@@ -29,7 +38,15 @@ class EditRepositoryTypeForm(FlaskForm):
     name = StringField('Name')
     type = StringField('Type')
     description = TextAreaField('Description')
+    internal_binding = SelectField('Internal Binding')
     submit = SubmitField('Submit')
+
+    def __init__(self):
+        super().__init__()
+        bindings = []
+        for item in RepositoryTypeBindings.binding_list:
+            bindings.append((item, item))
+        self.internal_binding.choices = bindings
     
     def validate_name(self, name):
         with LocalSession() as session:
@@ -86,9 +103,9 @@ class EditRepositoryForm2(EditRepositoryFormBase):
 
 
 def get_add_repository_form(repository_type):
-    if repository_type == 1:
+    if repository_type == 'local':
         return AddRepositoryForm1()
-    elif repository_type == 2:
+    elif repository_type == 'amazons3':
         return AddRepositoryForm2()
     else:
         raise Exception("Unsupported repository type")

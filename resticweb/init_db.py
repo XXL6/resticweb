@@ -65,6 +65,7 @@ def init_db():
         id=1,
         name="Local Filesystem",
         type="local",
+        internal_binding='local',
         description="Location type referencing a place in the filesystem on the same machine as the server")
     db.session.add(repository_type_type)
 
@@ -72,6 +73,7 @@ def init_db():
         id=2,
         name="Amazon S3",
         type="cloud",
+        internal_binding='amazons3',
         description="Repository type referencing a place in an Amazon S3 bucket.")
     db.session.add(repository_type_type)
 

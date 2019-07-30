@@ -96,6 +96,7 @@ class Repository(db.Model):
     credential_group_id = db.Column(db.Integer)
     data = db.Column(db.Text)
     address = db.Column(db.String)
+    parameters = db.Column(db.Text)
     repository_type_id = db.Column(db.Integer, db.ForeignKey('repository_type.id'), nullable=False)
     time_added = db.Column(
         db.DateTime,
@@ -115,6 +116,7 @@ class RepositoryType(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     name = db.Column(db.String(50), nullable=False, unique=True)
     type = db.Column(db.String(15), nullable=False)  # cloud, local, offsite
+    internal_binding = db.Column(db.String(30), nullable=False)
     description = db.Column(db.Text)
 
     repositories = db.relationship(

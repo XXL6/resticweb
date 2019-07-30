@@ -123,10 +123,11 @@ def choose_repository_type():
 
 @repositories.route(f'/{repositories.name}/repository_list/_add/<int:repository_type>', methods=['GET', 'POST'])
 def add_repository(repository_type):
-    form = get_add_repository_form(repository_type)
+    type_info = repository_type_interface.get_repository_type(repository_type)
+    form = get_add_repository_form(type_info['internal_binding'])
     if form.validate_on_submit():
         new_info = {}
-        address = repo_address_format(repository_type, form)
+        address = repo_address_format(type_info['internal_binding'], form)
         global_credentials = {}
         for item in form:
             if item.id != 'csrf_token' and item.id != 'submit':
@@ -149,13 +150,13 @@ def add_repository(repository_type):
 
 
 def repo_address_format(repository_type, form):
-    if repository_type == 1:
+    if repository_type == 'local':
         if platform.system() == 'Windows':
             if form.address.data[0] == '/':
                 form.address.data = form.address.data[1:]
             form.address.data = form.address.data.replace('/', os.sep)
         return form.address.data
-    elif repository_type == 2:
+    elif repository_type == 'amazons3':
         address = f's3:s3.amazonaws.com/{form.bucket_name.data}'
         return address
     else:
@@ -230,6 +231,7 @@ def add_repository_type():
         new_info['name'] = form.name.data
         new_info['type'] = form.type.data
         new_info['description'] = form.description.data
+        new_info['internal_binding'] = form.internal_binding.data
         repository_type_interface.add_repository_type(new_info)
         flash("Repository type has been added", category='success')
         return redirect(url_for('repositories.repository_types'))
@@ -255,11 +257,14 @@ def edit_repository_type(type_id):
         new_info['name'] = form.name.data
         new_info['type'] = form.type.data
         new_info['description'] = form.description.data
+        new_info['internal_binding'] = form.internal_binding.data
         repository_type_interface.set_repository_type(type_id, new_info)
         flash("Repository type has been updated", category='success')
         return redirect(url_for('repositories.repository_types'))
     else:
         type = repository_type_interface.get_repository_type(type_id)
+        form.internal_binding.default = type['internal_binding']
+        form.process()
         if type:
             form.name.data = type['name']
             form.type.data = type['type']
@@ -275,6 +280,7 @@ def get_type_info():
     info_dict = {}
     repository_type_id = request.args.get('id', 0, type=int)
     info_dict['description'] = repository_type_interface.get_repository_type(repository_type_id)['description']
+    info_dict['internal_binding'] = repository_type_interface.get_repository_type(repository_type_id)['internal_binding']
     return render_template('sidebar/repository_types.html', info_dict=info_dict)
 
 
