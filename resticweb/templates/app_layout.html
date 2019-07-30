@@ -14,6 +14,7 @@
         <div class="menu-open-button-container">
             <button id="menu-open-button" onclick="toggle_menu()">☰</button>
         </div>
+        {{ navigation_bar.render_help_button(help_page) }}
         <div class="nav-account-items">
             {#<a class="nav-item nav-link col-md-1 float-left" href="{{ url_for('main.shutdown') }}">SHUTDOWN</a>#}
             <a class="nav-item nav-link col-md-1 float-left" href="{{ url_for('system.account') }}">{{ current_user.username }}</a>

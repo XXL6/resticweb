@@ -97,6 +97,14 @@ body {
     background-color: #17181E;
 }
 
+.menu-open-button-container {
+    background-color: #17181E;
+}
+
+#help-button-div {
+    background-color: #17181E;
+}
+
 .corner-title {
     background-color: rgba(33, 34, 39, 0.733);
 }

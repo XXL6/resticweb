@@ -26,3 +26,10 @@ def shutdown_server():
         raise RuntimeError('Not running with the Werkzeug Server')
     process_manager.__exit__()
     func()
+
+# serves a specified markdown help page from the templates/help_pages folder
+# and runs it through the help_template.html filter which actually
+# renders the markdown
+@main.route('/_get_help_page/<string:help_page>', methods=['GET'])
+def get_help_page(help_page):
+    return render_template(f'help_pages/help_template.html', md_content=render_template(f'help_pages/{help_page}.md'))

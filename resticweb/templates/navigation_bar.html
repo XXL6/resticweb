@@ -23,3 +23,20 @@
         {% endfor %}
     </ul>
 {% endmacro %}
+
+{% macro render_help_button(help_page) %}
+    <div id="help-button-div">
+        {% if help_page %}
+            <button class='help-ajax' id="help-button" href="{{url_for('main.get_help_page', help_page=help_page)}}">
+                <i class="far fa-question-circle"></i>
+            </button>
+        {% endif %}
+    </div>
+    {% if help_page %}
+        <script>
+            $( ".help-ajax" ).modaal({
+                type: 'ajax'
+            });
+        </script>
+    {% endif %}
+{% endmacro %}

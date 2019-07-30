@@ -16,12 +16,11 @@
     display: none;
     position: relative;
     grid-column: span 2;
-    background-color: #17181E;
     line-height: 2vh;
 }
 
 .pill-bar {
-    grid-column: span 14;
+    grid-column: span 13;
     /*background-color: #17181E;*/
 }
 
@@ -76,6 +75,10 @@
     display: inline-block;
 }
 
+.modaal-content-container ul {
+    list-style-type: circle;
+}
+
 #menu-open-button {
     float: left;
     border: none;
@@ -90,10 +93,41 @@
     background-color: white;
     color: black;
 }
+
+#help-button-div {
+    grid-column: span 1;
+}
+
+#help-button {
+    border: none;
+    background-color: transparent;
+    outline: none;
+    color: white;
+    top: 50%;
+    -ms-transform: translateY(50%);
+    transform: translateY(100%) scale(1.5);
+}
+
+#help-button:hover {
+    cursor: pointer;
+    color: gray;
+}
+
+#help-button:active {
+    color: cyan;
+}
 /*.pill-bar .nav-pills .active > a {
     background-color: #71737D;
     color: #ffffff;
 }*/
+
+@media screen and (max-width: 1156px) {
+    .pill-bar .nav-pills > li > a {
+        padding: 13px;
+        font-size: 16px;
+        border-radius: 5px;
+    }
+}
 
 @media screen and (max-width: 1111px) {
     .nav-link > .nav-link-text {
@@ -115,7 +149,7 @@
     }
 
     .pill-bar {
-        grid-column: span 13;
+        grid-column: span 12;
         /*background-color: #17181E;*/
     }
 }
@@ -126,8 +160,17 @@
     }
 
     .pill-bar {
-        grid-column: span 12;
+        grid-column: span 11;
         /*background-color: #17181E;*/
+    }
+}
+
+@media screen and (max-width: 612px) {
+    .pill-bar .nav-pills > li > a {
+        /*color: #eeeeee;*/
+        padding: 12px;
+        font-size: 15px;
+        border-radius: 5px;
     }
 }
 
@@ -140,7 +183,7 @@
         display: block;
     }
     .pill-bar {
-        grid-column: span 16;
+        grid-column: span 15;
     }
 
     .corner-title {

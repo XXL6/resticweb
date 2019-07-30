@@ -22,6 +22,7 @@ psutil = "*"
 flask-login = {git = "https://github.com/maxcountryman/flask-login.git"}
 humanize = "*"
 pylint = "*"
+flask-misaka = "*"
 
 [requires]
 python_version = "3.7"

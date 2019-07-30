@@ -164,6 +164,9 @@ def repo_address_format(repository_type, form):
 @repositories.route(f'/{repositories.name}/repository_list/_edit/<int:repository_id>', methods=['GET', 'POST'])
 def edit_repository(repository_id):
     repository = Repository.query.filter_by(id=repository_id).first()
+    if repository.repository_type_id > 1:
+        flash(r"Can't edit Amazon S3 repos at the moment ¯\\_(ツ)_/¯", category='warning')
+        return redirect(url_for('repositories.repository_list'))
     form = get_edit_repository_form(repository.repository_type_id)
     if form.validate_on_submit():
         if platform.system() == 'Windows':
@@ -203,7 +206,7 @@ def edit_repository(repository_id):
         form.cache_repo.data = repository.cache_repo
         form.description.data = repository.description
         form.name.data = repository.name
-    return render_template("repositories/repository_list_edit.html", form=form)
+    return render_template(f"repositories/repository_list_edit_{repository.repository_type_id}.html", form=form)
 
 
 @repositories.route(f'/{repositories.name}/repository_list/_delete', methods=['GET', 'POST'])
