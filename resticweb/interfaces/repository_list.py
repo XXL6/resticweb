@@ -19,6 +19,7 @@ def add_repository(info):
             description=info.get('description'),
             repo_id=info.get('repo_id'),
             address=info['address'],
+            parameters=info['parameters'],
             data=info.get('data'),
             credential_group_id=info.get('credential_group_id'),
             repository_type_id=info['repository_type_id']
@@ -37,6 +38,7 @@ def update_repository(info, repo_id, sync_db=False, unsync_db=False):
         repository.description = info.get('description')
         repository.address = info['address']
         repository.cache_repo = info['cache_repo']
+        repository.parameters = json.dumps(info['parameters'])
         session.commit()
         from resticweb.tools.job_build import JobBuilder
         if sync_db:

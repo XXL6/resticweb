@@ -127,6 +127,7 @@ def add_repository(repository_type):
     form = get_add_repository_form(type_info['internal_binding'])
     if form.validate_on_submit():
         new_info = {}
+        new_info['parameters'] = {}
         address = repo_address_format(type_info['internal_binding'], form)
         global_credentials = {}
         for item in form:
@@ -135,6 +136,12 @@ def add_repository(repository_type):
                     global_credentials[item.id] = item.data
                 else:
                     new_info[item.id] = item.data
+                if item.id != 'repo_password' \
+                        and item.id != 'description' \
+                        and item.id != 'name' \
+                        and item.id != 'cache_repo' \
+                        and item.id != 'repository_id':
+                    new_info['parameters'][item.id] = item.data
 
         new_info['repository_type_id'] = repository_type
         job_builder = JobBuilder(job_class='repository', job_name='Repository Create', parameters=dict(
@@ -165,15 +172,15 @@ def repo_address_format(repository_type, form):
 @repositories.route(f'/{repositories.name}/repository_list/_edit/<int:repository_id>', methods=['GET', 'POST'])
 def edit_repository(repository_id):
     repository = Repository.query.filter_by(id=repository_id).first()
+    repository_type = RepositoryType.query.filter_by(id=repository.repository_type_id).first()
+    '''
     if repository.repository_type_id > 1:
         flash(r"Can't edit Amazon S3 repos at the moment ¯\\_(ツ)_/¯", category='warning')
         return redirect(url_for('repositories.repository_list'))
-    form = get_edit_repository_form(repository.repository_type_id)
+    '''
+    form = get_edit_repository_form(repository_type.internal_binding)
     if form.validate_on_submit():
-        if platform.system() == 'Windows':
-            if form.address.data[0] == '/':
-                form.address.data = form.address.data[1:]
-            form.address.data = form.address.data.replace('/', os.sep)
+        address = repo_address_format(repository_type.internal_binding, form)
         sync_db = False
         unsync_db = False
         # if the cache_repo value has been changed then we want to sync the db
@@ -183,13 +190,18 @@ def edit_repository(repository_id):
             sync_db = True
         elif repository.cache_repo and not form.cache_repo.data:
             unsync_db = True
-        repository.address = form.address.data
-        repository.cache_repo = form.cache_repo.data
-        repository.description = form.description.data
-        repository.name = form.name.data
+        parameters = {}
+        for item in form:
+            if item.id != 'csrf_token' and item.id != 'submit':
+                if item.id != 'description' \
+                        and item.id != 'name' \
+                        and item.id != 'cache_repo' \
+                        and item.id != 'repository_id':
+                    parameters[item.id] = item.data
         update_info = dict(
             name=form.name.data,
-            address=form.address.data,
+            address=address,
+            parameters=parameters,
             description=form.description.data,
             cache_repo=form.cache_repo.data
         )
@@ -203,10 +215,10 @@ def edit_repository(repository_id):
         return redirect(url_for('repositories.repository_list'))
     else:
         form.repository_id.data = repository.id
-        form.address.data = repository.address
         form.cache_repo.data = repository.cache_repo
         form.description.data = repository.description
         form.name.data = repository.name
+        form.set_current_data(json.loads(repository.parameters))
     return render_template(f"repositories/repository_list_edit_{repository.repository_type_id}.html", form=form)
 
 

@@ -91,6 +91,8 @@ class AddRepositoryForm1(AddRepositoryFormBase):
 class EditRepositoryForm1(EditRepositoryFormBase):
     address = StringField("Address")
 
+    def set_current_data(self, current_data):
+        self.address.data = current_data['address']
 
 class AddRepositoryForm2(AddRepositoryFormBase):
     bucket_name = StringField("Bucket Name")
@@ -100,6 +102,9 @@ class AddRepositoryForm2(AddRepositoryFormBase):
 
 class EditRepositoryForm2(EditRepositoryFormBase):
     bucket_name = StringField("Bucket Name")
+
+    def set_current_data(self, current_data):
+        self.bucket_name.data = current_data['bucket_name']
 
 
 def get_add_repository_form(repository_type):
@@ -112,9 +117,9 @@ def get_add_repository_form(repository_type):
 
 
 def get_edit_repository_form(repository_type):
-    if repository_type == 1:
+    if repository_type == 'local':
         return EditRepositoryForm1()
-    elif repository_type == 2:
+    elif repository_type == 'amazons3':
         return EditRepositoryForm2()
     else:
         raise Exception("Unsupported repository type")
