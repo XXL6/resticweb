@@ -136,12 +136,12 @@ def add_repository(repository_type):
                     global_credentials[item.id] = item.data
                 else:
                     new_info[item.id] = item.data
-                if item.id != 'repo_password' \
-                        and item.id != 'description' \
-                        and item.id != 'name' \
-                        and item.id != 'cache_repo' \
-                        and item.id != 'repository_id':
-                    new_info['parameters'][item.id] = item.data
+                    if item.id != 'repo_password' \
+                            and item.id != 'description' \
+                            and item.id != 'name' \
+                            and item.id != 'cache_repo' \
+                            and item.id != 'repository_id':
+                        new_info['parameters'][item.id] = item.data
 
         new_info['repository_type_id'] = repository_type
         job_builder = JobBuilder(job_class='repository', job_name='Repository Create', parameters=dict(
