@@ -8,8 +8,8 @@ from resticweb.dictionary.resticweb_constants import RepositoryTypeBindings
 
 
 class AddRepositoryTypeForm(FlaskForm):
-    name = StringField('Name')
-    type = StringField('Type')
+    name = StringField('Name', validators=[DataRequired()])
+    type = StringField('Type', validators=[DataRequired()])
     description = TextAreaField('Description')
     internal_binding = SelectField('Internal Binding')
     submit = SubmitField('Submit')
@@ -35,8 +35,8 @@ class UBCredentialField(StringField):
 
 class EditRepositoryTypeForm(FlaskForm):
     repository_type_id = HiddenField('Id')
-    name = StringField('Name')
-    type = StringField('Type')
+    name = StringField('Name', validators=[DataRequired()])
+    type = StringField('Type', validators=[DataRequired()])
     description = TextAreaField('Description')
     internal_binding = SelectField('Internal Binding')
     submit = SubmitField('Submit')
@@ -57,10 +57,12 @@ class EditRepositoryTypeForm(FlaskForm):
 
 class AddRepositoryFormBase(FlaskForm):
     repository_id = HiddenField('Id')
-    name = StringField("Name")
-    repo_password = UBCredentialField("Repo Password")
+    name = StringField("Name", validators=[DataRequired()])
+    repo_password = UBCredentialField("Repo Password", validators=[DataRequired()])
     description = TextAreaField("Description")
     cache_repo = BooleanField("Cache repository objects")
+    concurrent_uses = IntegerField("Concurrent job uses")
+    timeout = IntegerField("Timeout (minutes)")
     submit = SubmitField("Submit")
 
     def validate_name(self, name):
@@ -72,9 +74,11 @@ class AddRepositoryFormBase(FlaskForm):
 
 class EditRepositoryFormBase(FlaskForm):
     repository_id = HiddenField('Id')
-    name = StringField("Name")
+    name = StringField("Name", validators=[DataRequired()])
     description = TextAreaField("Description")
     cache_repo = BooleanField("Cache repository objects")
+    concurrent_uses = IntegerField("Concurrent job uses")
+    timeout = IntegerField("Timeout (minutes)")
     submit = SubmitField("Submit")
 
     def validate_name(self, name):
@@ -85,23 +89,23 @@ class EditRepositoryFormBase(FlaskForm):
 
 
 class AddRepositoryForm1(AddRepositoryFormBase):
-    address = StringField("Address")
+    address = StringField("Address", validators=[DataRequired()])
 
 
 class EditRepositoryForm1(EditRepositoryFormBase):
-    address = StringField("Address")
+    address = StringField("Address", validators=[DataRequired()])
 
     def set_current_data(self, current_data):
         self.address.data = current_data['address']
 
 class AddRepositoryForm2(AddRepositoryFormBase):
-    bucket_name = StringField("Bucket Name")
-    AWS_ACCESS_KEY_ID = UBCredentialField("AWS Access Key Id")
-    AWS_SECRET_ACCESS_KEY = UBCredentialField("AWS Secret Access Key")
+    bucket_name = StringField("Bucket Name", validators=[DataRequired()])
+    AWS_ACCESS_KEY_ID = UBCredentialField("AWS Access Key Id", validators=[DataRequired()])
+    AWS_SECRET_ACCESS_KEY = UBCredentialField("AWS Secret Access Key", validators=[DataRequired()])
 
 
 class EditRepositoryForm2(EditRepositoryFormBase):
-    bucket_name = StringField("Bucket Name")
+    bucket_name = StringField("Bucket Name", validators=[DataRequired()])
 
     def set_current_data(self, current_data):
         self.bucket_name.data = current_data['bucket_name']

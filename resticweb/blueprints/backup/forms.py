@@ -10,6 +10,8 @@ from resticweb.models.general import BackupSet
 class BSForm0(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     file_data = HiddenField('Data')
+    concurrent_uses = IntegerField("Concurrent job uses")
+    timeout = IntegerField("Timeout (minutes)")
     submit = SubmitField('Submit')
 
     def validate_name(self, name):
@@ -24,6 +26,8 @@ class BSForm0Edit(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     file_data = HiddenField('Data')
     source = StringField('Source')
+    concurrent_uses = IntegerField("Concurrent job uses")
+    timeout = IntegerField("Timeout (minutes)")
     submit = SubmitField('Submit')
 
     def validate_name(self, name):

@@ -45,6 +45,32 @@
                 {{ form.cache_repo(class="form-control") }}
                 {% endif %}
             </div>
+            <div class="form-group">
+                {{ form.concurrent_uses.label(class="form-control-label") }}
+                {% if form.concurrent_uses.errors %}
+                {{ form.concurrent_uses(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.concurrent_uses.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.concurrent_uses(class="form-control") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.timeout.label(class="form-control-label") }}
+                {% if form.timeout.errors %}
+                {{ form.timeout(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.timeout.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.timeout(class="form-control") }}
+                {% endif %}
+            </div>
         </fieldset>
         <fieldset class="form-group">
                 <legend class="border-bottom">Repository Type Attributes</legend>

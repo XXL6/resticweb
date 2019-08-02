@@ -64,6 +64,8 @@ def add_backup_set(data):
                 name=data['name'],
                 type=data['type'],
                 source=data['source'],
+                concurrent_uses=data['concurrent_uses'],
+                timeout=data['timeout'],
                 data=display_state
             )
         )
@@ -96,6 +98,10 @@ def update_backup_set(data):
             current_set.name = data['name']
         if current_set.source != data['source']:
             current_set.source = data['source']
+        if current_set.concurrent_uses != data['concurrent_uses']:
+            current_set.concurrent_uses = data['concurrent_uses']
+        if current_set.timeout != data['timeout']:
+            current_set.timeout = data['timeout']
         current_set.data = display_state
         if platform.system() == 'Windows':
             backup_object_list[:] = [backup_object[:1] + backup_object[2:] for backup_object in backup_object_list]
@@ -124,13 +130,14 @@ def get_backup_set_objects(id):
     return return_list
 
 
-def get_backup_set_info(id):
+def get_backup_set_info(id, include_backup_objects=True):
     with LocalSession() as session:
         backup_set = session.query(BackupSet).filter_by(id=id).first()
-        set_item_list = session.query(BackupObject).filter_by(backup_set_id=id)
-        set_item_list_data = []
-        for item in set_item_list:
-            set_item_list_data.append(item.data)
+        if include_backup_objects:
+            set_item_list = session.query(BackupObject).filter_by(backup_set_id=id)
+            set_item_list_data = []
+            for item in set_item_list:
+                set_item_list_data.append(item.data)
         if backup_set:
             info_dict = dict(
                 id=backup_set.id,
@@ -139,7 +146,9 @@ def get_backup_set_info(id):
                 type_name=BackupSetList.BACKUP_SETS[backup_set.type],
                 data=backup_set.data,
                 type=backup_set.type,
-                time_added=backup_set.time_added
+                time_added=backup_set.time_added,
+                concurrent_uses=backup_set.concurrent_uses,
+                timeout=backup_set.timeout
             )
         else:
             info_dict = dict(
@@ -148,6 +157,11 @@ def get_backup_set_info(id):
                 source="UNDEFINED",
                 type_name="UNDEFINED",
                 type="UNDEFINED",
-                time_added="UNDEFINED"
+                time_added="UNDEFINED",
+                concurrent_uses=0,
+                timeout=0
             )
-        return info_dict, set_item_list_data
+        if include_backup_objects:
+            return info_dict, set_item_list_data
+        else:
+            return info_dict

@@ -22,7 +22,9 @@ def add_repository(info):
             parameters=info['parameters'],
             data=info.get('data'),
             credential_group_id=info.get('credential_group_id'),
-            repository_type_id=info['repository_type_id']
+            repository_type_id=info['repository_type_id'],
+            concurrent_uses=info.get('concurrent_uses'),
+            timeout=info.get('timeout')
         )
         session.add(repository)
         session.commit()
@@ -38,6 +40,8 @@ def update_repository(info, repo_id, sync_db=False, unsync_db=False):
         repository.description = info.get('description')
         repository.address = info['address']
         repository.cache_repo = info['cache_repo']
+        repository.concurrent_uses = info['concurrent_uses']
+        repository.timeout = info['timeout']
         repository.parameters = json.dumps(info['parameters'])
         session.commit()
         from resticweb.tools.job_build import JobBuilder
@@ -97,11 +101,14 @@ def get_info(id):
                 misc_data = dict(data=repository.data)
             misc_data['status'] = repo_status
         info_dict = dict(
+            id=repository.id,
             name=repository.name,
             description=repository.description,
             repo_id=repository.repo_id,
             address=repository.address,
             repository_data=repository.data,
+            concurrent_uses=repository.concurrent_uses,
+            timeout=repository.timeout,
             data=misc_data
         )
     return info_dict

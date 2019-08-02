@@ -160,6 +160,8 @@ def add_backup_set(backup_set):
         new_info = {}
         new_info['type'] = backup_set
         new_info['name'] = form.name.data
+        new_info['concurrent_uses'] = form.concurrent_uses.data
+        new_info['timeout'] = form.timeout.data
         new_info['source'] = platform.node()
         new_info['backup_object_data'] = {}
         for item in form:
@@ -194,6 +196,8 @@ def edit_backup_set(backup_set):
         new_data['id'] = backup_set
         new_data['name'] = form.name.data
         new_data['source'] = form.source.data
+        new_data['concurrent_uses'] = form.concurrent_uses.data
+        new_data['timeout'] = form.timeout.data
         new_data['backup_object_data'] = {}
         for item in form:
             if item.id != 'csrf_token' and item.id != 'submit' and item.id != 'name':
@@ -210,6 +214,8 @@ def edit_backup_set(backup_set):
     elif request.method == 'GET':
         form.name.data = current_info.get('name')
         form.source.data = current_info.get('source')
+        form.concurrent_uses.data = current_info.get('concurrent_uses')
+        form.timeout.data = current_info.get('timeout')
         if current_info.get('source') != platform.node():
             current_object_list = -1
             current_info['data'] = -1

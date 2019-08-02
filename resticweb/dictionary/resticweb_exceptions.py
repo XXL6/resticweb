@@ -28,3 +28,27 @@ class JobQueueFullException(Exception):
 
 class NoEngineAvailable(Exception):
     pass
+
+
+class ResourceGeneralException(Exception):
+    pass
+
+
+class ResourceInUse(Exception):
+    pass
+
+
+class ResourceExists(Exception):
+    pass
+
+
+class ResourceNotFound(Exception):
+    pass
+
+
+class ResourceUnavailable(Exception):
+    pass
+
+
+class ResourceOffline(Exception):
+    pass

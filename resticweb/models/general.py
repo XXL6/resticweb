@@ -97,6 +97,8 @@ class Repository(db.Model):
     data = db.Column(db.Text)
     address = db.Column(db.String)
     parameters = db.Column(db.Text)
+    concurrent_uses = db.Column(db.Integer, default=1)
+    timeout = db.Column(db.Integer, default=60)
     repository_type_id = db.Column(db.Integer, db.ForeignKey('repository_type.id'), nullable=False)
     time_added = db.Column(
         db.DateTime,
@@ -135,6 +137,8 @@ class BackupSet(db.Model):
     type = db.Column(db.Integer, nullable=False)
     data = db.Column(db.Text)
     source = db.Column(db.String, nullable=True)
+    concurrent_uses = db.Column(db.Integer, default=1)
+    timeout = db.Column(db.Integer, default=60)
 
     time_added = db.Column(
         db.DateTime,

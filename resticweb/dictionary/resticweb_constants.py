@@ -1,6 +1,8 @@
 class JobStatus:
     JOB_STATUS_RUNNING = 10
     JOB_STATUS_QUEUED = 20
+    JOB_STATUS_ACQUIRING_RESOURCES = 21
+    JOB_STATUS_WAITING_RESOURCES = 22
     JOB_STATUS_PAUSED = 30
     JOB_STATUS_FINISHED = 40
 
@@ -10,7 +12,9 @@ class JobStatusMap:
         JobStatus.JOB_STATUS_RUNNING: 'Running',
         JobStatus.JOB_STATUS_QUEUED: 'Queued',
         JobStatus.JOB_STATUS_PAUSED: 'Paused',
-        JobStatus.JOB_STATUS_FINISHED: 'Finished'
+        JobStatus.JOB_STATUS_FINISHED: 'Finished',
+        JobStatus.JOB_STATUS_ACQUIRING_RESOURCES: 'Acquiring resources',
+        JobStatus.JOB_STATUS_WAITING_RESOURCES: 'Waiting for one or more resources'
     }
 
 

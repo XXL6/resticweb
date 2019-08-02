@@ -37,6 +37,10 @@ class JobQueue:
             raise JobQueueFullException("Cannot add any more jobs to queue as it is full.")
         self.lock.release()
 
+    
+    def get_queue(self):
+        return self._job_list
+
     # removes the foremost job from the queue and returns it
     def pop(self):
         self.lock.acquire()

@@ -173,11 +173,6 @@ def repo_address_format(repository_type, form):
 def edit_repository(repository_id):
     repository = Repository.query.filter_by(id=repository_id).first()
     repository_type = RepositoryType.query.filter_by(id=repository.repository_type_id).first()
-    '''
-    if repository.repository_type_id > 1:
-        flash(r"Can't edit Amazon S3 repos at the moment ¯\\_(ツ)_/¯", category='warning')
-        return redirect(url_for('repositories.repository_list'))
-    '''
     form = get_edit_repository_form(repository_type.internal_binding)
     if form.validate_on_submit():
         address = repo_address_format(repository_type.internal_binding, form)
@@ -203,7 +198,9 @@ def edit_repository(repository_id):
             address=address,
             parameters=parameters,
             description=form.description.data,
-            cache_repo=form.cache_repo.data
+            cache_repo=form.cache_repo.data,
+            concurrent_uses=form.concurrent_uses.data,
+            timeout=form.timeout.data
         )
         repository_interface.update_repository(update_info, form.repository_id.data, sync_db, unsync_db)
         if sync_db:
@@ -218,6 +215,8 @@ def edit_repository(repository_id):
         form.cache_repo.data = repository.cache_repo
         form.description.data = repository.description
         form.name.data = repository.name
+        form.concurrent_uses.data = repository.concurrent_uses
+        form.timeout.data = repository.timeout
         form.set_current_data(json.loads(repository.parameters))
     return render_template(f"repositories/repository_list_edit_{repository.repository_type_id}.html", form=form)
 
