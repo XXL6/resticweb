@@ -1,6 +1,8 @@
-from flask import render_template, Blueprint, url_for, request
+from flask import render_template, Blueprint, url_for, request, current_app
 from flask_login import login_required, current_user
 from resticweb import process_manager
+import markdown2
+import os
 
 main = Blueprint('main', '__name__')
 
@@ -28,8 +30,9 @@ def shutdown_server():
     func()
 
 # serves a specified markdown help page from the templates/help_pages folder
-# and runs it through the help_template.html filter which actually
-# renders the markdown
+# using the markdown2 plugin. Not sure how safe this is, but misaka wasn't
+# working due to compilation errors
 @main.route('/_get_help_page/<string:help_page>', methods=['GET'])
 def get_help_page(help_page):
-    return render_template(f'help_pages/help_template.html', md_content=render_template(f'help_pages/{help_page}.md'))
+    page_location = os.path.join(os.path.dirname(current_app.instance_path), 'resticweb', 'templates', 'help_pages')
+    return markdown2.markdown_path(f'{page_location}/{help_page}.md')

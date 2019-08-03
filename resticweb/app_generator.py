@@ -1,5 +1,4 @@
 from flask import Flask, render_template
-from flask_misaka import Misaka
 from resticweb.config import Config
 from resticweb import db, login_manager, bcrypt, logger
 from resticweb.engine_configure import configure_engine
@@ -16,9 +15,6 @@ def create_app(config_class=Config):
     with app.app_context():
         db.create_all()
         init_db()
-    # Misaka is to handle the markdown in the app
-    md = Misaka()
-    md.init_app(app)
     credential_manager.assign_session(db.session)
     from resticweb.blueprints.main.routes import main
     from resticweb.blueprints.jobs.routes import jobs

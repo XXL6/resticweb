@@ -5,14 +5,13 @@ verify_ssl = true
 
 [dev-packages]
 rope = "*"
-flake8 = "*"
 pytest = "*"
 pylint = "*"
 
 [packages]
 flask = "*"
 flask-sqlalchemy = "*"
-flask-bcrypt = "*"
+flask-bcrypt = {git = "https://github.com/maxcountryman/flask-bcrypt.git"}
 wtforms = "*"
 flask-wtf = "*"
 pycryptodome = "*"
@@ -21,8 +20,7 @@ sqlalchemy = "*"
 psutil = "*"
 flask-login = {git = "https://github.com/maxcountryman/flask-login.git"}
 humanize = "*"
-pylint = "*"
-flask-misaka = "*"
+markdown2 = "*"
 
 [requires]
 python_version = "3.7"
