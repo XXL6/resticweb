@@ -74,7 +74,7 @@ class Backup(RVProcess):
                 self.status('error')
                 self.delete_file_list(backup_object_filename)
                 return
-            # self.delete_file_list(backup_object_filename)
+            self.delete_file_list(backup_object_filename)
             if (exclusion_filename):
                 self.delete_exclusions_file(exclusion_filename)
             # self.log(f'Errors: {self.task.stderr}')
