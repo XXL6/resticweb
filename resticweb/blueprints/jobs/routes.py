@@ -4,7 +4,6 @@ from resticweb.interfaces.job_history import get_jobs, get_job, delete_jobs
 import resticweb.interfaces.saved_jobs as saved_jobs_interface
 from resticweb import db
 from resticweb.misc import job_queue as global_job_queue
-from resticweb.tools.job_tools import JobObject
 from resticweb.tools.job_build import JobBuilder
 from resticweb.engine_classes.class_name_map import get_available_classes, get_class_from_name
 from resticweb.dictionary.resticweb_constants import JobStatusFinishedMap, \
@@ -211,14 +210,6 @@ def add_saved_job(engine_class):
         return add_saved_job_check()
     elif engine_class == 'prune':
         return add_saved_job_prune()
-
-    elif engine_class == 'test':
-        job_class = get_class_from_name(engine_class)
-        class_object = job_class()
-        job_object = JobObject(name='Test job', process=class_object)
-        global_job_queue.add(job=job_object)
-        flash("Test job added", category='success')
-        return redirect(url_for('jobs.saved_jobs'))
 
 
 def add_saved_job_check():

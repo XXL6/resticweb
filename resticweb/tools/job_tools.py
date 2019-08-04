@@ -1,8 +1,8 @@
 from resticweb.dictionary.resticweb_exceptions import JobQueueFullException
-from resticweb.dictionary.resticweb_constants import JobStatus, JobStatusMap
+from resticweb.dictionary.resticweb_constants import JobStatus
 from threading import Lock
 from collections import deque
-from resticweb import process_manager
+
 
 
 class JobQueue:
@@ -38,8 +38,11 @@ class JobQueue:
         self.lock.release()
 
     
-    def get_queue(self):
-        return self._job_list
+    def get_queue_list(self):
+        self.lock.acquire()
+        queue_list = [elem for elem in list(self._job_list)]
+        self.lock.release()
+        return queue_list
 
     # removes the foremost job from the queue and returns it
     def pop(self):
@@ -110,23 +113,3 @@ class JobQueue:
                         info[request] = item.process.data['tracked_data'].get(request)
         self.lock.release()
         return info
-
-
-class JobObject:
-
-    def __init__(self, **kwargs):
-        self.name = kwargs['name']
-        self.process = kwargs['process']
-        self.type = type(self.process).__name__
-        # id gets assigned when job object is added to the queue
-        self.id = -1
-        # all new jobs will begin life as queued and will
-        # change as they are processed by the job runner
-        self.status = JobStatus.JOB_STATUS_QUEUED
-
-        # how long can the job stay in the queue after the process
-        # within it has finished
-        self.timeout_start = None
-        self.success_callback = None
-        self.warning_callback = None
-        self.error_callback = None

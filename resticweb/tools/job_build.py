@@ -1,5 +1,5 @@
 from resticweb.misc import job_queue
-from resticweb.tools import job_tools
+from resticweb.tools import job_object
 from resticweb.models.general import SavedJobs, JobParameter, Repository, BackupObject
 from resticweb.tools.local_session import LocalSession
 from resticweb.misc.credential_manager import credential_manager
@@ -70,13 +70,15 @@ class JobBuilder():
                 raise Exception("Backup set has been deleted or the backup is empty")
             object_list = [bak_object.data for bak_object in backup_objects]
         process_object = self.job_class(repository=repository, object_list=object_list)
-        self.job_object = job_tools.JobObject(name=self.job_name, process=process_object)
+        resources = [dict(resource_type='backup_set', resource_id=self.parameter_dictionary['backup_set'], amount=1),
+                dict(resource_type='repository', resource_id=self.parameter_dictionary['repository'], amount=1)]
+        self.job_object = job_object.JobObject(name=self.job_name, process=process_object, resources=resources)
 
     def construct_job_object_repository(self):
         from resticweb.interfaces.repository import ResticRepository
         repository_interface = ResticRepository(self.parameter_dictionary['address'], self.parameter_dictionary['repo_password'], self.parameter_dictionary.get('global_credentials'))
         process_object = self.job_class(repository=repository_interface, field_dict=self.parameter_dictionary.get('field_dict'))
-        self.job_object = job_tools.JobObject(name=self.job_name, process=process_object)
+        self.job_object = job_object.JobObject(name=self.job_name, process=process_object)
         self.job_object.success_callback = job_callbacks.repository_add_to_db
 
     def construct_job_object_restore(self):
@@ -85,35 +87,39 @@ class JobBuilder():
                                         destination_address=self.parameter_dictionary['destination_address'],
                                         object_list=self.parameter_dictionary.get('object_list'),
                                         snapshot_id=self.parameter_dictionary['snapshot_id'])
-        self.job_object = job_tools.JobObject(name=self.job_name, process=process_object)
+        resources = [dict(resource_type='repository', resource_id=self.parameter_dictionary['repository'].id, amount=1)]
+        self.job_object = job_object.JobObject(name=self.job_name, process=process_object, resources=resources)
 
     def construct_job_object_forget(self):
         repository = get_formatted_repository_interface_from_id(self.parameter_dictionary['repository'])
         if not repository:
             raise Exception("Invalid repository or repository has been deleted")
         process_object = self.job_class(repository=repository, snapshot_id=self.parameter_dictionary['snapshot_id'])
-        self.job_object = job_tools.JobObject(name=self.job_name, process=process_object)
+        self.job_object = job_object.JobObject(name=self.job_name, process=process_object)
 
     def construct_job_object_check(self):
         repository = get_formatted_repository_interface_from_id(self.parameter_dictionary['repository'])
         if not repository:
             raise Exception("Invalid repository or repository has been deleted")
         process_object = self.job_class(repository=repository)
-        self.job_object = job_tools.JobObject(name=self.job_name, process=process_object)
+        resources = [dict(resource_type='repository', resource_id=self.parameter_dictionary['repository'], amount=-1)]
+        self.job_object = job_object.JobObject(name=self.job_name, process=process_object, resources=resources)
 
     def construct_job_object_prune(self):
         repository = get_formatted_repository_interface_from_id(self.parameter_dictionary['repository'])
         if not repository:
             raise Exception("Invalid repository or repository has been deleted")
         process_object = self.job_class(repository=repository)
-        self.job_object = job_tools.JobObject(name=self.job_name, process=process_object)
+        resources = [dict(resource_type='repository', resource_id=self.parameter_dictionary['repository'], amount=-1)]
+        self.job_object = job_object.JobObject(name=self.job_name, process=process_object, resources=resources)
 
     def construct_job_object_repository_sync(self):
         repository = get_formatted_repository_interface_from_id(self.parameter_dictionary['repository'])
         if not repository:
             raise Exception("Invalid repository or repository has been deleted")
-        process_object = self.job_class(repository=repository)
-        self.job_object = job_tools.JobObject(name=self.job_name, process=process_object)
+        process_object = self.job_class(repository=repository, repo_id=self.parameter_dictionary['repository'])
+        resources = [dict(resource_type='repository', resource_id=self.parameter_dictionary['repository'], amount=1)]
+        self.job_object = job_object.JobObject(name=self.job_name, process=process_object, resources=resources)
         
     def run_job(self, background=True):
         # if the job is set to run in the background, it will just

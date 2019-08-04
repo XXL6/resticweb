@@ -1,6 +1,5 @@
 from resticweb.tools.local_session import LocalSession
 from resticweb.models.general import SavedJobs, JobParameter, Repository, BackupObject
-from resticweb.tools import job_tools
 from resticweb.misc import job_queue
 from resticweb.misc.credential_manager import credential_manager
 from resticweb.engine_classes.class_name_map import get_class_from_name
@@ -76,24 +75,3 @@ def update_job_times(id, info):
         if info.get('last_successful_run'):
             job.last_successful_run = info['last_successful_run']
         session.commit()
-
-
-def run_saved_job_backup(id, background=True):
-    with LocalSession() as session:
-        job = session.query(SavedJobs).filter_by(id=id).first()
-        job_class = get_class_from_name(job.engine_class)
-        parameter_dictionary = {}
-        for parameter in job.parameters:
-            parameter_dictionary[parameter.param_name] = parameter.param_value
-        repository = session.query(Repository).filter_by(id=parameter_dictionary['repository']).first()
-        repo_password = credential_manager.get_group_credentials(repository.credential_group_id).get('repo_password')
-        repo_address = repository.address
-        backup_objects = session.query(BackupObject).filter_by(backup_set_id=parameter_dictionary['backup_set'])
-        object_list = [bak_object for bak_object in backup_objects]
-        process_object = job_class(address=repo_address, repo_password=repo_password, object_list=object_list, engine_location=Config.ENGINE_COMMAND)
-        job_object = job_tools.JobObject(name=job.name, process=process_object)
-        job_object.success_callback = job_callbacks.test_backup_callback
-        if background:
-            job_queue.add(job=job_object)
-        else:
-            job_object.process.run()

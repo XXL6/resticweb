@@ -4,6 +4,7 @@ import subprocess
 import re
 import json
 import os
+import logging
 
 # this is a low level restic repository interface that can be used
 # by functions that need to retrieve such things as stats, and snapshots
@@ -12,8 +13,11 @@ class ResticRepository(RVProcessFG):
 
     def __init__(self, address, password, global_credentials=None):
         super().__init__()
+        logger = logging.getLogger('debugLogger')
         self.address = address
         self.restic_location = Config.ENGINE_COMMAND
+        logger.debug(f'addr: {address}')
+        logger.debug(f'loc: {self.restic_location}')
         self.password = password
         self.global_credentials = global_credentials
         if not self.global_credentials:

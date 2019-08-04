@@ -218,7 +218,7 @@
                                 // a numeric progress value. If a progress value comes in through the event source,
                                 // then we want to replace the spinner with the progress bar, otherwise we just update
                                 // the progress bar with new value
-                                var progress_bar = $(".item-update-progress progress");
+                                var progress_bar = $("progress", toUpdate[j]);
                                 if (progress_bar.length > 0 && !(isNaN(data[i]['progress'])) && data[i]['progress'] > 0) {
                                     progress_bar[0].value = data[i]['progress'];
                                 } else if (progress_bar.length == 0 && !(isNaN(data[i]['progress'])) && data[i]['progress'] > 0) {

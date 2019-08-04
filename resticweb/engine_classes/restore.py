@@ -10,7 +10,9 @@ class Restore(RVProcess):
 
     def __init__(self, **kwargs):
         super().__init__()
+        self.name = 'Restore'
         self.repository_interface = kwargs['repository']
+        self.description = f'Restoring from {self.repository_interface.address}'
         self.destination_address = kwargs['destination_address']
         self.object_list = kwargs.get('object_list')
         self.snapshot_id = kwargs['snapshot_id']

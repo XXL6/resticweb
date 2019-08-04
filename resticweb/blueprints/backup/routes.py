@@ -137,7 +137,6 @@ def edit_saved_job_backup(saved_job):
 def run_saved_jobs():
     item_ids = request.get_json().get('item_ids')
     for item_id in item_ids:
-        # saved_jobs_interface.run_saved_job_backup(item_id)
         job_builder = JobBuilder(saved_job_id=item_id)
         job_builder.run_job()
     flash("Job/s added to queue", category='success')

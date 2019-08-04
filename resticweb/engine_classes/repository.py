@@ -15,7 +15,9 @@ class Repository(RVProcess):
         #self.global_parameters = kwargs.get('global_parameters')
         self.field_dict = kwargs['field_dict']
         #self.engine_location = kwargs.get('engine_location')
+        self.name = 'Repository'
         self.repository_interface = kwargs['repository']
+        self.description = f'Creating/Importing repository at {self.repository_interface.address}'
         self.repository_id_found = False
 
     # field_list[{'name': name, 'data': data}]
@@ -109,6 +111,7 @@ class RepositorySync(RVProcess):
 
     def __init__(self, **kwargs):
         super().__init__()
+        self.repository_interface = kwargs.get('repository')
         self.repo_id = kwargs.get('repo_id')
 
     def run(self):
@@ -116,10 +119,10 @@ class RepositorySync(RVProcess):
         self.log("Started repository sync")
         self.step("Syncing repository")
         try:
-            sync_repository_info(self.repo_id)
-            snapshots = sync_snapshots(self.repo_id)
+            sync_repository_info(self.repo_id, repository_interface=self.repository_interface)
+            snapshots = sync_snapshots(self.repo_id, repository_interface=self.repository_interface)
             for snapshot in snapshots:
-                sync_snapshot_objects(self.repo_id, snapshot['snap_id'])
+                sync_snapshot_objects(snapshot['snap_id'], self.repo_id, repository_interface=self.repository_interface)
         except Exception:
             self.log("Failed to sync repository objects")
             self.log(f'TRACE: {traceback.format_exc()}')

@@ -5,6 +5,7 @@ class JobStatus:
     JOB_STATUS_WAITING_RESOURCES = 22
     JOB_STATUS_PAUSED = 30
     JOB_STATUS_FINISHED = 40
+    JOB_STATUS_CANCELLED = 50
 
 
 class JobStatusMap:
@@ -14,7 +15,8 @@ class JobStatusMap:
         JobStatus.JOB_STATUS_PAUSED: 'Paused',
         JobStatus.JOB_STATUS_FINISHED: 'Finished',
         JobStatus.JOB_STATUS_ACQUIRING_RESOURCES: 'Acquiring resources',
-        JobStatus.JOB_STATUS_WAITING_RESOURCES: 'Waiting for one or more resources'
+        JobStatus.JOB_STATUS_WAITING_RESOURCES: 'Waiting for one or more resources',
+        JobStatus.JOB_STATUS_CANCELLED: 'Job cancelled'
     }
 
 
@@ -60,6 +62,14 @@ class Credential:
 class System:
     DB_INITIALIZED_VAR_NAME = "DB_INITIALIZED"
     DEFAULT_TIME_FORMAT = "%m-%d-%YT%H:%M:%S"
+    # sometimes the process might report its' status as finished and
+    # then the process will terminate, but the elif statements might
+    # already be past the 'status' == 'success' for example and will
+    # fall under the 'not alive' statement and it will think that the
+    # process quit before it was able to report its status.
+    # we can mitigate this by setting a timer to give the job plenty of time
+    # to finish
+    DEAD_PROCESS_TIMEOUT = 30 # in seconds
 
 
 class MiscResticConstants:

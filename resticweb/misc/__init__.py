@@ -3,7 +3,7 @@ from resticweb import db
 from multiprocessing import current_process
 from resticweb.tools.job_tools import JobQueue
 from resticweb.tools.job_runner import JobRunner
-from resticweb import process_manager
+from resticweb.tools.resource_manager import RWResourceManager
 
 # this is a separate package for initializing objects that
 # might not be initializable in the main __init__ file due to
@@ -16,6 +16,7 @@ from resticweb import process_manager
 # cause issues in the main application process as some route
 # handling might be multithreaded
 
+resource_manager = RWResourceManager()
 job_queue = JobQueue()
-job_runner = JobRunner(queue=job_queue, process_manager=process_manager)
+job_runner = JobRunner(queue=job_queue)
 job_runner.start()

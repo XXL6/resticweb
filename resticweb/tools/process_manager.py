@@ -148,10 +148,10 @@ class ProcessManager:
 
     # originally intended to be used with python's 'with' statement
     # but this class will probably never be used that way
-    def __enter__(self):
+    def DEL___enter__(self):
         return self
 
-    def __exit__(self):
+    def DEL___exit__(self):
         # by setting the following flag, we can indicate to the
         # process purger thread that we're exiting and it can stop
         # purging processes

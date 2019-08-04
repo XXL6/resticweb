@@ -7,7 +7,6 @@ from resticweb import db
 import json
 from .forms import AddRepositoryTypeForm, get_add_repository_form, EditRepositoryTypeForm, get_edit_repository_form
 from resticweb.misc import job_queue
-from resticweb.tools.job_tools import JobObject
 from resticweb.tools.job_build import JobBuilder
 from resticweb.dictionary.resticweb_variables import Config
 from resticweb.dictionary.resticweb_constants import System
@@ -228,7 +227,7 @@ def delete_repositories():
         repository_interface.delete_repositories(item_ids)
     except Exception as e:
         flash(f"Items not removed: {e}", category='error')
-        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+        return json.dumps({'success': True}), 500, {'ContentType': 'application/json'}
         # logger.debug(group_id)
     flash("Successfully removed items", category="success")
     return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}

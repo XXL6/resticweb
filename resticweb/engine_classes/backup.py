@@ -12,7 +12,9 @@ class Backup(RVProcess):
 
     def __init__(self, **kwargs):
         super().__init__()
+        self.name = 'Backup'
         self.repository_interface = kwargs['repository']
+        self.description = f'Backup to {self.repository_interface.address}'
         object_list = kwargs['object_list']
         self.file_include_list = [file[1:] for file in object_list if file[0] == MiscResticConstants.FILE_INCLUSION_KEY]
         self.file_exclude_list = [file[1:] for file in object_list if file[0] == MiscResticConstants.FILE_EXCLUSION_KEY]

@@ -7,7 +7,9 @@ class Prune(RVProcess):
 
     def __init__(self, **kwargs):
         super().__init__()
+        self.name = 'Prune'
         self.repository_interface = kwargs['repository']
+        self.description = f'Pruning repository at {self.repository_interface.address}'
 
     def run(self):
         super().run()

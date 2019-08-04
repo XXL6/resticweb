@@ -7,8 +7,12 @@ from resticweb.misc.credential_manager import credential_manager
 from .repository_formatted import ResticRepositoryFormatted
 from resticweb.tools.repository_tools import sync_snapshots, sync_snapshot_objects
 import json
+import traceback
 from datetime import datetime
 from resticweb.dateutil import parser
+import logging
+
+logger = logging.getLogger('debugLogger')
 
 # repository_add_to_db is used instead of the following method
 # it's located under resticweb.tools.job_callbacks
@@ -56,24 +60,19 @@ def update_repository(info, repo_id, sync_db=False, unsync_db=False):
 
 
 def delete_repositories(ids):
+    credential_groups = []
     with LocalSession() as session:
         for id in ids:
             repo_to_remove = session.query(Repository).filter_by(id=id).first()
-            credential_manager.remove_credentials(repo_to_remove.credential_group_id)
+            # credential_manager.remove_credentials(repo_to_remove.credential_group_id)
+            credential_groups.append(repo_to_remove.credential_group_id)
             job_parameters = session.query(JobParameter).filter_by(param_name='repository', param_value=id).all()
             for parameter in job_parameters:
                 parameter.param_value = None
             session.delete(repo_to_remove)
         session.commit()
-
-
-def get_engine_repositories():
-    repository_list = []
-    with LocalSession() as session:
-        repositories = session.query(Repository).filter_by()
-        for repository in repositories:
-            repository_list.append((repository.id, repository.name))
-    return repository_list
+    for id in credential_groups:
+        credential_manager.remove_credentials(id)
 
 
 def get_repository_from_snap_id(snap_id):
@@ -83,15 +82,17 @@ def get_repository_from_snap_id(snap_id):
         return repository
 
 
-def get_info(id):
+def get_info(id, repository_interface=None):
     info_dict = {}
+    if not repository_interface:
+        repository_interface = get_formatted_repository_interface_from_id(id)
+    misc_data = None
+    repo_status = repository_interface.is_offline()
+    if not repo_status:
+        misc_data = repository_interface.get_stats()
     with LocalSession() as session:
         repository = session.query(Repository).filter_by(id=id).first()
-        repository_interface = get_formatted_repository_interface_from_id(id)
-        misc_data = None
-        repo_status = repository_interface.is_offline()
-        if not repo_status:
-            misc_data = repository_interface.get_stats()
+        if misc_data:
             repository.data = json.dumps(misc_data)
             session.commit()
         else:
@@ -216,58 +217,61 @@ def insert_snapshot_objects(items, snap_id):
 def get_snapshot_info(id):
     with LocalSession() as session:
         snapshot = session.query(Snapshot).filter_by(snap_id=id).first()
-        if snapshot.paths:
-            try:
-                snapshot.paths = json.loads(snapshot.paths)
-            except ValueError:
-                pass
-        return snapshot
+    if snapshot.paths:
+        try:
+            snapshot.paths = json.loads(snapshot.paths)
+        except ValueError:
+            pass
+    return snapshot
 
 
 def get_repository_status(id):
-    with LocalSession() as session:
-        repository_interface = get_formatted_repository_interface_from_id(id)
-        status = repository_interface.is_online()
-        if status is None:
-            return "Couldn't get status"
+    repository_interface = get_formatted_repository_interface_from_id(id)
+    status = repository_interface.is_online()
+    if status is None:
+        return "Couldn't get status"
+    else:
+        if status:
+            return "Online"
         else:
-            if status:
-                return "Online"
-            else:
-                return "Offline"
+            return "Offline"
 
 def get_repository_name(id):
     with LocalSession() as session:
         repository = session.query(Repository).filter_by(id=id).first()
-        if repository:
-            return repository.name
-        else:
-            return None
+    if repository:
+        return repository.name
+    else:
+        return None
 
 
 def get_repository_address(id):
     with LocalSession() as session:
         repository = session.query(Repository).filter_by(id=id).first()
-        if repository:
-            return repository.address
-        else:
-            return None
+    if repository:
+        return repository.address
+    else:
+        return None
 
 def get_repository_password(id):
     with LocalSession() as session:
         repository = session.query(Repository).filter_by(id=id).first()
-        if repository:
-            return credential_manager.get_credential(repository.credential_group_id, "repo_password")
-        else:
-            return None
+    if repository:
+        return credential_manager.get_credential(repository.credential_group_id, "repo_password")
+    else:
+        return None
 
 def get_formatted_repository_interface_from_id(id):
-    with LocalSession() as session:
-        repository = session.query(Repository).filter_by(id=id).first()
-        if repository:
-            credential_list = credential_manager.get_group_credentials(repository.credential_group_id)
-            repo_password = credential_list.pop('repo_password')
-            respository_interface = ResticRepositoryFormatted(repository.address, repo_password, credential_list if len(credential_list) > 0 else None)
-            return respository_interface
-        else:
-            return None
+    try:
+        with LocalSession() as session:
+            repository = session.query(Repository).filter_by(id=id).first()
+            if repository:
+                credential_list = credential_manager.get_group_credentials(repository.credential_group_id)
+                if credential_list:
+                    repo_password = credential_list.pop('repo_password')
+                    respository_interface = ResticRepositoryFormatted(repository.address, repo_password, credential_list if len(credential_list) > 0 else None)
+                    return respository_interface
+    except Exception as e:
+        logger.error(e)
+        logger.error("trace:" + traceback.format_exc())
+    return None

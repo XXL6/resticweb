@@ -7,7 +7,9 @@ class Check(RVProcess):
 
     def __init__(self, **kwargs):
         super().__init__()
+        self.name = 'Check'
         self.repository_interface = kwargs['repository']
+        self.description = f'Checking repository at {self.repository_interface.address}'
 
     def run(self):
         super().run()
