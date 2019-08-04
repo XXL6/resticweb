@@ -214,6 +214,15 @@ def insert_snapshot_objects(items, snap_id):
         session.commit()
 
 
+def get_engine_repositories():
+    repository_list = []
+    with LocalSession() as session:
+        repositories = session.query(Repository).filter_by()
+        for repository in repositories:
+            repository_list.append((repository.id, repository.name))
+    return repository_list
+
+
 def get_snapshot_info(id):
     with LocalSession() as session:
         snapshot = session.query(Snapshot).filter_by(snap_id=id).first()
