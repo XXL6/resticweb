@@ -108,7 +108,7 @@ class ResticRepository(RVProcessFG):
     def get_snapshot_ls(self, snapshot_id):
         with ResticCredentials(self.global_credentials):
             return_json = []
-            command = self.repo_command + ['ls', snapshot_id, '--json']
+            command = self.repo_command + ['ls', f'{snapshot_id}', '--json']
             task = subprocess.run(
                     command,
                     capture_output=True,
