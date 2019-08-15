@@ -1,0 +1,109 @@
+{% extends "repositories/repositories.html" %}
+{% set help_page = "repository_list_add_1" %}
+{% set active_menu = "repository_list" %}
+{% block menu_content %}
+    <form id="repository-form" class="ub-form form-style-1" method="POST" action="" enctype="multipart/form-data"><!-- enctype required for images or something -->
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom">General Repository Attributes</legend>
+            <div class="form-group">
+                {{ form.name.label(class="form-control-label") }}
+                {% if form.name.errors %}
+                {{ form.name(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.name(class="form-control") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.repo_password.label(class="form-control-label") }}
+                {% if form.repo_password.errors %}
+                {{ form.repo_password(class="form-control is-invalid", autocomplete='off') }}
+                <div class="invalid-feedback">
+                    {% for error in form.repo_password.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.repo_password(class="form-control", autocomplete='off') }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.description.label(class="form-control-label") }}
+                {% if form.description.errors %}
+                {{ form.description(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.description.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.description(class="form-control") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.cache_repo.label(class="form-control-label") }}
+                {% if form.cache_repo.errors %}
+                {{ form.cache_repo(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.cache_repo.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.cache_repo(class="form-control") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.concurrent_uses.label(class="form-control-label") }}
+                {% if form.concurrent_uses.errors %}
+                {{ form.concurrent_uses(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.concurrent_uses.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.concurrent_uses(class="form-control") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.timeout.label(class="form-control-label") }}
+                {% if form.timeout.errors %}
+                {{ form.timeout(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.timeout.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.timeout(class="form-control") }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <fieldset class="form-group">
+            <legend class="border-bottom">Repository Type Attributes</legend>
+            <div class="form-group">
+                {{ form.rclone_address.label(class="form-control-label") }}
+                {% if form.rclone_address.errors %}
+                {{ form.rclone_address(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.rclone_address.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.rclone_address(class="form-control") }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="form-control") }}
+        </div>
+    </form>
+
+{% endblock menu_content %}

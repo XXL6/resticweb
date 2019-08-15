@@ -77,4 +77,12 @@ def init_db():
         description="Repository type referencing a place in an Amazon S3 bucket.")
     db.session.add(repository_type_type)
 
+    repository_type_type = RepositoryType(
+        id=3,
+        name="Placeholder",
+        type="cloud",
+        internal_binding='rclone',
+        description="Placeholder for RClone repository types. Feel free to create custom ones that correspond to your repo locations.")
+    db.session.add(repository_type_type)
+
     db.session.commit()

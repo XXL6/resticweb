@@ -88,6 +88,7 @@ class EditRepositoryFormBase(FlaskForm):
                     raise ValidationError(f"Location with name {name.data} already exists. Please pick a different name.")
 
 
+# 1 == local
 class AddRepositoryForm1(AddRepositoryFormBase):
     address = StringField("Address", validators=[DataRequired()])
 
@@ -98,6 +99,7 @@ class EditRepositoryForm1(EditRepositoryFormBase):
     def set_current_data(self, current_data):
         self.address.data = current_data['address']
 
+# 2 == amazons3
 class AddRepositoryForm2(AddRepositoryFormBase):
     bucket_name = StringField("Bucket Name", validators=[DataRequired()])
     AWS_ACCESS_KEY_ID = UBCredentialField("AWS Access Key Id", validators=[DataRequired()])
@@ -110,12 +112,25 @@ class EditRepositoryForm2(EditRepositoryFormBase):
     def set_current_data(self, current_data):
         self.bucket_name.data = current_data['bucket_name']
 
+# 3 == rclone
+class AddRepositoryForm3(AddRepositoryFormBase):
+    rclone_address = StringField("Rclone Address", validators=[DataRequired()])
+
+
+class EditRepositoryForm3(EditRepositoryFormBase):
+    rclone_address = StringField("Rclone Address", validators=[DataRequired()])
+
+    def set_current_data(self, current_data):
+        self.rclone_address.data = current_data['rclone_address']
+
 
 def get_add_repository_form(repository_type):
     if repository_type == 'local':
         return AddRepositoryForm1()
     elif repository_type == 'amazons3':
         return AddRepositoryForm2()
+    elif repository_type == 'rclone':
+        return AddRepositoryForm3()
     else:
         raise Exception("Unsupported repository type")
 
@@ -125,5 +140,7 @@ def get_edit_repository_form(repository_type):
         return EditRepositoryForm1()
     elif repository_type == 'amazons3':
         return EditRepositoryForm2()
+    elif repository_type == 'rclone':
+        return EditRepositoryForm3()
     else:
         raise Exception("Unsupported repository type")

@@ -37,8 +37,9 @@ def repository_snapshots(repository_id):
 
 @repositories.route(f'/{repositories.name}/repository_list/snapshot_list/<string:snapshot_id>')
 def snapshot_list(snapshot_id):
-    snapshot_objects = repository_interface.get_snapshot_objects(snapshot_id)
     snapshot = repository_interface.get_snapshot_info(snapshot_id)
+    repository = Repository.query.filter_by(id=snapshot.repository_id).first()
+    snapshot_objects = repository_interface.get_snapshot_objects(snapshot_id, repository.cache_repo)
     node_list = []
     # following is a node structure that is intended to be understood by the Javascript
     # JStree plugin
@@ -164,6 +165,11 @@ def repo_address_format(repository_type, form):
         return form.address.data
     elif repository_type == 'amazons3':
         address = f's3:s3.amazonaws.com/{form.bucket_name.data}'
+        return address
+    elif repository_type == 'rclone':
+        address = form.rclone_address.data
+        if 'rclone:' not in address[0:7]:
+            address = 'rclone:' + address
         return address
     else:
         return None

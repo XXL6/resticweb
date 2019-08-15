@@ -117,7 +117,7 @@ def get_info(id, repository_interface=None):
 def get_snapshots(id, use_cache=False):
     repository_interface = get_formatted_repository_interface_from_id(id)
     snapshots = []
-    if repository_interface.is_online() and not use_cache:
+    if not use_cache and repository_interface.is_online():
         snapshots = repository_interface.get_snapshots()
         if snapshots:
             sync_snapshots(id)
@@ -156,17 +156,17 @@ def insert_snapshots(items, repo_id):
         session.commit()
 
 
-def get_snapshot_objects(snap_id):
+def get_snapshot_objects(snap_id, use_cache=False):
     with LocalSession() as session:
         snapshot = session.query(Snapshot).filter_by(snap_id=snap_id).first()
         repository = session.query(Repository).filter_by(id=snapshot.repository_id).first()
     repository_interface = get_formatted_repository_interface_from_id(snapshot.repository_id)
-    if repository_interface.is_online():
+    if not use_cache and repository_interface.is_online():
         # if the repo is online, we can purge the snapshots from db as we will
         # just re-add them fresh from the actual repo
         object_list = repository_interface.get_snapshot_ls(snap_id)
         if repository.cache_repo:
-            sync_snapshot_objects(repository.id, snap_id)
+            sync_snapshot_objects(repository.id, snap_id, repository_interface=repository_interface)
         return object_list
     else:
         with LocalSession() as session:

@@ -49,7 +49,8 @@ class BackupSetList:
 class RepositoryTypeBindings:
     REPOSITORY_LOCAL = 'local'
     REPOSITORY_AMAZON_S3 = 'amazons3'
-    binding_list = [REPOSITORY_LOCAL, REPOSITORY_AMAZON_S3]
+    REPOSITORY_RCLONE = 'rclone'
+    binding_list = [REPOSITORY_LOCAL, REPOSITORY_AMAZON_S3, REPOSITORY_RCLONE]
 
 
 class Credential:

@@ -57,8 +57,9 @@ def snapshot_list(snapshot_id):
         flash("Restore job added to the queue.", category='success')
         return redirect(url_for('restore.repositories'))
     else:
-        snapshot_objects = repository_interface.get_snapshot_objects(snapshot_id)
         snapshot = repository_interface.get_snapshot_info(snapshot_id)
+        # repository = Repository.query.filter_by(repo_id=snapshot.repository_id).first()
+        snapshot_objects = repository_interface.get_snapshot_objects(snapshot_id)
         node_list = []
         # following is a node structure that is intended to be understood by the Javascript
         # JStree plugin
