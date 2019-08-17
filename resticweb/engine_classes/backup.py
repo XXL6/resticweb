@@ -66,6 +66,7 @@ class Backup(RVProcess):
                 self.status('error')
                 self.delete_file_list(backup_object_filename)
                 return
+            self.send_data('children', [self.task.pid])
             Thread(target=self.error_reader, args=[self.task.stderr], daemon=True).start()
             try:
                 while self.task.poll() is None:
@@ -95,7 +96,7 @@ class Backup(RVProcess):
                 self.status('warning')
                 return
             self.status('success')
-        
+
     def parse_input(self, input):
         line = input.readline()
         if len(line) > 0:
@@ -137,6 +138,7 @@ class Backup(RVProcess):
                     self.errors.append(line)
         except Exception:
             pass
+        
 
     def create_file_list(self):
         for i in range(0,100):

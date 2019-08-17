@@ -17,10 +17,9 @@ class JobRunner(Thread):
         # self.resource_manager = resource_manager
         self.logger = logging.getLogger("mainLogger")
 
-    # at the moment only one job gets run at a time with no concurrency
-    # once it finishes, the next job is run
-    # does not check whether or not a job can be run at this time
-    # and will attempt to do it regardless
+    # the job runner will iterate through the queue and will attempt to
+    # start each job one by one. If a job cannot acquire resources at the time,
+    # the runner will move on to the next job to start
     def run(self):
         while True:
             # job = self.queue.peek()
@@ -35,4 +34,6 @@ class JobRunner(Thread):
                     # self.post_run_routine(self.queue.pop())
                     self.queue.pop()
             sleep(5)
+
+    
 

@@ -29,7 +29,7 @@ class AddRepositoryTypeForm(FlaskForm):
 
 
 
-class UBCredentialField(StringField):
+class RWCredentialField(StringField):
     pass
 
 
@@ -58,7 +58,7 @@ class EditRepositoryTypeForm(FlaskForm):
 class AddRepositoryFormBase(FlaskForm):
     repository_id = HiddenField('Id')
     name = StringField("Name", validators=[DataRequired()])
-    repo_password = UBCredentialField("Repo Password", validators=[DataRequired()])
+    repo_password = RWCredentialField("Repo Password", validators=[DataRequired()])
     description = TextAreaField("Description")
     cache_repo = BooleanField("Cache repository objects")
     concurrent_uses = IntegerField("Concurrent job uses")
@@ -102,8 +102,8 @@ class EditRepositoryForm1(EditRepositoryFormBase):
 # 2 == amazons3
 class AddRepositoryForm2(AddRepositoryFormBase):
     bucket_name = StringField("Bucket Name", validators=[DataRequired()])
-    AWS_ACCESS_KEY_ID = UBCredentialField("AWS Access Key Id", validators=[DataRequired()])
-    AWS_SECRET_ACCESS_KEY = UBCredentialField("AWS Secret Access Key", validators=[DataRequired()])
+    AWS_ACCESS_KEY_ID = RWCredentialField("AWS Access Key Id", validators=[DataRequired()])
+    AWS_SECRET_ACCESS_KEY = RWCredentialField("AWS Secret Access Key", validators=[DataRequired()])
 
 
 class EditRepositoryForm2(EditRepositoryFormBase):

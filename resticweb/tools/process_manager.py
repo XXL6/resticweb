@@ -3,6 +3,8 @@ from queue import Empty as QueueEmptyException
 from multiprocessing import Lock as P_lock
 from threading import Thread
 from threading import Lock as T_lock
+import os
+import signal
 import logging
 from time import sleep
 # https://docs.python.org/3/library/multiprocessing.html
@@ -105,9 +107,13 @@ class ProcessManager:
                       else "stopped")
         return status
 
+    # kills the process and any child processes the process has reported as having spawned
     def kill_process(self, pid):
         pid = int(pid)
         process = self.get_process_object(pid)
+        if process.children:
+            for child in process.children:
+                os.kill(child, signal.SIGTERM)
         process.terminate()
 
     # is there a process with a certain name?
@@ -219,6 +225,8 @@ class ProcessManager:
             elif temp_dict['data_name'] == 'progress':
                 # print('progress' + str(temp_dict['data']))
                 process.data['progress'] = temp_dict['data']
+            elif temp_dict['data_name'] == 'children':
+                process.children = temp_dict['data'] # list of children PIDs
             else:
                 process.data[temp_dict['data_name']] = temp_dict['data']
             self.t_lock.release()

@@ -132,7 +132,7 @@ def add_repository(repository_type):
         global_credentials = {}
         for item in form:
             if item.id != 'csrf_token' and item.id != 'submit':
-                if type(item).__name__ == 'UBCredentialField':
+                if type(item).__name__ == 'RWCredentialField':
                     global_credentials[item.id] = item.data
                 else:
                     new_info[item.id] = item.data

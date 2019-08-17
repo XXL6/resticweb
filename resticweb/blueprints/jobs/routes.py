@@ -41,6 +41,15 @@ def update_job_queue():
     return Response(update_stream(), mimetype="text/event-stream")
 
 
+@jobs.route(f'/{jobs.name}/job_queue/_stop', methods=['POST'])
+def stop_jobs():
+    job_ids = request.get_json().get('item_ids')
+    for job_id in job_ids:
+        process_manager.kill_process(job_id)
+    flash("Selected processes have been terminated.", category="success")
+    return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+
+
 @jobs.route(f'/{jobs.name}/job_queue/_update_job_info/<int:job_id>')
 def update_job_info(job_id):
     def update_stream():
@@ -90,27 +99,30 @@ def job_history():
 @jobs.route(f'/{jobs.name}/job_history/_get_history_info')
 def get_history_info():
     id = request.args.get('id', 0, type=int)
-    info_dict = JobHistory.query.filter_by(id=id).first()
-    if info_dict.log:
+    history_info = JobHistory.query.filter_by(id=id).first()
+    if history_info.type == 'Backup':
+        from resticweb.blueprints.backup.routes import get_history_info as get_backup_history_info
+        return get_backup_history_info()
+    if history_info.log:
         try:
-            info_dict.log = json.loads(info_dict.log)
+            history_info.log = json.loads(history_info.log)
         except json.decoder.JSONDecodeError:
             # if the log is not a list, we just add the whole string
             # to a list so that it's displayed properly
-            info_dict.log = [info_dict.log]
+            history_info.log = [history_info.log]
     '''
-    info_dict = dict(
-        name=info_dict.name,
-        status=info_dict.status,
-        type=info_dict.type,
-        log=info_dict.log,
-        time_started=info_dict.time_started,
-        time_finished=info_dict.time_finished,
-        time_elapsed=info_dict.time_elapsed,
+    history_info = dict(
+        name=history_info.name,
+        status=history_info.status,
+        type=history_info.type,
+        log=history_info.log,
+        time_started=history_info.time_started,
+        time_finished=history_info.time_finished,
+        time_elapsed=history_info.time_elapsed,
         time_added = 
     )
     '''
-    return render_template('sidebar/job_history.html', info_dict=info_dict)
+    return render_template('sidebar/job_history.html', info_dict=history_info)
 
 
 @jobs.route(f'/{jobs.name}/job_history/_delete', methods=['POST'])
@@ -140,7 +152,7 @@ def delete_saved_jobs():
     try:
         saved_jobs_interface.delete_jobs(item_ids)
     except Exception as e:
-        flash("Items not removed", category='error')
+        flash(f"Items not removed {e}", category='error')
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
         # logger.debug(group_id)
     flash("Successfully removed items", category="success")
@@ -163,6 +175,21 @@ def get_saved_job_info():
         else:
             info_dict['repository'] = "undefined"
         return render_template('sidebar/saved_jobs_check.html', info_dict=info_dict)
+    elif job.engine_class == 'prune':
+        info_dict = {}
+        info_dict['name'] = job.name
+        info_dict['notes'] = job.notes
+        for param in job.parameters:
+            if param.param_name == 'repository':
+                repository = Repository.query.filter_by(id=param.param_value).first()
+        if repository:
+            info_dict['repository'] = repository.name
+        else:
+            info_dict['repository'] = "undefined"
+        return render_template('sidebar/saved_jobs_prune.html', info_dict=info_dict)
+    elif job.engine_class == 'backup':
+        from resticweb.blueprints.backup.routes import get_saved_job_info as get_backup_job_info
+        return get_backup_job_info()
     else:
         return ""
 

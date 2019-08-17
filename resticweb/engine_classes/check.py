@@ -18,22 +18,24 @@ class Check(RVProcess):
             self.log(f"Checking repository at address: {self.repository_interface.address}")
             self.step("Checking repository.")
             try:
-                self.task = subprocess.run(
+                self.task = subprocess.Popen(
                     command,
-                    capture_output=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
                     encoding='utf-8',
                     shell=False)
-                # stdout, stderr = self.task.communicate()
+                self.send_data('children', [self.task.pid])
+                stdout, stderr = self.task.communicate()
             except Exception as e:
                 self.log(f'Exception 1: {e}')
                 self.log(f'Traceback: {traceback.format_exc()}')
                 self.status('error')
                 return
             # self.send_data('result', self.result_tracker.get_result_dictionary())
-            if len(self.task.stderr) > 0:
-                self.log(self.task.stderr)
+            if len(stderr) > 0:
+                self.log(stderr)
                 self.status('error')
                 return
             else:
-                self.send_data('result', self.task.stdout)
+                self.send_data('result', stdout)
                 self.status('success')

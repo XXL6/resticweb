@@ -237,6 +237,25 @@
                     });
                 }
                 break;
+            case "stop":
+                var value = confirm("Stop selected jobs?");
+                if (value) {
+                    var itemsToStop = getCheckedItemIds();
+                    $.ajax({
+                        type: "POST",
+                        url: $SCRIPT_ROOT + "{{action_script_root + '_stop'|safe}}",
+                        contentType: "application/json",
+                        data: JSON.stringify({item_ids: itemsToStop}),
+                        dataType: "json",
+                        success: function(response) {
+                            location.reload();
+                        },
+                        error: function(error) {
+                            new Noty({ theme: 'relax', text: error.responseJSON.errormsg, layout: 'bottomCenter', type: 'error' }).show();
+                        }
+                    });
+                }
+                break;
             default:
                 alert("Unsupported function");
         }
