@@ -144,7 +144,7 @@ def add_repository(repository_type):
                         new_info['parameters'][item.id] = item.data
 
         new_info['repository_type_id'] = repository_type
-        job_builder = JobBuilder(job_class='repository', job_name='Repository Create', parameters=dict(
+        job_builder = JobBuilder(job_class='repository', job_name=f'Repository Create: {new_info["name"]}', parameters=dict(
                 address=address,
                 repo_password=form.repo_password.data,
                 field_dict=new_info,

@@ -9,10 +9,11 @@ from resticweb.engine_classes.class_name_map import get_available_classes, get_c
 from resticweb.dictionary.resticweb_constants import JobStatusFinishedMap, \
     JobStatusMap
 import resticweb.interfaces.repository_list as repository_interface
-from resticweb.models.general import JobHistory, SavedJobs, Repository
+from resticweb.models.general import JobHistory, SavedJobs, Repository, Schedule, ScheduleJobMap
 import json
-from .forms import AddCheckJobForm, EditCheckJobForm, AddPruneJobForm, EditPruneJobForm
+from .forms import AddCheckJobForm, EditCheckJobForm, AddPruneJobForm, EditPruneJobForm, AddScheduleForm
 from time import sleep
+from resticweb.misc.job_scheduler import job_scheduler
 
 jobs = Blueprint('jobs', '__name__')
 
@@ -203,7 +204,7 @@ def add_saved_job(engine_class):
     if engine_class == 'backup':
         return redirect(url_for('backup.add_saved_job'))
     elif engine_class == 'repository':
-        return redirect(url_for('repositories.add_repository'))
+        return redirect(url_for('repositories.choose_repository_type'))
     elif engine_class == 'restore':
         return redirect(url_for('restore.repositories'))
     elif engine_class == 'check':
@@ -347,3 +348,37 @@ def update_queue():
             sleep(10)
     return Response(update_stream(), mimetype="text/event-stream")
 '''
+
+
+@jobs.route(f'/{jobs.name}/schedules')
+def schedules():
+    page = request.args.get('page', 1, type=int)
+    items = Schedule.query.order_by(Schedule.name.desc()).paginate(page=page, per_page=40)
+
+    return render_template('jobs/schedules.html', items=items)
+
+
+@jobs.route(f'/{jobs.name}/schedules/_add', methods=['GET', 'POST'])
+def schedules_add():
+    form = AddScheduleForm()
+
+    available_time_units = [
+        ('minute', 'minute'),
+        ('minutes', 'minutes'),
+        ('hour', 'hour'),
+        ('hours', 'hours'),
+        ('day', 'day'),
+        ('days', 'days'),
+        ('week', 'week'),
+        ('weeks', 'weeks'),
+        ('monday', 'monday'),
+        ('tuesday', 'tuesday'),
+        ('wednesday', 'wednesday'),
+        ('thursday', 'thursday'),
+        ('friday', 'friday'),
+        ('saturday', 'saturday'),
+        ('sunday', 'sunday'),
+    ]
+
+    form.time_unit.choices = available_time_units
+    return render_template('jobs/schedules_add.html', form=form)
