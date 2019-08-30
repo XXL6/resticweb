@@ -13,11 +13,11 @@ class ResticRepository(RVProcessFG):
 
     def __init__(self, address, password, global_credentials=None):
         super().__init__()
-        logger = logging.getLogger('debugLogger')
+        # logger = logging.getLogger('debugLogger')
         self.address = address
         self.restic_location = Config.ENGINE_COMMAND
-        logger.debug(f'addr: {address}')
-        logger.debug(f'loc: {self.restic_location}')
+        # logger.debug(f'addr: {address}')
+        # logger.debug(f'loc: {self.restic_location}')
         self.password = password
         self.global_credentials = global_credentials
         if not self.global_credentials:

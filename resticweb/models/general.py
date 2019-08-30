@@ -52,6 +52,12 @@ class SavedJobs(db.Model):
     
     history = db.relationship('JobHistory', backref='saved_job', lazy=True)
     parameters = db.relationship('JobParameter', backref='saved_job', lazy=True)
+    schedule_job_maps = db.relationship(
+        'ScheduleJobMap',
+        backref='saved_job',
+        cascade="all, delete, delete-orphan",
+        lazy=True
+    )
 
 
 class JobParameter(db.Model):
@@ -241,3 +247,33 @@ class Snapshot(db.Model):
             tree=self.tree
         )
 
+
+class Schedule(db.Model):
+    __bind_key__ = 'general'
+    __tablename__ = 'schedule'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+    description = db.Column(db.Text)
+    next_run = db.Column(db.DateTime)
+    time_unit = db.Column(db.String(20))
+    time_interval = db.Column(db.Integer)
+    time_at = db.Column(db.String(20))
+    missed_timeout = db.Column(db.Integer) # in minutes
+    paused = db.Column(db.Boolean, default=False)
+
+    schedule_job_maps = db.relationship(
+        'ScheduleJobMap',
+        backref='schedule',
+        cascade="all, delete, delete-orphan",
+        lazy=True
+    )
+
+
+
+class ScheduleJobMap(db.Model):
+    __bind_key__ = 'general'
+    __tablename__ = 'schedule_job_map'
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    schedule_id = db.Column(db.Integer, db.ForeignKey('schedule.id'))
+    job_id = db.Column(db.Integer, db.ForeignKey('saved_jobs.id'))
+    sort = db.Column(db.Integer, default=0)

@@ -128,7 +128,10 @@ class JobBuilder():
         # where it will go through the normal run cycle
         if self.job_object:
             if background:
-                job_queue.add(job=self.job_object)
+                if not job_queue.job_exists(self.job_object.name):
+                    job_queue.add(job=self.job_object)
+                else:
+                    return False
             else:
                 return self.job_object.process.run()
         else:

@@ -27,7 +27,7 @@ def get_class_from_name(class_name):
     else:
         return None
 
-# method used to present job options to the front-end
+# function used to present job options to the front-end
 def get_available_classes():
     classes = [('backup', 'Backup'), 
             ('repository', 'Repository Create'), 

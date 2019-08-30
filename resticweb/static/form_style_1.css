@@ -120,6 +120,17 @@ fieldset {
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;*/
   }
 
+.form-style-1 .inline-form-control {
+    display: block;
+    height: calc(1.5rem + 2px);
+    width: 30%;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;   
+}
+
 .form-group {
     position: relative;
 }
@@ -168,3 +179,4 @@ fieldset {
 .form-style-1 input[type=button].exclude-button:hover {
     background-color: rgba(131, 68, 45, 0.692);
 }
+

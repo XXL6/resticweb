@@ -44,6 +44,15 @@ class JobQueue:
         self.lock.release()
         return queue_list
 
+    def job_exists(self, name):
+        self.lock.acquire()
+        for elem in list(self._job_list):
+            if elem.name == name:
+                self.lock.release()
+                return True
+        self.lock.release()
+        return False
+
     # removes the foremost job from the queue and returns it
     def pop(self):
         self.lock.acquire()

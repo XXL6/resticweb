@@ -1,0 +1,56 @@
+{% extends "jobs/jobs.html" %}
+{% set active_menu = "schedules" %}
+{% from "menu_generator.html" import generate_action_menu %}
+{% from "list_generators.html" import item_select_script_table %}
+{% set action_menu_list = [
+    {'action_name': 'Add', 'action': 'add', 'icon': 'fas fa-plus-square', 'variant': '0'},
+    {'action_name': 'Edit', 'action': 'edit', 'icon': 'fas fa-edit', 'variant': '1'},
+    {'action_name': 'Delete', 'action': 'delete', 'icon': 'fas fa-trash', 'variant': '2'}
+]
+-%}
+{% block menu_content %}
+    {{ generate_action_menu(action_menu_list, '/jobs/schedules/', items, 'jobs.schedules') }}
+    {#<div class="pagination">
+        <div class="pager_label">
+            Page:
+        </div>
+        {% for page_num in items.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_num %}
+                {% if items.page == page_num %}
+                    <li class="pager_item active">
+                        <a class="pager_link" href="{{ url_for('jobs.schedules', page=page_num) }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="pager_item">
+                        <a class="pager_link" href="{{ url_for('jobs.schedules', page=page_num) }}">{{ page_num }}</a>
+                    </li>
+                {% endif %}
+            {% else %}
+                ...
+            {% endif %}
+        {% endfor %}
+    </div>#}
+    <table class="ub-table">
+        <thead class="ub-table-header">
+            <tr class="ub-table-header-row">
+                <th class="ub-table-header-item table-col-05">Check</th>
+                <th class="ub-table-header-item table-col-2">Name</th>
+                <th class="ub-table-header-item table-col-4">Policy</th>
+                <th class="ub-table-header-item table-col-2">Next Run</th>
+                <th class="ub-table-header-item table-col-2">Pause</th>
+            </tr>
+        </thead>
+        {% for item in items.items %}
+            <tr class="ub-table-data-row" id="{{ item['id'] }}">
+                <td class="ub-table-data table-col-05 table-checkbox-div">
+                    <input type="checkbox" class="table-checkbox list-checkbox" autocomplete="off" value="{{item['id']}}" id="{{item['id']}}-box">
+                </td>
+                <td class="ub-table-data table-data-item">{{ item['name'] }}</td>
+                <td class="ub-table-data table-data-item">{{ item['policy'] }}</td>
+                <td class="ub-table-data table-data-item">{{ item['next_run'] }}</td>
+                {#<td class="ub-table-data table-data-item">{{ item['status'] }}</td>#}
+            </tr>
+        {% endfor %}
+    </table>
+    {{ item_select_script_table('/jobs/schedules/_get_schedule_info') }}
+{% endblock menu_content %}

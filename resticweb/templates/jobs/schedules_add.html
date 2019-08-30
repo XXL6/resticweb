@@ -1,0 +1,66 @@
+{% extends "jobs/schedules.html" %}
+{% set active_menu = "schedules" %}
+{% block menu_content %}
+    <form class="ub-form form-style-1" method="POST" action="" enctype="multipart/form-data"><!-- enctype required for images or something -->
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group-fieldset">
+            <legend class="border-bottom">Schedule attributes</legend>
+            <div class="form-group">
+                {{ form.name.label(class="form-control-label") }}
+                {% if form.name.errors %}
+                {{ form.name(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.name(class="form-control input-field") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.description.label(class="form-control-label") }}
+                {% if form.description.errors %}
+                {{ form.description(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.description.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.description(class="form-control input-field") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-control-label">Schedule policy:</label>
+                Run this schedule every {{ form.time_interval(class="inline-form-control", type="number") }} {{ form.time_unit(class="inline-form-control") }} at {{ form.time_at(class="time-select inline-form-control", type="time") }}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="form-control input-field") }}
+        </div>
+        <div id="job-schedule-table" class="table-editable">
+            <span class="table-add glyphicon glyphicon-plus"></span>
+            <table class="table">
+                <tr>
+                <th>Name</th>
+                <th>Value</th>
+                <th></th>
+                <th></th>
+                </tr>
+                <!-- This is our clonable table line -->
+                <tr class="hide">
+                <td contenteditable="true">Untitled</td>
+                <td contenteditable="true">undefined</td>
+                <td>
+                    <span class="table-remove glyphicon glyphicon-remove"></span>
+                </td>
+                <td>
+                    <span class="table-up glyphicon glyphicon-arrow-up"></span>
+                    <span class="table-down glyphicon glyphicon-arrow-down"></span>
+                </td>
+                </tr>
+            </table>
+            </div>
+    </form>
+{% endblock menu_content %}
