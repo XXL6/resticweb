@@ -53,7 +53,7 @@ class EditBackupJobForm(FlaskForm):
     repository = SelectField('Repository', coerce=int)
     submit = SubmitField('Submit')
 
-class UBCredentialField(StringField):
+class RWCredentialField(StringField):
     pass
 
 

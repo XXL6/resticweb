@@ -82,7 +82,7 @@ def add_saved_job():
         credential_dict = {}
         for item in form:
             if item.id != 'csrf_token' and item.id != 'submit' and item.id != 'name' and item.id != 'description':
-                if item.type == 'UBCredentialField':
+                if item.type == 'RWCredentialField':
                     credential_dict[item.id] = item.data
                 else:
                     param_dict[item.id] = item.data
@@ -319,26 +319,26 @@ def job_history():
 @backup.route(f'/{backup.name}/job_history/_get_history_info')
 def get_history_info():
     id = request.args.get('id', 0, type=int)
-    info_dict = get_job(id)
-    if info_dict.log:
+    job_info = get_job(id)
+    if job_info.log:
         try:
-            info_dict.log = json.loads(info_dict.log)
+            job_info.log = json.loads(job_info.log)
         except json.decoder.JSONDecodeError:
             # if the log is not a list, we just add the whole string
             # to a list so that it's displayed properly
-            info_dict.log = [info_dict.log]
-    if info_dict.result:
+            job_info.log = [job_info.log]
+    if job_info.result:
         try:
-            info_dict.result = json.loads(info_dict.result)
-            if info_dict.result:
+            job_info.result = json.loads(job_info.result)
+            if job_info.result:
                 try:
-                    info_dict.result['data_added'] = humanize.naturalsize(info_dict.result.get('data_added'), binary=True)
-                    info_dict.result['total_bytes_processed'] = humanize.naturalsize(info_dict.result.get('total_bytes_processed'), binary=True)
+                    job_info.result['data_added'] = humanize.naturalsize(job_info.result.get('data_added'), binary=True)
+                    job_info.result['total_bytes_processed'] = humanize.naturalsize(job_info.result.get('total_bytes_processed'), binary=True)
                 except Exception:
                     pass
         except json.decoder.JSONDecodeError:
             pass
-    return render_template('sidebar/job_history_backup.html', info_dict=info_dict)
+    return render_template('sidebar/job_history_backup.html', info_dict=job_info)
 
 
 @backup.route(f'/{backup.name}/job_history/_delete', methods=['POST'])
