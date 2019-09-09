@@ -1,12 +1,13 @@
 {% extends "jobs/jobs.html" %}
 {% set active_menu = "schedules" %}
-{% set help_page = "schedules_add" %}
 {% from "list_generators.html" import item_select_script_modal %}
 {% block menu_content %}
     <form class="ub-form form-style-1" method="POST" action="" enctype="multipart/form-data"><!-- enctype required for images or something -->
         {{ form.hidden_tag() }}
         <fieldset class="form-group-fieldset">
             <legend class="border-bottom">Schedule attributes</legend>
+            {{ form.schedule_id() }}
+            {{ form.jobs_changed() }}
             {{ form.job_list() }}
             <div class="form-group">
                 {{ form.name.label(class="form-control-label") }}
@@ -63,7 +64,20 @@
                 </tr>
             </thead>
             <tbody>
-
+                {% for item in table_items %}
+                    <tr class="ub-table-data-row" id="{{ item['id'] }}-row">
+                        <td class="ub-table-data">
+                            <button class="ub-table-button-remove table-col-05" onclick="removeTableItem(this.value)" value="{{item['id']}}" id="{{item['id']}}-button"><i class="fa fa-times-circle"></i></button>
+                        </td>
+                        <td class="ub-table-data table-data-item">{{ item['name'] }}</td>
+                        <td class="ub-table-data table-col-05">
+                            <button class="ub-table-button-sort table-down" onclick="tableDown(event); return false"><i class="fas fa-caret-down"></i></button>
+                        </td>
+                        <td class="ub-table-data table-col-05">
+                            <button class="ub-table-button-sort table-up" onclick="tableUp(event); return false"><i class="fas fa-caret-up"></i></button>
+                        </td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
         <div>
@@ -100,6 +114,7 @@
             if (!duplicateRow) {
                 _addToTable(name, id);
             }
+            document.getElementById('jobs_changed').value = true;
         }
 
         function removeTableItem(id) {
@@ -108,6 +123,7 @@
             if (row && row.rowIndex) {
                 table.deleteRow(row.rowIndex);
             }
+            document.getElementById('jobs_changed').value = true;
         }
 
         $(function () {
@@ -171,6 +187,13 @@
             var value = (evt.hour || '00') + ':' + (evt.minute || '00');
             evt.element.value = value;
         });
+
+        var time_unit = $("#time_unit").val();
+        if (time_unit[time_unit.length-1] != 's') {
+            $("#time_interval").prop('disabled', true);
+        } else {
+            $("#time_interval").prop('disabled', false);
+        }
 
     </script>
 {% endblock menu_content %}

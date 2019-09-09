@@ -19,6 +19,7 @@ class Backup(RVProcess):
         self.file_include_list = [file[1:] for file in object_list if file[0] == MiscResticConstants.FILE_INCLUSION_KEY]
         self.file_exclude_list = [file[1:] for file in object_list if file[0] == MiscResticConstants.FILE_EXCLUSION_KEY]
         self.temp_folder_location = os.path.join(os.path.dirname(__file__), os.pardir, '.temp')
+        self.additional_params = kwargs.get('additional_params')
         self.errors = []
 
     # field_list[{'name': name, 'data': data}]
@@ -51,11 +52,14 @@ class Backup(RVProcess):
         command = self.repository_interface.repo_command + ['--json', "backup", "--files-from", backup_object_filename]
         if exclusion_command:
             command = command + exclusion_command
+        if self.additional_params:
+            command += [self.additional_params]
+        self.log(f'Command: {" ".join(command)}')
         with self.repository_interface.get_credential_context():
             try:
                 self.task = subprocess.Popen(
                     command,
-                    stdout=subprocess.PIPE,
+                    stdout=subprocess.PIPE, 
                     stderr=subprocess.STDOUT,
                     encoding='utf-8',
                     shell=False)

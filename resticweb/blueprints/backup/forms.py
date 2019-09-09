@@ -4,14 +4,14 @@ from wtforms import StringField, SubmitField, TextField, SelectField,\
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 from resticweb.tools.local_session import LocalSession
-from resticweb.models.general import BackupSet
+from resticweb.models.general import BackupSet, SavedJobs
 
 
 class BSForm0(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     file_data = HiddenField('Data')
-    concurrent_uses = IntegerField("Concurrent job uses")
-    timeout = IntegerField("Timeout (minutes)")
+    concurrent_uses = IntegerField("Concurrent job uses", default=2)
+    timeout = IntegerField("Timeout (minutes)", default=60)
     submit = SubmitField('Submit')
 
     def validate_name(self, name):
@@ -42,7 +42,14 @@ class AddBackupJobForm(FlaskForm):
     description = TextAreaField('Description')
     backup_set = SelectField('Backup Set', coerce=int)
     repository = SelectField('Repository', coerce=int)
+    additional_params = StringField('Additional Parameters')
     submit = SubmitField('Submit')
+
+    def validate_name(self, name):
+        with LocalSession() as session:
+            saved_job = session.query(SavedJobs).filter_by(name=name.data).first()
+            if saved_job:
+                raise ValidationError(f"Backup job with name {name.data} already exists. Please pick a different name.")
 
 
 class EditBackupJobForm(FlaskForm):
@@ -51,7 +58,14 @@ class EditBackupJobForm(FlaskForm):
     description = TextAreaField('Description')
     backup_set = SelectField('Backup Set', coerce=int)
     repository = SelectField('Repository', coerce=int)
+    additional_params = StringField('Additional Parameters')
     submit = SubmitField('Submit')
+
+    def validate_name(self, name):
+        with LocalSession() as session:
+            saved_job = session.query(SavedJobs).filter_by(name=name.data).first()
+            if saved_job and saved_job.id != int(self.saved_job_id.data):
+                raise ValidationError(f"Backup set with name {name.data} already exists. Please pick a different name.")
 
 class RWCredentialField(StringField):
     pass

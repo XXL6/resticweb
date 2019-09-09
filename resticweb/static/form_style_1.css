@@ -65,6 +65,13 @@ select{
 	box-shadow: 0 0 4px #88D5E9;
 	border: 1px solid #88D5E9;
 }
+
+.form-style-1 input[type=text]:disabled,
+.form-style-1 input[type=number]:disabled {
+    /*background-color: #495057;*/
+    display: none;
+}
+
 .form-style-1 .field-divided{
 	width: 49%;
 }

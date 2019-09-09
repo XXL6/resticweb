@@ -16,27 +16,29 @@
                 <td>{{ info_dict['description'] }}</td>
             </tr>
             <tr>
-                <td>Repository Id</td>
-                <td>{{ info_dict['repo_id'] }}</td>
+                <td>Next Run Time</td>
+                <td>{{ info_dict['next_run'] }}</td>
             </tr>
             <tr>
-                <td>Address</td>
-                <td>{{ info_dict['address'] }}</td>
+                <td>Schedule Policy</td>
+                <td>{{ info_dict['policy'] }}</td>
             </tr>
             <tr>
-                <td>Total Size</td>
-                <td>{{ info_dict['data'].get('total_size') }}</td>
+                <td>Missed Job Timeout</td>
+                <td>{{ info_dict['missed_timeout'] }}</td>
             </tr>
             <tr>
-                <td>Total File Count</td>
-                <td>{{ info_dict['data'].get('total_file_count') }}</td>
+                <td>Paused</td>
+                <td>{{ info_dict['paused'] }}</td>
             </tr>
-            {% if info_dict['data'].get('status') %}
-            <tr>
-                <td>Offline Msg</td>
-                <td>{{ info_dict['data']['status'] }}</td>
-            </tr>
-            {% endif %}
         </tbody>
     </table>
+</div>
+<div>
+    <h2>Scheduled Jobs</h2>
+    <ul>
+        {% for item in info_dict['jobs'] %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
 </div>

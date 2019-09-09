@@ -44,10 +44,3 @@ class EditCredentialsForm(FlaskForm):
     group_description = StringField('Group Description')
     group_credentials = FieldList(FormField(CredentialsForm))
     submit = SubmitField('Submit')
-
-    def append_field(self, label, data):
-        for credential_form in self.group_credentials:
-            if credential_form.credential_role == "":
-                credential_form.credential_role = label
-                credential_form.credential.data = data
-                credential_form.credential.label.text = label

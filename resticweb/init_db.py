@@ -79,7 +79,7 @@ def init_db():
 
     repository_type_type = RepositoryType(
         id=3,
-        name="Placeholder",
+        name="RClone",
         type="cloud",
         internal_binding='rclone',
         description="Placeholder for RClone repository types. Feel free to create custom ones that correspond to your repo locations.")

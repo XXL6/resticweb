@@ -6,11 +6,14 @@ from resticweb.tools.local_session import LocalSession
 from resticweb.models.general import Schedule, ScheduleJobMap
 from time import sleep
 from datetime import datetime
-
+from queue import Queue, Empty
 
 class JobScheduler(Scheduler):
 
     t_lock = Lock()
+    # janky way of updating the next_run for each schedule after
+    # the job runs
+    update_queue = Queue()
 
     def __init__(self):
         super().__init__()
@@ -21,34 +24,45 @@ class JobScheduler(Scheduler):
             for schedule in schedules:
                 if self.should_run_missed_schedule(schedule):
                     missed_schedules.append(schedule.id)
-                self.init_schedule(schedule)
+                schedule.next_run = self.init_schedule(schedule)
+            session.commit()
         for missed_schedule in missed_schedules:
             self.populate_queue_from_schedule_id(missed_schedule)
-        print("ayylmao")
 
     def pause_schedule(self, schedule_id):
         with LocalSession() as session:
             schedule = session.query(Schedule).filter_by(id=schedule_id).first()
-            schedule.next_run = None
             schedule.paused = True
+            schedule.next_run = None
             session.commit()
         self.t_lock.acquire()
         self.clear(schedule_id)
         self.t_lock.release()
 
     def resume_schedule(self, schedule_id):
-        schedule_missed = False
+        #schedule_missed = False
         with LocalSession() as session:
             schedule = session.query(Schedule).filter_by(id=schedule_id).first()
-            if self.should_run_missed_schedule(schedule):
-                schedule_missed = True
-            schedule.next_run = self.init_schedule(schedule)
+        #    if self.should_run_missed_schedule(schedule):
+        #        schedule_missed = True
             schedule.paused = False
+            schedule.next_run = self.init_schedule(schedule)
             session.commit()
-        if schedule_missed:
-            self.populate_queue_from_schedule_id(schedule_id)
+        #if schedule_missed:
+        #    self.populate_queue_from_schedule_id(schedule_id)
+
+    def toggle_pause(self, schedule_id):
+        with LocalSession() as session:
+            schedule = session.query(Schedule).filter_by(id=schedule_id).first()
+            paused = schedule.paused
+        if paused:
+            self.resume_schedule(schedule_id)
+        else:
+            self.pause_schedule(schedule_id)
 
     def should_run_missed_schedule(self, schedule):
+        if not schedule.next_run:
+            return False
         minute_delta = (datetime.now() - schedule.next_run).seconds / 60
         return minute_delta < schedule.missed_timeout and minute_delta > 0
 
@@ -88,6 +102,7 @@ class JobScheduler(Scheduler):
                 job = self.every().sunday.do(self.populate_queue_from_schedule_id, schedule_id=schedule.id).tag(schedule.id)
             if schedule.time_at and len(schedule.time_at) > 0:
                 job.at(schedule.time_at)
+                job._schedule_next_run()
             self.t_lock.release()
             return job.next_run
 
@@ -98,15 +113,44 @@ class JobScheduler(Scheduler):
     def run(self):
         while True:
             self.run_pending()
+            self.process_update_queue()
             sleep(5)
 
+    def process_update_queue(self):
+        self.t_lock.acquire()
+        while True:
+            try:
+                item = self.update_queue.get(block=False)
+                self.update_next_run(item)
+            except Empty:
+                self.t_lock.release()
+                return
+            
+        
+    def update_next_run(self, schedule_id):
+        with LocalSession() as session:
+            schedule = session.query(Schedule).filter_by(id=schedule_id).first()
+            schedule.next_run = self.get_job_from_tag(schedule_id).next_run
+            session.commit()
+
+    def get_job_from_tag(self, tag):
+        for job in self.jobs:
+            if tag in job.tags:
+                return job
+
     def populate_queue_from_schedule_id(self, schedule_id):
+        self.t_lock.acquire()
+        self.update_queue.put(schedule_id)
+        self.t_lock.release()
         self.t_lock.acquire()
         job_ids = []
         with LocalSession() as session:
             schedule_job_maps = session.query(ScheduleJobMap).filter_by(schedule_id=schedule_id).order_by(ScheduleJobMap.sort.asc())
             for job_map in schedule_job_maps:
                 job_ids.append(job_map.job_id)
+            schedule = session.query(Schedule).filter_by(id=schedule_id).first()
+            schedule.next_run = self.get_job_from_tag(schedule_id).next_run
+            session.commit()
         for job_id in job_ids:
             builder = JobBuilder(saved_job_id=job_id)
             builder.run_job()
@@ -122,12 +166,14 @@ class JobScheduler(Scheduler):
                                     missed_timeout=missed_timeout)
             session.add(new_schedule)
             session.commit()
+            sort_counter = 0
             if jobs:
-                for job_id, sort in jobs:
+                for job_id in jobs:
                     job_map = ScheduleJobMap(schedule_id=new_schedule.id,
                                             job_id=job_id,
-                                            sort=sort)
+                                            sort=sort_counter)
                     session.add(job_map)
+                    sort_counter += 1
             new_schedule.next_run = self.init_schedule(new_schedule)
             session.commit()
 
@@ -137,9 +183,11 @@ class JobScheduler(Scheduler):
             old_jobs = session.query(ScheduleJobMap).filter_by(schedule_id=schedule_id).all()
             for job in old_jobs:
                 session.delete(job)
-            for job_id, sort in jobs:
-                new_job = ScheduleJobMap(schedule_id=schedule_id, job_id=job_id, sort=sort)
+            sort_counter = 0
+            for job_id in jobs:
+                new_job = ScheduleJobMap(schedule_id=schedule_id, job_id=job_id, sort=sort_counter)
                 session.add(new_job)
+                sort_counter += 1
             session.commit()
         self.t_lock.release()
 
@@ -153,10 +201,11 @@ class JobScheduler(Scheduler):
             schedule.time_at = time_at
             schedule.missed_timeout = missed_timeout
             session.commit()
-        self.t_lock.acquire()
-        self.clear(schedule_id)
-        self.t_lock.release()
-        self.init_schedule(schedule)
+            self.t_lock.acquire()
+            self.clear(schedule_id)
+            self.t_lock.release()
+            schedule.next_run = self.init_schedule(schedule)
+            session.commit()
 
     def delete_schedule(self, schedule_id):
         self.t_lock.acquire()
@@ -165,4 +214,5 @@ class JobScheduler(Scheduler):
         with LocalSession() as session:
             schedule = session.query(Schedule).filter_by(id=schedule_id).first()
             session.delete(schedule)
+            session.commit()
         

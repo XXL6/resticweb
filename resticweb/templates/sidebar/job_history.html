@@ -1,37 +1,39 @@
-<table class="sidebar-info-table">
-    <thead>
-        <tr>
-            <th>Parameter</th>
-            <th>Parameter Data</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Id</td>
-            <td>{{ info_dict.id }}</td>
-        </tr>
-        <tr>
-            <td>Name</td>
-            <td>{{info_dict.name}}</td>
-        </tr>
-        <tr>
-            <td>Status</td>
-            <td>{{info_dict.status}}</td>
-        </tr>
-        <tr>
-            <td>Time Elapsed</td>
-            <td>{{info_dict.time_elapsed}}</td>
-        </tr>
-        <tr>
-            <td>Time Started</td>
-            <td>{{info_dict.time_started}}</td>
-        </tr>
-        <tr>
-            <td>Time Finished</td>
-            <td>{{info_dict.time_finished}}</td>
-        </tr>
-    </tbody>
-</table>
+<div>
+    <table class="sidebar-info-table">
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Parameter Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Id</td>
+                <td>{{ info_dict.id }}</td>
+            </tr>
+            <tr>
+                <td>Name</td>
+                <td>{{info_dict.name}}</td>
+            </tr>
+            <tr>
+                <td>Status</td>
+                <td>{{info_dict.status}}</td>
+            </tr>
+            <tr>
+                <td>Time Elapsed</td>
+                <td>{{info_dict.time_elapsed}}</td>
+            </tr>
+            <tr>
+                <td>Time Started</td>
+                <td>{{info_dict.time_started}}</td>
+            </tr>
+            <tr>
+                <td>Time Finished</td>
+                <td>{{info_dict.time_finished}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 Job Results:<br>
 ----------------<br>
 {{info_dict.result}}<br>

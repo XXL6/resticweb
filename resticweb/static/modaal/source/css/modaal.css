@@ -109,10 +109,12 @@
 	width: 100%;
 	margin: auto;
 	text-align: left;
-	color: #000;
+    /*color: #000; non-default*/
+    color: #eee;
 	max-width: 1000px;
 	border-radius: 0px;
-	background: #fff;
+    /*background: #fff; non-default*/
+    background-color: rgb(61, 61, 61);
 	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 	cursor: auto;
 }

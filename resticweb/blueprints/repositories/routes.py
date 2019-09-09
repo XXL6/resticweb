@@ -96,11 +96,14 @@ def forget_snapshot():
     snapshot_info = repository_interface.get_snapshot_info(snapshot_id)
     job_build = JobBuilder(job_class='forget', job_name='Snapshot Forget', 
         parameters=dict(snapshot_id=snapshot_id, repository=snapshot_info.repository_id))
-    result = job_build.run_job(False)
+    result = job_build.run_job()
+    '''
     if result == 0:
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
     else:
         return json.dumps({'success': False, 'errormsg' : f'Unable to forget snapshot. {result}'}), 500, {'ContentType': 'application/json'}
+    '''
+    return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
 
 
 @repositories.route(f'/{repositories.name}/repository_list/_get_repository_status')

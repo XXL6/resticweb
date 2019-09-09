@@ -29,6 +29,8 @@ def repository_add_to_db(job):
             data=job.process.field_dict.get('data'),
             cache_repo=job.process.field_dict.get('cache_repo'),
             repository_type_id=job.process.field_dict['repository_type_id'],
+            concurrent_uses=job.process.field_dict.get('concurrent_uses'),
+            timeout=job.process.field_dict.get('timeout'),
             credential_group_id=credential_group_id
         )
     )

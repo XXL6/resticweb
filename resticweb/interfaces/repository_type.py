@@ -5,7 +5,7 @@ from resticweb.tools.local_session import LocalSession
 def get_repository_types():
     return_list = []
     with LocalSession() as session:
-        types = session.query(RepositoryType).order_by(RepositoryType.name.desc())
+        types = session.query(RepositoryType).order_by(RepositoryType.name.asc())
         for type in types:
             return_list.append(dict(
                 id=type.id,

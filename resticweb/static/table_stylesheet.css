@@ -188,3 +188,23 @@
 .job-progress-list {
     padding-left: 0;
 }
+
+.ub-table .table-button {
+    color: #aaa;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: transparent;
+    transition: all 0.2s ease 0s;
+    border: none;
+    padding: 2px 5px 2px 5px;
+    border-radius: 5px;
+    outline: 0;
+}
+
+.ub-table .table-button:hover {
+    color: #ffffff;
+    background: #f6b93b;
+    border-color: #f6b93b;
+    transition: all 0.2s ease 0s;
+    cursor: pointer;
+}

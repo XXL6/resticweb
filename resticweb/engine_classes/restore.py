@@ -22,14 +22,15 @@ class Restore(RVProcess):
         super().run()
         with self.repository_interface.get_credential_context():
             command = self.repository_interface.repo_command + ['--json', "restore", self.snapshot_id, "--target", self.destination_address]
-            self.log(f'Restore to: {self.destination_address}')
-            self.log(f'Using snapshot id: {self.snapshot_id}')
-            self.log(f'From repository at: {self.repository_interface.address}')
+            self.log(f'Command: {" ".join(command)}')
             if self.object_list:
                 for restore_object in self.object_list:
                     self.log(f'Restore: {restore_object}')
                     command.append('--include')
                     command.append(f'{restore_object}')
+            self.log(f'From repository at: {self.repository_interface.address}')
+            self.log(f'Using snapshot id: {self.snapshot_id}')
+            self.log(f'Restore to: {self.destination_address}')
             self.step("Restoring data.")
             try:
                 self.task = subprocess.Popen(

@@ -1,16 +1,18 @@
-<table class="sidebar-info-table">
-    <thead>
-        <tr>
-            <th>Parameter</th>
-            <th>Parameter Data</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for key, value in info_dict.items() %}
+<div>
+    <table class="sidebar-info-table">
+        <thead>
             <tr>
-                <td>{{ key }}</td>
-                <td>{{ value }}</td>
+                <th>Parameter</th>
+                <th>Parameter Data</th>
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            {% for key, value in info_dict.items() %}
+                <tr>
+                    <td>{{ key }}</td>
+                    <td>{{ value }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

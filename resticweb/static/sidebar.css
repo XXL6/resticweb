@@ -1,4 +1,4 @@
-.sidebar-container {
+.sidebar-container, .sidebar-container-modal {
     /*background-color: #17181E;*/
     overflow: auto;
     padding-left: 0%;
@@ -13,7 +13,7 @@
     height: calc(100% - 15px);
 }
 
-.sidebar-resize-bar {
+.sidebar-resize-bar, .sidebar-resize-bar-modal {
     /*position: sticky;*/
     left: 0;
     float: left;
@@ -26,7 +26,7 @@
     /*flex: 0 0 auto;*/
 }
 
-.sidebar-content {
+.sidebar-content, .sidebar-content-modal {
     padding-right: 15px;
     padding-left: 15px;
     width: calc(100% - 30px); /* minus padding and the resize-bar */

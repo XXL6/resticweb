@@ -8,6 +8,97 @@
 </div>
 {% endmacro %}
 
+{% macro generate_modal_sidebar() %}
+<div class="sidebar-resize-bar-modal"></div>
+<nav id="modal-sidebar" class="sidebar-container-modal w3-card-2">
+    <div class="container sidebar-content-modal">
+
+    </div>
+</nav>
+<script type="text/javascript">
+    var handlerDragging = false;
+    var handler = $( ".sidebar-resize-bar-modal" ).get(0);
+    var wrapper = $( ".flex-wrapper" ).get(0);
+
+    $( document ).mousedown(function(e) {
+        if (e.target === handler) {
+            handlerDragging = true;
+            $( document ).bind('mousemove', mouseDrag);
+            $( "body" ).css( "cursor", "ns-resize");
+        }
+    });
+
+    function handleTouchStart(e) {
+        if (e.target === handler) {
+            handlerDragging = true;
+            $( document ).bind('touchmove', touchDrag);
+        }
+    }
+
+    $( document ).bind("touchstart", handleTouchStart)
+
+    function disableSelect(event) {
+        event.preventDefault();
+    }
+
+    function touchDrag(e) {
+        if (!handlerDragging) {
+            return;
+            //super();
+        }
+        touches = e.touches;
+        if (touches.length > 0) {
+            yValue = touches[0].pageY;
+            window.addEventListener('selectstart', disableSelect);
+            var containerOffsetTop = wrapper.offsetTop;
+            var pointerRelativeYpos = yValue - containerOffsetTop - 15;
+            $( ".menu-content-modal" ).css("height", (pointerRelativeYpos) + "px");
+            $( ".menu-content-modal" ).css("flexGrow", "0");
+        }
+    }
+
+    function mouseDrag(e) {
+        if (!handlerDragging) {
+            return;
+            //super();
+        }
+        window.addEventListener('selectstart', disableSelect);
+        var containerOffsetTop = wrapper.offsetTop;
+        var pointerRelativeYpos = e.pageY - containerOffsetTop - 15;
+        $( ".menu-content-modal" ).css("height", (pointerRelativeYpos) + "px");
+        $( ".menu-content-modal" ).css("flexGrow", "0");
+    }
+
+    /*$( document ).mousemove(function(e) {
+        if (!handlerDragging) {
+            return;
+            //super();
+        }
+        var containerOffsetLeft = wrapper.offsetLeft;
+        var pointerRelativeXpos = e.pageX - containerOffsetLeft;
+
+        $( ".menu-content-modal" ).css("width", (pointerRelativeXpos) + "px");
+        $( ".menu-content-modal" ).css("flexGrow", "0");
+    });*/
+
+    $( document ).mouseup(function(e) {
+        handlerDragging = false;
+        window.removeEventListener('selectstart', disableSelect);
+        $( "body" ).css( "cursor", "default");
+        $ ( document ).unbind('mousemove.mouseDrag');
+    });
+
+    function handleTouchEnd(e) {
+        handlerDragging = false;
+        window.removeEventListener('selectstart', disableSelect);
+        $ ( document ).unbind('touchmove.mouseDrag');
+    }
+
+    $( document ).bind("touchend", handleTouchEnd);
+
+</script>
+{% endmacro %}
+
 {% macro generate_sidebar() %}
 <div class="sidebar-resize-bar"></div>
 <nav id="sidebar" class="sidebar-container w3-card-2">
@@ -189,11 +280,9 @@
                     dataType: "json",
                     success: function(response) {
                         location.reload();
-                        console.log(response);
                     },
                     error: function(error) {
                         location.reload();
-                        console.log(error);
                     }
                 });
                 break;
@@ -228,7 +317,8 @@
                         data: JSON.stringify({item_id: itemToTerminate}),
                         dataType: "json",
                         success: function(response) {
-                            location.reload();
+                            //location.reload();
+                            new Noty({ theme: 'relax', text: "Snapshot forget submitted to the queue.", layout: 'bottomCenter', type: 'success' }).show(); 
                         },
                         error: function(data) {
                             new Noty({ theme: 'relax', text: data.responseJSON.errormsg, layout: 'bottomCenter', type: 'error' }).show(); 

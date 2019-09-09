@@ -7,11 +7,11 @@ from resticweb.misc import job_queue as global_job_queue
 from resticweb.tools.job_build import JobBuilder
 from resticweb.engine_classes.class_name_map import get_available_classes, get_class_from_name
 from resticweb.dictionary.resticweb_constants import JobStatusFinishedMap, \
-    JobStatusMap
+    JobStatusMap, ScheduleConstants
 import resticweb.interfaces.repository_list as repository_interface
 from resticweb.models.general import JobHistory, SavedJobs, Repository, Schedule, ScheduleJobMap
 import json
-from .forms import AddCheckJobForm, EditCheckJobForm, AddPruneJobForm, EditPruneJobForm, AddScheduleForm
+from .forms import AddCheckJobForm, EditCheckJobForm, AddPruneJobForm, EditPruneJobForm, AddScheduleForm, EditScheduleForm
 from time import sleep
 from resticweb.misc.job_scheduler import job_scheduler
 
@@ -164,30 +164,20 @@ def delete_saved_jobs():
 def get_saved_job_info():
     id = request.args.get('id', 0, type=int)
     job = SavedJobs.query.filter_by(id=id).first()
-    if job.engine_class == 'check':
+    if job.engine_class == 'check' or job.engine_class == 'prune':
         info_dict = {}
         info_dict['name'] = job.name
         info_dict['notes'] = job.notes
         for param in job.parameters:
             if param.param_name == 'repository':
                 repository = Repository.query.filter_by(id=param.param_value).first()
+            if param.param_name == 'additional_params':
+                info_dict['additional_params'] = param.param_value
         if repository:
             info_dict['repository'] = repository.name
         else:
             info_dict['repository'] = "undefined"
-        return render_template('sidebar/saved_jobs_check.html', info_dict=info_dict)
-    elif job.engine_class == 'prune':
-        info_dict = {}
-        info_dict['name'] = job.name
-        info_dict['notes'] = job.notes
-        for param in job.parameters:
-            if param.param_name == 'repository':
-                repository = Repository.query.filter_by(id=param.param_value).first()
-        if repository:
-            info_dict['repository'] = repository.name
-        else:
-            info_dict['repository'] = "undefined"
-        return render_template('sidebar/saved_jobs_prune.html', info_dict=info_dict)
+        return render_template(f'sidebar/saved_jobs_{job.engine_class}.html', info_dict=info_dict)
     elif job.engine_class == 'backup':
         from resticweb.blueprints.backup.routes import get_saved_job_info as get_backup_job_info
         return get_backup_job_info()
@@ -215,7 +205,7 @@ def edit_saved_job(saved_job):
     editable_job = SavedJobs.query.filter_by(id=saved_job).first()
     engine_class = editable_job.engine_class
     if engine_class == 'backup':
-        return redirect(url_for('backup.add_saved_job'))
+        return redirect(url_for('backup.edit_saved_job_backup', saved_job=saved_job))
     elif engine_class == 'check':
         return edit_saved_job_check(editable_job)
     elif engine_class == 'prune':
@@ -252,7 +242,7 @@ def add_saved_job_check():
             name=form.name.data,
             notes=form.description.data,
             engine_class=engine_class,
-            params=dict(repository=form.repository.data)
+            params=dict(repository=form.repository.data, additional_params=form.additional_params.data)
         )
         saved_jobs_interface.add_job(new_info)
         flash("Check job has been saved.", category='success')
@@ -270,8 +260,8 @@ def edit_saved_job_check(saved_job):
         new_info = dict(
             name=form.name.data,
             notes=form.description.data,
-            params=dict(repository=form.repository.data),
-            saved_job_id=form.saved_job_id.data
+            params=dict(repository=form.repository.data, additional_params=form.additional_params.data),
+            saved_job_id=form.saved_job_id.data,
         )
         saved_jobs_interface.update_job(new_info)
         flash("Check job has been saved.", category='success')
@@ -281,6 +271,9 @@ def edit_saved_job_check(saved_job):
             if param.param_name == "repository":
                 form.repository.default = param.param_value
                 form.process()
+        for param in saved_job.parameters:
+            if param.param_name == 'additional_params':
+                form.additional_params.data = param.param_value
         form.description.data = saved_job.notes
         form.name.data = saved_job.name
         form.saved_job_id.data = saved_job.id
@@ -298,7 +291,7 @@ def add_saved_job_prune():
             name=form.name.data,
             notes=form.description.data,
             engine_class=engine_class,
-            params=dict(repository=form.repository.data)
+            params=dict(repository=form.repository.data, additional_params=form.additional_params.data)
         )
         saved_jobs_interface.add_job(new_info)
         flash("Prune job has been saved.", category='success')
@@ -316,7 +309,7 @@ def edit_saved_job_prune(saved_job):
         new_info = dict(
             name=form.name.data,
             notes=form.description.data,
-            params=dict(repository=form.repository.data),
+            params=dict(repository=form.repository.data, additional_params=form.additional_params.data),
             saved_job_id=form.saved_job_id.data
         )
         saved_jobs_interface.update_job(new_info)
@@ -327,6 +320,9 @@ def edit_saved_job_prune(saved_job):
             if param.param_name == "repository":
                 form.repository.default = param.param_value
                 form.process()
+        for param in saved_job.parameters:
+            if param.param_name == 'additional_params':
+                form.additional_params.data = param.param_value
         form.description.data = saved_job.notes
         form.name.data = saved_job.name
         form.saved_job_id.data = saved_job.id
@@ -381,7 +377,8 @@ def update_queue():
 def schedules():
     page = request.args.get('page', 1, type=int)
     items = Schedule.query.order_by(Schedule.name.desc()).paginate(page=page, per_page=40)
-
+    for item in items.items:
+        item.policy = get_schedule_policy(item.id)
     return render_template('jobs/schedules.html', items=items)
 
 
@@ -389,23 +386,124 @@ def schedules():
 def schedules_add():
     form = AddScheduleForm()
 
-    available_time_units = [
-        ('minute', 'minute'),
-        ('minutes', 'minutes'),
-        ('hour', 'hour'),
-        ('hours', 'hours'),
-        ('day', 'day'),
-        ('days', 'days'),
-        ('week', 'week'),
-        ('weeks', 'weeks'),
-        ('monday', 'monday'),
-        ('tuesday', 'tuesday'),
-        ('wednesday', 'wednesday'),
-        ('thursday', 'thursday'),
-        ('friday', 'friday'),
-        ('saturday', 'saturday'),
-        ('sunday', 'sunday'),
-    ]
-
+    available_time_units = [(unit, unit) for unit in ScheduleConstants.TIME_UNITS]
     form.time_unit.choices = available_time_units
+    if form.validate_on_submit():
+        try:
+            job_scheduler.add_schedule(form.name.data,
+                form.time_unit.data,
+                form.description.data,
+                form.time_interval.data,
+                form.time_at.data,
+                form.missed_timeout.data,
+                json.loads(form.job_list.data)) # list of tuples (job_id, sort)
+            flash("Schedule has been saved.", category='success')
+        except Exception as e:
+            flash(f"Failed to add schedule: {e}", category='error')
+        return redirect(url_for('jobs.schedules'))
     return render_template('jobs/schedules_add.html', form=form)
+
+@jobs.route(f'/{jobs.name}/schedules/_edit/<int:schedule_id>', methods=['GET', 'POST'])
+def schedules_edit(schedule_id):
+    form = EditScheduleForm()
+    available_time_units = [(unit, unit) for unit in ScheduleConstants.TIME_UNITS]
+    form.time_unit.choices = available_time_units
+    form.schedule_id.data = schedule_id
+    if form.validate_on_submit():
+        job_scheduler.update_schedule(
+            form.name.data,
+            form.time_unit.data,
+            schedule_id,
+            form.description.data,
+            form.time_interval.data,
+            form.time_at.data,
+            form.missed_timeout.data
+        )
+        if form.jobs_changed.data:
+            job_scheduler.update_jobs(schedule_id, json.loads(form.job_list.data))
+        flash(f"Edited schedule {form.name.data}", category='success')
+        return redirect(url_for('jobs.schedules'))
+    else:
+        schedule = Schedule.query.filter_by(id=schedule_id).first()
+        form.name.data = schedule.name
+        form.time_unit.data = schedule.time_unit
+        form.description.data = schedule.description
+        form.time_interval.data = schedule.time_interval
+        form.time_at.data = schedule.time_at
+        form.missed_timeout.data = schedule.missed_timeout
+        scheduled_jobs = []
+        job_maps = ScheduleJobMap.query.filter_by(schedule_id=schedule_id).order_by(ScheduleJobMap.sort.asc()).all()
+        for job_map in job_maps:
+            scheduled_jobs.append(
+                dict(
+                    id=job_map.job_id,
+                    name=job_map.saved_job.name
+                )
+            )
+    return render_template(f'jobs/schedules_edit.html', form=form, table_items=scheduled_jobs)
+
+
+@jobs.route(f'/{jobs.name}/schedules/_delete', methods=['POST'])
+def delete_schedules():
+    item_ids = request.get_json().get('item_ids')
+    try:
+        for id in item_ids:
+            job_scheduler.delete_schedule(id)
+    except Exception as e:
+        flash(f"Items not removed {e}", category='error')
+        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+        # logger.debug(group_id)
+    flash("Successfully removed items", category="success")
+    return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+
+
+@jobs.route(f'/{jobs.name}/schedules/_job_select', methods=['GET'])
+def job_select():
+    page = request.args.get('page', 1, type=int)
+    items = SavedJobs.query.order_by(SavedJobs.name.desc()).paginate(page=page, per_page=40)
+    return render_template('jobs/schedules_job_select.html', items=items)
+
+
+@jobs.route(f'/{jobs.name}/schedules/_toggle_schedule_pause', methods=['POST'])
+def toggle_schedule_pause():
+    item_id = request.get_json().get('item_id')
+    # schedule = Schedule.query.filter_by(id=item_id).first()
+    try:
+        job_scheduler.toggle_pause(item_id)
+        schedule = Schedule.query.filter_by(id=item_id).first()
+        return json.dumps({'success': True, 'item_values': {'next_run': f'{schedule.next_run}', 'paused': schedule.paused}}), 200, {'ContentType': 'application/json'}
+    except Exception as e:
+        return json.dumps({'success': False, 'errormsg': e}), 500, {'ContentType': 'application/json'}
+
+
+@jobs.route(f'/{jobs.name}/schedules/_get_schedule_info')
+def get_schedule_info():
+    id = request.args.get('id', 0, type=int)
+    schedule = Schedule.query.filter_by(id=id).first()
+    info_dict = {}
+    info_dict['name'] = schedule.name
+    info_dict['description'] = schedule.description
+    info_dict['next_run'] = schedule.next_run
+    info_dict['policy'] = get_schedule_policy(id)
+    info_dict['missed_timeout'] = schedule.missed_timeout
+    if schedule.paused:
+        info_dict['paused'] = True
+    else:
+        info_dict['paused'] = False
+    info_dict['jobs'] = []
+    for job_map in schedule.schedule_job_maps:
+        info_dict['jobs'].append(job_map.saved_job.name)
+    return render_template("sidebar/schedule.html", info_dict=info_dict)
+    
+
+
+def get_schedule_policy(schedule_id):
+    schedule = Schedule.query.filter_by(id=schedule_id).first()
+    ret = []
+    ret.append('Every')
+    if schedule.time_interval:
+        ret.append(schedule.time_interval)
+    ret.append(schedule.time_unit)
+    if schedule.time_at:
+        ret.append(f'at {schedule.time_at}')
+    return " ".join(ret)

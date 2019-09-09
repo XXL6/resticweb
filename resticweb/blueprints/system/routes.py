@@ -196,17 +196,9 @@ def edit_group(group_id):
     credential_list = []
     for key, value in credentials.items():
         credential_list.append({'credential_role': key})
-    # credential_list = [{'credential': 't4estthingy'}]
     form = EditCredentialsForm(group_credentials=credential_list)
     for credential_form in form.group_credentials:
         credential_form.credential.label.text = credential_form.credential_role.data
-    # for credential in credentials:
-    #    form.append_field("test", "testy")
-    # form = EditCredentialsForm()
-    # for credential in credentials:
-    #    form.add_field(credential.credential_role, 'testdata')
-    # for credential_form in form.group_credentials:
-    #    credential_form.credential.label.text
     if form.validate_on_submit():
         credential_manager.set_group_description(group_id, form.group_description.data)
         for credential_form in form.group_credentials:
@@ -217,8 +209,6 @@ def edit_group(group_id):
     elif request.method == 'GET':
         form.group_description.data = credential_manager.get_group_description(group_id)
         for credential_form in form.group_credentials:
-            # logger.debug("LABEL" + str(credential_form.credential.label.text))
             credential_form.credential.data = credential_manager.get_credential(group_id, credential_form.credential_role.data)
-            # logger.debug("DATA" + str(credential_form.credential.data))
         
     return render_template("system/credentials_edit.html", form=form)

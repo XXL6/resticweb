@@ -73,6 +73,26 @@ class System:
     DEAD_PROCESS_TIMEOUT = 30 # in seconds
 
 
+class ScheduleConstants:
+    TIME_UNITS = [
+        'minutes',
+        'minute',
+        'hours',
+        'hour',
+        'days',
+        'day',
+        'weeks',
+        'week',
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday'
+    ]
+
+
 class MiscResticConstants:
     FILE_EXCLUSION_KEY = '-'
     FILE_INCLUSION_KEY = '+'

@@ -1,0 +1,44 @@
+{% from "list_generators.html" import item_select_script_modal %}
+{% from "menu_generator.html" import generate_modal_sidebar %}
+<div class="flex-wrapper">
+    <div class="flex-col menu-content w3-card-2">
+        <table class="ub-table">
+            <tr class="ub-table-header-row">
+                <th class="ub-table-header-item table-col-05">Check</th>
+                <th class="ub-table-header-item table-col-05">Id</th>
+                <th class="ub-table-header-item table-col-5">Name</th>
+                <th class="ub-table-header-item table-col-5">Job Type</th>
+            </tr>
+            {% for item in items.items %}
+                <tr class="ub-table-data-row" id="{{ item['id'] }}">
+                    <td class="ub-table-data table-col-05 table-checkbox-div">
+                        <input type="checkbox" class="table-checkbox list-checkbox" autocomplete="off" value="{{item['id']}}" id="{{item['id']}}-box">
+                    </td>
+                    <td class="ub-table-data table-data-item">{{ item['id'] }}</td>
+                    <td class="ub-table-data table-data-item name-column">{{ item['name'] }}</td>
+                    <td class="ub-table-data table-data-item">{{ item['engine_class'] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    
+    {{ generate_modal_sidebar() }}
+    <input type="button" class="table-select-button" value="Ok" onclick="processSelections()">
+</div>
+<script>
+    $( ".table-checkbox-div" ).css("display", "block");
+
+    function processSelections() {
+        addSelectedToTable();
+        closeModaal();
+    }
+    function addSelectedToTable()
+    {
+        var itemIds = getCheckedItemIds();
+        for (var i = 0; i < itemIds.length; i++)
+        {
+            var name = $("#" + itemIds[i] + " .name-column").html();
+            addToTable(name, itemIds[i]);
+        }
+    }
+</script>

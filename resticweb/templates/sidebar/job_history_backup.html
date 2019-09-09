@@ -1,101 +1,103 @@
-<table class="sidebar-info-table">
-    <thead>
-        <tr>
-            <th>Parameter</th>
-            <th>Parameter Data</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Id</td>
-            <td>{{ info_dict.id }}</td>
-        </tr>
-        <tr>
-            <td>Name</td>
-            <td>{{info_dict.name}}</td>
-        </tr>
-        <tr>
-            <td>Status</td>
-            <td>{{info_dict.status}}</td>
-        </tr>
-        <tr>
-            <td>Time Elapsed</td>
-            <td>{{info_dict.time_elapsed}}</td>
-        </tr>
-        <tr>
-            <td>Time Started</td>
-            <td>{{info_dict.time_started}}</td>
-        </tr>
-        <tr>
-            <td>Time Finished</td>
-            <td>{{info_dict.time_finished}}</td>
-        </tr>
-    </tbody>
-</table>
-Job Results:<br>
-----------------<br>
-<table class="sidebar-info-table">
-    <thead>
-        <tr>
-            <th>Parameter</th>
-            <th>Parameter Data</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Files New</td>
-            <td>{{ info_dict.result['files_new']}}</td>
-        </tr>
-        <tr>
-            <td>Files Changed</td>
-            <td>{{info_dict.result['files_changed']}}</td>
-        </tr>
-        <tr>
-            <td>Files Unmodified</td>
-            <td>{{info_dict.result['files_unmodified']}}</td>
-        </tr>
-        <tr>
-            <td>Dirs New</td>
-            <td>{{info_dict.result['dirs_new']}}</td>
-        </tr>
-        <tr>
-            <td>Dirs Changed</td>
-            <td>{{info_dict.result['dirs_changed']}}</td>
-        </tr>
-        <tr>
-            <td>Dirs Unmodified</td>
-            <td>{{info_dict.result['dirs_unmodified']}}</td>
-        </tr>
-        <tr>
-            <td>Data Blobs</td>
-            <td>{{info_dict.result['data_blobs']}}</td>
-        </tr>
-        <tr>
-            <td>Tree Blobs</td>
-            <td>{{info_dict.result['tree_blobs']}}</td>
-        </tr>
-        <tr>
-            <td>Data Added</td>
-            <td>{{info_dict.result['data_added']}}</td>
-        </tr>
-        <tr>
-            <td>Total Files Processed</td>
-            <td>{{info_dict.result['total_files_processed']}}</td>
-        </tr>
-        <tr>
-            <td>Total Bytes Processed</td>
-            <td>{{info_dict.result['total_bytes_processed']}}</td>
-        </tr>
-        <tr>
-            <td>Total Duration</td>
-            <td>{{info_dict.result['total_duration']}}</td>
-        </tr>
-        <tr>
-            <td>Snapshot Id Created</td>
-            <td>{{info_dict.result['snapshot_id']}}</td>
-        </tr>
-    </tbody>
-</table>
+<div>
+    <table class="sidebar-info-table">
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Parameter Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Id</td>
+                <td>{{ info_dict.id }}</td>
+            </tr>
+            <tr>
+                <td>Name</td>
+                <td>{{info_dict.name}}</td>
+            </tr>
+            <tr>
+                <td>Status</td>
+                <td>{{info_dict.status}}</td>
+            </tr>
+            <tr>
+                <td>Time Elapsed</td>
+                <td>{{info_dict.time_elapsed}}</td>
+            </tr>
+            <tr>
+                <td>Time Started</td>
+                <td>{{info_dict.time_started}}</td>
+            </tr>
+            <tr>
+                <td>Time Finished</td>
+                <td>{{info_dict.time_finished}}</td>
+            </tr>
+        </tbody>
+    </table>
+    Job Results:<br>
+    ----------------<br>
+    <table class="sidebar-info-table">
+        <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Parameter Data</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Files New</td>
+                <td>{{ info_dict.result['files_new']}}</td>
+            </tr>
+            <tr>
+                <td>Files Changed</td>
+                <td>{{info_dict.result['files_changed']}}</td>
+            </tr>
+            <tr>
+                <td>Files Unmodified</td>
+                <td>{{info_dict.result['files_unmodified']}}</td>
+            </tr>
+            <tr>
+                <td>Dirs New</td>
+                <td>{{info_dict.result['dirs_new']}}</td>
+            </tr>
+            <tr>
+                <td>Dirs Changed</td>
+                <td>{{info_dict.result['dirs_changed']}}</td>
+            </tr>
+            <tr>
+                <td>Dirs Unmodified</td>
+                <td>{{info_dict.result['dirs_unmodified']}}</td>
+            </tr>
+            <tr>
+                <td>Data Blobs</td>
+                <td>{{info_dict.result['data_blobs']}}</td>
+            </tr>
+            <tr>
+                <td>Tree Blobs</td>
+                <td>{{info_dict.result['tree_blobs']}}</td>
+            </tr>
+            <tr>
+                <td>Data Added</td>
+                <td>{{info_dict.result['data_added']}}</td>
+            </tr>
+            <tr>
+                <td>Total Files Processed</td>
+                <td>{{info_dict.result['total_files_processed']}}</td>
+            </tr>
+            <tr>
+                <td>Total Bytes Processed</td>
+                <td>{{info_dict.result['total_bytes_processed']}}</td>
+            </tr>
+            <tr>
+                <td>Total Duration</td>
+                <td>{{info_dict.result['total_duration']}}</td>
+            </tr>
+            <tr>
+                <td>Snapshot Id Created</td>
+                <td>{{info_dict.result['snapshot_id']}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 -------------------------------------------<br>
 
 Job Log:<br>

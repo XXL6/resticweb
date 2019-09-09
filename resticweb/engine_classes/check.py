@@ -10,11 +10,15 @@ class Check(RVProcess):
         self.name = 'Check'
         self.repository_interface = kwargs['repository']
         self.description = f'Checking repository at {self.repository_interface.address}'
+        self.additional_params = kwargs.get('additional_params')
 
     def run(self):
         super().run()
         with self.repository_interface.get_credential_context():
             command = self.repository_interface.repo_command + ["check"]
+            if self.additional_params:
+                command += [self.additional_params]
+            self.log(f'Command: {" ".join(command)}')
             self.log(f"Checking repository at address: {self.repository_interface.address}")
             self.step("Checking repository.")
             try:

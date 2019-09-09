@@ -56,20 +56,19 @@ class EditRepositoryTypeForm(FlaskForm):
 
 
 class AddRepositoryFormBase(FlaskForm):
-    repository_id = HiddenField('Id')
     name = StringField("Name", validators=[DataRequired()])
     repo_password = RWCredentialField("Repo Password", validators=[DataRequired()])
     description = TextAreaField("Description")
     cache_repo = BooleanField("Cache repository objects")
-    concurrent_uses = IntegerField("Concurrent job uses")
-    timeout = IntegerField("Timeout (minutes)")
+    concurrent_uses = IntegerField("Concurrent job uses", default=2)
+    timeout = IntegerField("Timeout (minutes)", default=60)
     submit = SubmitField("Submit")
 
     def validate_name(self, name):
             with LocalSession() as session:
                 repository = session.query(Repository).filter_by(name=name.data).first()
-                if repository and repository.id != int(self.repository_id.data):
-                    raise ValidationError(f"Location with name {name.data} already exists. Please pick a different name.")
+                if repository:
+                    raise ValidationError(f"Repository with name {name.data} already exists. Please pick a different name.")
 
 
 class EditRepositoryFormBase(FlaskForm):
@@ -85,7 +84,7 @@ class EditRepositoryFormBase(FlaskForm):
             with LocalSession() as session:
                 repository = session.query(Repository).filter_by(name=name.data).first()
                 if repository and repository.id != int(self.repository_id.data):
-                    raise ValidationError(f"Location with name {name.data} already exists. Please pick a different name.")
+                    raise ValidationError(f"Repository with name {name.data} already exists. Please pick a different name.")
 
 
 # 1 == local

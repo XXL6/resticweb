@@ -1,5 +1,6 @@
 {% extends "jobs/jobs.html" %}
 {% set active_menu = "schedules" %}
+{% set help_page = "schedules" %}
 {% from "menu_generator.html" import generate_action_menu %}
 {% from "list_generators.html" import item_select_script_table %}
 {% set action_menu_list = [
@@ -10,26 +11,6 @@
 -%}
 {% block menu_content %}
     {{ generate_action_menu(action_menu_list, '/jobs/schedules/', items, 'jobs.schedules') }}
-    {#<div class="pagination">
-        <div class="pager_label">
-            Page:
-        </div>
-        {% for page_num in items.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-            {% if page_num %}
-                {% if items.page == page_num %}
-                    <li class="pager_item active">
-                        <a class="pager_link" href="{{ url_for('jobs.schedules', page=page_num) }}">{{ page_num }}</a>
-                    </li>
-                {% else %}
-                    <li class="pager_item">
-                        <a class="pager_link" href="{{ url_for('jobs.schedules', page=page_num) }}">{{ page_num }}</a>
-                    </li>
-                {% endif %}
-            {% else %}
-                ...
-            {% endif %}
-        {% endfor %}
-    </div>#}
     <table class="ub-table">
         <thead class="ub-table-header">
             <tr class="ub-table-header-row">
@@ -37,7 +18,7 @@
                 <th class="ub-table-header-item table-col-2">Name</th>
                 <th class="ub-table-header-item table-col-4">Policy</th>
                 <th class="ub-table-header-item table-col-2">Next Run</th>
-                <th class="ub-table-header-item table-col-2">Pause</th>
+                <th class="ub-table-header-item table-col-2"></th>
             </tr>
         </thead>
         {% for item in items.items %}
@@ -47,10 +28,57 @@
                 </td>
                 <td class="ub-table-data table-data-item">{{ item['name'] }}</td>
                 <td class="ub-table-data table-data-item">{{ item['policy'] }}</td>
-                <td class="ub-table-data table-data-item">{{ item['next_run'] }}</td>
-                {#<td class="ub-table-data table-data-item">{{ item['status'] }}</td>#}
+                <td class="ub-table-data table-data-item next-run">{{ item['next_run'] }}</td>
+                <td class="ub-table-data table-data-item paused">
+                {% if item['paused'] %}
+                    <button class="table-button toggle-pause-button"><i class="fas fa-play"></i></button>
+                {% else %}
+                    <button class="table-button toggle-pause-button"><i class="fas fa-pause"></i></button>
+                {% endif %}
+                </td>
             </tr>
         {% endfor %}
     </table>
     {{ item_select_script_table('/jobs/schedules/_get_schedule_info') }}
+    <script>
+    
+        $(document).on('click', '.toggle-pause-button', function(e) {
+            togglePause(e);
+        });
+
+        function togglePause(e) {
+            var $row = $(e.target).parents('tr')[0];
+            $("#"+ $row.id + " .paused " + "i").removeClass();
+            $("#"+ $row.id + " .paused " + "i").html('<div class="lds-spin-small" style="width:100%;height:100%"><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div>');
+            $.ajax({
+                type: "POST",
+                url: $SCRIPT_ROOT + "/jobs/schedules/_toggle_schedule_pause",
+                contentType: "application/json",
+                data: JSON.stringify({item_id: parseInt($row.id)}),
+                dataType: "json",
+                success: function(response) {
+                    //new Noty({ theme: 'relax', text: response.topkek, layout: 'bottomCenter', type: 'success' }).show();
+                    updateTableItem($row.id, response.item_values);
+                },
+                error: function(error) {
+                    new Noty({ theme: 'relax', text: error.errormsg, layout: 'bottomCenter', type: 'error' }).show();
+                }
+            });
+            e.stopPropagation();
+        }
+
+        function updateTableItem(id, values) {
+            $("#"+ id + " .paused " + "i").html('');
+            if (values.paused == true) {
+                $("#"+ id + " .paused " + "i").removeClass()
+                $("#"+ id + " .paused " + "i").addClass("fas fa-play")
+            } else if (values.paused == false) {
+                $("#"+ id + " .paused " + "i").removeClass()
+                $("#"+ id + " .paused " + "i").addClass("fas fa-pause")
+            }
+            $("#"+ id + " .next-run").html(values.next_run);
+
+        }
+
+    </script>
 {% endblock menu_content %}

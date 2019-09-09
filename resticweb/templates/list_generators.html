@@ -408,3 +408,153 @@ else to update that's not a table. #}
         }
     </script>
 {% endmacro %}
+
+{% macro item_select_script_modal(info_script_location, multi_select) %}
+    <script>
+        $( ".table-checkbox-div" ).css("display", "block");
+        // when any table cell that is not a checkbox cell gets
+        // clicked, we want to check its corresponding checkbox and
+        // deselect other items.
+
+        /*
+            If an anchor within table gets clicked, we do not want to select
+            that row as chances are the anchor is going to lead to another 
+            page or something so no need for extra processing.
+        */
+        $(document).on('click', '.ub-table-anchor', function(e) {
+            e.stopPropagation();
+        });
+
+        $(document).on('click', '.table-data-item', function() {
+            var groupId = $(this).parent().attr("id");
+            // get the value of the clicked item's checkbox so we can check it
+            // when deciding whether to deselect it
+            //var itemChecked = $( "#" + groupId + "-box" ).prop( "checked" );
+            deselectAllItems();
+            // following code can be uncommented so that item cannot be reselected
+            // that will cause an item to not be selected if it's clicked and other
+            // items are selected at the same time
+            /*if (itemChecked)
+            {
+                $( "#" + groupId + "-box" ).prop( "checked", false );
+            } else {
+                $( "#" + groupId + "-box" ).prop( "checked", true );
+            }*/
+            $( "#" + groupId + "-box" ).prop( "checked", true );
+            $( "#" + groupId + "-box" ).change();
+        });
+
+        $(document).on('mouseover', '.table-data-item', function() {
+            $( this ).parent().addClass( 'hover' );
+        });
+
+        $(document).on('mouseout', '.table-data-item', function() {
+            $( this ).parent().removeClass( 'hover' );
+        });
+
+        $(document).on('change', '.table-checkbox', function() {
+            if (!{{multi_select}})
+            {
+                var temp = $(this).prop( "checked" );
+                deselectAllItems();
+                $(this).prop( "checked", temp);
+            }
+            var checkedItems = getCheckedItemIds();
+            if ($(this).prop( "checked" ) == true) {
+                if (checkedItems.length == 1) {
+                    startLoader();
+                    getItemInfo($(this).val());
+                } else {
+                    emptySidebar();
+                }
+                // if checkbox checked, we highlight the item itself
+                $( ".ub-table-data-row[id='" + $( this ).val() + "']" ).addClass( 'active' );
+            }
+            else  {
+                // if a single item remains selected, we want to populate its info in the sidebar
+                if (checkedItems.length == 1) {
+                    startLoader();
+                    getItemInfo(checkedItems[0]);
+                } else {
+                    // if final item gets unchecked, we clean the sidebar
+                    emptySidebar();
+                }
+                $( ".ub-table-data-row[id='" + $( this ).val() + "']" ).removeClass( 'active' );
+            }
+
+            if (typeof displayActionMenuVariant === "function") {
+                switch (checkedItems.length) {
+                    case 0: 
+                        displayActionMenuVariant(0);
+                        break;
+                    case 1:
+                        displayActionMenuVariant(1);
+                        break;
+                    default:
+                        displayActionMenuVariant(2);
+                        break;
+                }
+            }
+        }); 
+
+        function deselectAllItems() {
+            $( "input:checkbox" ).prop( "checked", false );
+            $( ".ub-table-data-row" ).removeClass( 'active' );
+            //$( ".table-checkbox" ).change();
+        };
+
+        function getItemInfo(item_id) {
+            $.get($SCRIPT_ROOT + "{{info_script_location|safe}}", {
+                        id: item_id
+                    }, function(data) {
+                        populateSidebar(data);
+                    }
+                );
+        }
+
+        function getCheckedItemIds() {
+            var itemList = $( ".table-checkbox:checked" ).get();
+            var idList = [];
+            for (var i = 0; i < itemList.length; i++) {
+                idList.push(itemList[i].value);
+            }
+            return idList;
+        }
+
+        function hideSidebar() {
+            $( ".sidebar-container-modal" ).css('display', 'none');
+            $( ".menu-content-modal" ).css('height', '100%');
+        }
+
+        function autoExpandSidebar() {
+            if ($( ".sidebar-container-modal" ).css('display') != 'block') {
+                $( ".menu-content-modal" ).css('height', '50%');
+            }
+            $( ".sidebar-container-modal" ).css('display', 'block');
+        }
+
+        function emptySidebar() {
+            $( ".sidebar-content-modal" ).empty();
+            hideSidebar();
+        }
+
+        // clears the sidebar before adding any new information
+        function populateSidebar(data) {
+            $( ".sidebar-content-modal" ).empty();
+            $( ".sidebar-content-modal" ).append( data );
+            autoExpandSidebar();
+        }
+
+        function appendToSidebar(data) {
+            $( ".sidebar-content-modal" ).append( data );
+        }
+
+        // spinny thing when item is checked while AJAX retrieves the info
+        function startLoader() {
+            $( ".sidebar-content-modal" ).empty();
+            //$( ".sidebar-content-modal" ).append( "<div class='lds-dual-ring'></div>")
+            $( ".sidebar-content-modal" ).append( '<div class="lds-spin" style="width:100%;height:100%"><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div><div><div></div></div>');
+            autoExpandSidebar();
+        }
+    </script>
+{% endmacro %}

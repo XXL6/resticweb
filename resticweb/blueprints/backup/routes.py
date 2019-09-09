@@ -128,6 +128,9 @@ def edit_saved_job_backup(saved_job):
             if param.param_name == 'backup_set':
                 form.backup_set.default = param.param_value
         form.process()
+        for param in saved_job.parameters:
+            if param.param_name == 'additional_params':
+                form.additional_params.data = param.param_value
         form.description.data = saved_job.notes
         form.name.data = saved_job.name
         form.saved_job_id.data = saved_job.id

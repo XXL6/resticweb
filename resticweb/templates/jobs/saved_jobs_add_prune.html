@@ -44,6 +44,19 @@
                 {{ form.repository(class="form-control input-field") }}
                 {% endif %}
             </div>
+            <div class="form-group">
+                {{ form.additional_params.label(class="form-control-label") }}
+                {% if form.additional_params.errors %}
+                {{ form.additional_params(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.additional_params.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.additional_params(class="form-control input-field") }}
+                {% endif %}
+            </div>
         </fieldset>
         <div class="form-group">
             {{ form.submit(class="form-control input-field") }}

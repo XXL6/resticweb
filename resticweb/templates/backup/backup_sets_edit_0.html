@@ -163,7 +163,6 @@
                 temp_list.forEach(function (element) {
                     new_list['file_list'].push("+/" + tree_object.get_path(element.id, "/"));
                 });
-                console.log(current_object_list);
                 var totalExclusionRowIds = [];
                 for (var i = 0, row; row = exclusion_table.rows[i]; i++)
                 {
@@ -179,7 +178,6 @@
                     } else if (!(totalExclusionRowIds.includes(current_object_list[i].substring(1).replace(/ /g, "") + "-row")) && current_object_list[i].substring(0,1) == '-')  {
                         removedObjectArray.push(current_object_list[i]);
                     }
-                    console.log(new_list['file_list']);
                 }
                 if (removedObjectArray.length < 1) {
                     removedObjectArray.push("None");
