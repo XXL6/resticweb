@@ -506,4 +506,4 @@ def get_schedule_policy(schedule_id):
     ret.append(schedule.time_unit)
     if schedule.time_at:
         ret.append(f'at {schedule.time_at}')
-    return " ".join(ret)
+    return " ".join(str(ret_val) for ret_val in ret)
