@@ -8,8 +8,9 @@ import json
 def delete_backup_set(id):
     with LocalSession() as session:
         temp = session.query(BackupSet).filter_by(id=id).first()
-        job_parameter = session.query(JobParameter).filter_by(param_name='backup_set', param_value=temp.id).first()
-        job_parameter.param_value = None
+        job_parameters = session.query(JobParameter).filter_by(param_name='backup_set', param_value=temp.id)
+        for param in job_parameters:
+            param.param_value = None
         session.delete(temp)
         session.commit()
 
@@ -18,8 +19,9 @@ def delete_backup_sets(ids):
     with LocalSession() as session:
         for id in ids:
             temp = session.query(BackupSet).filter_by(id=id).first()
-            job_parameter = session.query(JobParameter).filter_by(param_name='backup_set', param_value=temp.id).first()
-            job_parameter.param_value = None
+            job_parameters = session.query(JobParameter).filter_by(param_name='backup_set', param_value=temp.id)
+            for param in job_parameters:
+                param.param_value = None
             session.delete(temp)
         session.commit()
 

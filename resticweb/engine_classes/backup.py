@@ -42,7 +42,7 @@ class Backup(RVProcess):
             backup_object_filename = self.create_file_list()
         else:
             self.log("Nothing to back up. Job stopping")
-            self.status("success")
+            self.status("warning")
             return
         exclusion_command = ''
         exclusion_filename = ''

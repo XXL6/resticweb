@@ -48,7 +48,39 @@
                 {% else %}
                 {{ form.missed_timeout(class="inline-form-control input-field", type="number") }}
                 {% endif %}
-                Run this schedule every {{ form.time_interval(class="inline-form-control", type="number") }} {{ form.time_unit(class="inline-form-control") }} at {{ form.time_at(class="time-select inline-form-control", id="time-picker") }}
+                Run this schedule every {{ form.time_interval(class="inline-form-control", type="number") }} {{ form.time_unit(class="inline-form-control") }}
+                <table class="ub-table" id="week-picker">
+                    <tr><td>on</td></tr>
+                    <tr>
+                        <td>Mon</td>
+                        <td>Tue</td>
+                        <td>Wed</td>
+                        <td>Thu</td>
+                        <td>Fri</td>
+                        <td>Sat</td>
+                        <td>Sun</td>
+                    </tr>
+                    <tr>
+                        <td>{{ form.monday(class="inline-form-control week-picker-checkbox") }}</td>
+                        <td>{{ form.tuesday(class="inline-form-control week-picker-checkbox") }}</td>
+                        <td>{{ form.wednesday(class="inline-form-control week-picker-checkbox") }}</td>
+                        <td>{{ form.thursday(class="inline-form-control week-picker-checkbox") }}</td>
+                        <td>{{ form.friday(class="inline-form-control week-picker-checkbox") }}</td>
+                        <td>{{ form.saturday(class="inline-form-control week-picker-checkbox") }}</td>
+                        <td>{{ form.sunday(class="inline-form-control week-picker-checkbox") }}</td>
+                    </tr>
+                </table>
+                at 
+                {% if form.time_at.errors %}
+                {{ form.time_at(class="time-select inline-form-control is-invalid", id="time-picker", autocomplete="off") }}
+                <div class="invalid-feedback">
+                    {% for error in form.time_at.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.time_at(class="time-select inline-form-control", id="time-picker", autocomplete="off") }}
+                {% endif %}
             </div>
         </fieldset>
         <div class="form-group">
@@ -176,6 +208,15 @@
             } else {
                 $("#time_interval").prop('disabled', false);
             }
+            if (time_unit == 'week' || time_unit == 'weeks')
+            {
+                $(".week-picker-checkbox").prop('disabled', false);
+                $("#week-picker").css("display", "table");
+            }
+            else {
+                $(".week-picker-checkbox").prop('disabled', true);
+                $("#week-picker").css("display", "none");
+            }
         });
 
         var timepicker = new TimePicker('time-picker', {
@@ -193,6 +234,15 @@
             $("#time_interval").prop('disabled', true);
         } else {
             $("#time_interval").prop('disabled', false);
+        }
+        if (time_unit == 'week' || time_unit == 'weeks')
+        {
+            $(".week-picker-checkbox").prop('disabled', false);
+            $("#week-picker").css("display", "table");
+        }
+        else {
+            $(".week-picker-checkbox").prop('disabled', true);
+            $("#week-picker").css("display", "none");
         }
 
     </script>

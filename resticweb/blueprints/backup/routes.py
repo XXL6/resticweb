@@ -54,9 +54,9 @@ def get_saved_job_info():
     info_dict['time_added'] = job.time_added
     param_backup_set = JobParameter.query.filter_by(job_id=job.id, param_name='backup_set').first()
     backup_set = BackupSet.query.filter_by(id=param_backup_set.param_value).first()
-    info_dict['backup_set'] = backup_set.name
+    info_dict['backup_set'] = backup_set.name if backup_set else "None"
     repository = JobParameter.query.filter_by(job_id=job.id, param_name='repository').first()
-    repository_name = repository_interface.get_repository_name(repository.param_value)
+    repository_name = repository_interface.get_repository_name(repository.param_value) if repository else "None"
     info_dict['repository'] = repository_name
     return render_template('sidebar/saved_jobs.html', info_dict=info_dict)
 

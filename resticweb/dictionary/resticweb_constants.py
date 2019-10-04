@@ -82,14 +82,14 @@ class ScheduleConstants:
         'days',
         'day',
         'weeks',
-        'week',
-        'monday',
-        'tuesday',
-        'wednesday',
-        'thursday',
-        'friday',
-        'saturday',
-        'sunday'
+        'week'#,
+        #'monday',
+        #'tuesday',
+        #'wednesday',
+        #'thursday',
+        #'friday',
+        #'saturday',
+        #'sunday'
     ]
 
 

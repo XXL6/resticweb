@@ -385,7 +385,21 @@ def schedules():
 @jobs.route(f'/{jobs.name}/schedules/_add', methods=['GET', 'POST'])
 def schedules_add():
     form = AddScheduleForm()
-
+    scheduled_days = []
+    if form.monday.data:
+        scheduled_days.append('monday')
+    if form.tuesday.data:
+        scheduled_days.append('tuesday')
+    if form.wednesday.data:
+        scheduled_days.append('wednesday')
+    if form.thursday.data:
+        scheduled_days.append('thursday')
+    if form.friday.data:
+        scheduled_days.append('friday')
+    if form.saturday.data:
+        scheduled_days.append('saturday')
+    if form.sunday.data:
+        scheduled_days.append('sunday')
     available_time_units = [(unit, unit) for unit in ScheduleConstants.TIME_UNITS]
     form.time_unit.choices = available_time_units
     if form.validate_on_submit():
@@ -396,7 +410,8 @@ def schedules_add():
                 form.time_interval.data,
                 form.time_at.data,
                 form.missed_timeout.data,
-                json.loads(form.job_list.data)) # list of tuples (job_id, sort)
+                json.loads(form.job_list.data), # list of tuples (job_id, sort)
+                scheduled_days) 
             flash("Schedule has been saved.", category='success')
         except Exception as e:
             flash(f"Failed to add schedule: {e}", category='error')
@@ -410,6 +425,21 @@ def schedules_edit(schedule_id):
     form.time_unit.choices = available_time_units
     form.schedule_id.data = schedule_id
     if form.validate_on_submit():
+        scheduled_days = []
+        if form.monday.data:
+            scheduled_days.append('monday')
+        if form.tuesday.data:
+            scheduled_days.append('tuesday')
+        if form.wednesday.data:
+            scheduled_days.append('wednesday')
+        if form.thursday.data:
+            scheduled_days.append('thursday')
+        if form.friday.data:
+            scheduled_days.append('friday')
+        if form.saturday.data:
+            scheduled_days.append('saturday')
+        if form.sunday.data:
+            scheduled_days.append('sunday')
         job_scheduler.update_schedule(
             form.name.data,
             form.time_unit.data,
@@ -417,7 +447,8 @@ def schedules_edit(schedule_id):
             form.description.data,
             form.time_interval.data,
             form.time_at.data,
-            form.missed_timeout.data
+            form.missed_timeout.data,
+            scheduled_days
         )
         if form.jobs_changed.data:
             job_scheduler.update_jobs(schedule_id, json.loads(form.job_list.data))
@@ -431,6 +462,22 @@ def schedules_edit(schedule_id):
         form.time_interval.data = schedule.time_interval
         form.time_at.data = schedule.time_at
         form.missed_timeout.data = schedule.missed_timeout
+        previous_days = json.loads(schedule.days)
+        for day in previous_days:
+            if day == 'monday':
+                form.monday.data = True
+            elif day == 'tuesday':
+                form.tuesday.data = True
+            elif day == 'wednesday':
+                form.wednesday.data = True
+            elif day == 'thursday':
+                form.thursday.data = True
+            elif day == 'friday':
+                form.friday.data = True
+            elif day == 'saturday':
+                form.saturday.data = True
+            elif day == 'sunday':
+                form.sunday.data = True
         scheduled_jobs = []
         job_maps = ScheduleJobMap.query.filter_by(schedule_id=schedule_id).order_by(ScheduleJobMap.sort.asc()).all()
         for job_map in job_maps:
@@ -473,7 +520,7 @@ def toggle_schedule_pause():
         schedule = Schedule.query.filter_by(id=item_id).first()
         return json.dumps({'success': True, 'item_values': {'next_run': f'{schedule.next_run}', 'paused': schedule.paused}}), 200, {'ContentType': 'application/json'}
     except Exception as e:
-        return json.dumps({'success': False, 'errormsg': e}), 500, {'ContentType': 'application/json'}
+        return json.dumps({'success': False, 'errormsg': repr(e)}), 500, {'ContentType': 'application/json'}
 
 
 @jobs.route(f'/{jobs.name}/schedules/_get_schedule_info')
@@ -506,4 +553,8 @@ def get_schedule_policy(schedule_id):
     ret.append(schedule.time_unit)
     if schedule.time_at:
         ret.append(f'at {schedule.time_at}')
+    days = json.loads(schedule.days)
+    if len(days) > 0:
+        ret.append("on")
+        ret.append(", ".join(days))
     return " ".join(str(ret_val) for ret_val in ret)

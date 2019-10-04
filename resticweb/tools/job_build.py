@@ -73,6 +73,11 @@ class JobBuilder():
         resources = [dict(resource_type='backup_set', resource_id=self.parameter_dictionary['backup_set'], amount=1),
                 dict(resource_type='repository', resource_id=self.parameter_dictionary['repository'], amount=1)]
         self.job_object = job_object.JobObject(name=self.job_name, process=process_object, resources=resources)
+        self.job_object.success_callback = job_callbacks.backup_success
+        # following is just a convenient way to add the information needed to add the results of this job
+        # to the backup record table
+        self.job_object.repository_id = self.parameter_dictionary['repository']
+        self.job_object.backup_set_id = self.parameter_dictionary['backup_set']
 
     def construct_job_object_repository(self):
         from resticweb.interfaces.repository import ResticRepository

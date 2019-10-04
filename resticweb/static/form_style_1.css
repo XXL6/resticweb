@@ -187,3 +187,10 @@ fieldset {
     background-color: rgba(131, 68, 45, 0.692);
 }
 
+#week-picker {
+    display: none;
+}
+
+#week-picker td {
+    width: 14%;
+}

@@ -1,4 +1,5 @@
 import resticweb.interfaces.repository_list as repository_interface
+import resticweb.interfaces.backup_record as backup_record_interface
 from resticweb.misc.credential_manager import credential_manager
 from resticweb.tools.job_build import JobBuilder
 import json
@@ -39,6 +40,14 @@ def repository_add_to_db(job):
     if job.process.field_dict.get('cache_repo'):
         job_builder = JobBuilder(job_name="Repository sync", job_class="repository_sync", parameters=dict(repository=repo_id))
         job_builder.run_job()
+
+
+def backup_success(job):
+    results = job.process.data.get('result')
+    results['repository_id'] = job.repository_id
+    results['backup_set_id'] = job.backup_set_id
+    backup_record_interface.add_record(results)
+
 
 def test_backup_callback(job):
     for key, value in job.process.data['result'].items():
