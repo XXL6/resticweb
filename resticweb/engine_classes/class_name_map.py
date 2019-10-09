@@ -5,6 +5,7 @@ from .test import Test
 from .check import Check
 from .forget import Forget
 from .prune import Prune
+from .forget_policy import ForgetPolicy
 
 # maps the lowercase name of a class to the actual class
 def get_class_from_name(class_name):
@@ -12,8 +13,6 @@ def get_class_from_name(class_name):
         return Repository
     elif class_name == 'backup':
         return Backup
-    elif class_name == 'test':
-        return Test
     elif class_name == 'restore':
         return Restore
     elif class_name == 'check':
@@ -24,15 +23,17 @@ def get_class_from_name(class_name):
         return Prune
     elif class_name == 'repository_sync':
         return RepositorySync
+    elif class_name == 'forget_policy':
+        return ForgetPolicy
     else:
         return None
 
 # function used to present job options to the front-end
 def get_available_classes():
     classes = [('backup', 'Backup'), 
-            ('repository', 'Repository Create'), 
-            ('test', 'Test'), 
+            ('repository', 'Repository Create'),
             ('restore', 'Restore'), 
             ('check', 'Check'),
-            ('prune', 'Prune')]
+            ('prune', 'Prune'),
+            ('forget_policy', 'Forget')]
     return classes

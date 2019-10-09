@@ -2,16 +2,18 @@ from flask import Blueprint, render_template, request, flash, Response, redirect
 from resticweb.interfaces.job_history import get_jobs, get_job, delete_jobs
 # from resticweb.interfaces.saved_jobs import delete_jobs as delete_jobs_s, add_job
 import resticweb.interfaces.saved_jobs as saved_jobs_interface
+import resticweb.interfaces.backup_sets as backup_sets_interface
+import resticweb.interfaces.repository_list as repository_interface
 from resticweb import db
 from resticweb.misc import job_queue as global_job_queue
 from resticweb.tools.job_build import JobBuilder
 from resticweb.engine_classes.class_name_map import get_available_classes, get_class_from_name
 from resticweb.dictionary.resticweb_constants import JobStatusFinishedMap, \
     JobStatusMap, ScheduleConstants
-import resticweb.interfaces.repository_list as repository_interface
 from resticweb.models.general import JobHistory, SavedJobs, Repository, Schedule, ScheduleJobMap
 import json
-from .forms import AddCheckJobForm, EditCheckJobForm, AddPruneJobForm, EditPruneJobForm, AddScheduleForm, EditScheduleForm
+from .forms import AddCheckJobForm, EditCheckJobForm, AddPruneJobForm, EditPruneJobForm, AddScheduleForm, EditScheduleForm, \
+    AddForgetJobForm, EditForgetJobForm
 from time import sleep
 from resticweb.misc.job_scheduler import job_scheduler
 
@@ -41,7 +43,7 @@ def update_job_queue():
             sleep(1)
     return Response(update_stream(), mimetype="text/event-stream")
 
-
+'''
 @jobs.route(f'/{jobs.name}/job_queue/_stop', methods=['POST'])
 def stop_jobs():
     job_ids = request.get_json().get('item_ids')
@@ -49,7 +51,7 @@ def stop_jobs():
         process_manager.kill_process(job_id)
     flash("Selected processes have been terminated.", category="success")
     return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
-
+'''
 
 @jobs.route(f'/{jobs.name}/job_queue/_update_job_info/<int:job_id>')
 def update_job_info(job_id):
@@ -111,6 +113,8 @@ def get_history_info():
             # if the log is not a list, we just add the whole string
             # to a list so that it's displayed properly
             history_info.log = [history_info.log]
+    if history_info.result == 'null':
+        history_info.result = None
     '''
     history_info = dict(
         name=history_info.name,
@@ -210,6 +214,8 @@ def edit_saved_job(saved_job):
         return edit_saved_job_check(editable_job)
     elif engine_class == 'prune':
         return edit_saved_job_prune(editable_job)
+    elif engine_class == 'forget_policy':
+        return edit_saved_job_forget(editable_job)
     else:
         return ""
 
@@ -228,6 +234,98 @@ def add_saved_job(engine_class):
         return add_saved_job_check()
     elif engine_class == 'prune':
         return add_saved_job_prune()
+    elif engine_class == 'forget_policy':
+        return add_saved_job_forget()
+
+
+def add_saved_job_forget():
+    engine_class = 'forget_policy'
+    available_repositories = repository_interface.get_engine_repositories()
+    if len(available_repositories) < 1:
+        available_repositories = [('-1', 'None Available')]
+    available_backup_sets = backup_sets_interface.get_backup_sets_tuple()
+    if len(available_backup_sets) < 1:
+        available_backup_sets = [('-1', 'None Available')]
+    form = AddForgetJobForm()
+    form.repository.choices = available_repositories
+    form.backup_set.choices = available_backup_sets
+    if form.validate_on_submit():
+        new_info = dict(
+            name=form.name.data,
+            notes=form.description.data,
+            engine_class=engine_class)
+        param_dict = {}
+        for item in form:
+            if item.id != 'csrf_token' and item.id != 'submit' and item.id != 'name' and item.id != 'description':
+                param_dict[item.id] = item.data
+        new_info['params'] = param_dict
+        saved_jobs_interface.add_job(new_info)
+        flash("Job has been saved.", category='success')
+        return redirect(url_for('jobs.saved_jobs'))
+    # we can use the same template as it's just going to be the same fields
+    # as the fields in the edit form
+    return render_template(f"jobs/saved_jobs_add_forget.html", form=form)
+
+
+def edit_saved_job_forget(saved_job):
+    available_repositories = repository_interface.get_engine_repositories()
+    if len(available_repositories) < 1:
+        available_repositories = [('-1', 'None Available')]
+    available_backup_sets = backup_sets_interface.get_backup_sets_tuple()
+    if len(available_backup_sets) < 1:
+        available_backup_sets = [('-1', 'None Available')]
+    form = EditForgetJobForm()
+    form.repository.choices = available_repositories
+    form.backup_set.choices = available_backup_sets
+    form.saved_job_id.data = saved_job.id
+    if form.validate_on_submit():
+        new_info = dict(
+            name=form.name.data,
+            notes=form.description.data,
+            #params=dict(repository=form.repository.data, backup_set=form.backup_set.data),
+            saved_job_id=form.saved_job_id.data
+        )
+        param_dict = {}
+        for item in form:
+            if item.id != 'csrf_token' and item.id != 'submit' and item.id != 'name' and item.id != 'description':
+                param_dict[item.id] = item.data
+        new_info['params'] = param_dict
+        saved_jobs_interface.update_job(new_info)
+        flash("Forget job successfully edited.", category='success')
+        return redirect(url_for('jobs.saved_jobs'))
+    else:
+        for param in saved_job.parameters:
+            if param.param_name == "repository":
+                form.repository.default = param.param_value
+            if param.param_name == 'backup_set':
+                form.backup_set.default = param.param_value
+        form.process()
+        for param in saved_job.parameters:
+            if param.param_name == 'additional_params':
+                form.additional_params.data = param.param_value
+            if param.param_name == 'keep_last':
+                form.keep_last.data = param.param_value
+            if param.param_name == 'keep_hourly':
+                form.keep_hourly.data = param.param_value
+            if param.param_name == 'keep_daily':
+                form.keep_daily.data = param.param_value
+            if param.param_name == 'keep_weekly':
+                form.keep_weekly.data = param.param_value
+            if param.param_name == 'keep_monthly':
+                form.keep_monthly.data = param.param_value
+            if param.param_name == 'keep_yearly':
+                form.keep_yearly.data = param.param_value
+            if param.param_name == 'keep_within':
+                form.keep_within.data = param.param_value
+            if param.param_name == 'prune':
+                if int(param.param_value) > 0:
+                    form.prune.data = True
+                else:
+                    form.prune.data = False
+        form.description.data = saved_job.notes
+        form.name.data = saved_job.name
+        form.saved_job_id.data = saved_job.id
+    return render_template("jobs/saved_jobs_add_forget.html", form=form)
 
 
 def add_saved_job_check():

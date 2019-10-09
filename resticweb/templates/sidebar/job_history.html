@@ -34,13 +34,17 @@
         </tbody>
     </table>
 </div>
-Job Results:<br>
-----------------<br>
-{{info_dict.result}}<br>
--------------------------------------------<br>
+{% if info_dict.result %}
+    <div class="job-result">
+        Job Results:<br>
+        ----------------<br>
+        {{info_dict.result}}<br>
+        -------------------------------------------<br>
+    </div>
+{% endif %}
 
-Job Log:<br>
-----------------<br>
-{% for log in info_dict["log"] %}
-    {{ log }}<br>
-{% endfor %}
+<div class="job-log" style="white-space: pre">
+Job Log:
+----------------
+{% for log in info_dict["log"] %}{{ log }}{% endfor %}
+</div>

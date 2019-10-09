@@ -16,6 +16,7 @@ class Backup(RVProcess):
         self.repository_interface = kwargs['repository']
         self.description = f'Backup to {self.repository_interface.address}'
         object_list = kwargs['object_list']
+        self.backup_set_tag = kwargs.get('backup_set_tag')
         self.file_include_list = [file[1:] for file in object_list if file[0] == MiscResticConstants.FILE_INCLUSION_KEY]
         self.file_exclude_list = [file[1:] for file in object_list if file[0] == MiscResticConstants.FILE_EXCLUSION_KEY]
         self.temp_folder_location = os.path.join(os.path.dirname(__file__), os.pardir, '.temp')
@@ -50,6 +51,8 @@ class Backup(RVProcess):
             exclusion_filename = self.create_exclusions_file()
             exclusion_command = ['--exclude-file', exclusion_filename]
         command = self.repository_interface.repo_command + ['--json', "backup", "--files-from", backup_object_filename]
+        if self.backup_set_tag:
+            command += ['--tag', self.backup_set_tag]
         if exclusion_command:
             command = command + exclusion_command
         if self.additional_params:

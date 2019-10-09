@@ -47,6 +47,32 @@ class EditCheckJobForm(BaseJobEditForm):
     repository = SelectField('Repository to check', coerce=int)
 
 
+class AddForgetJobForm(BaseJobAddForm):
+    backup_set = SelectField('Backup Set', coerce=int)
+    repository = SelectField('Repository', coerce=int)
+    keep_last = IntegerField('Keep Last')
+    keep_hourly = IntegerField('Keep Hourly')
+    keep_daily = IntegerField('Keep Daily')
+    keep_weekly = IntegerField('Keep Weekly')
+    keep_monthly = IntegerField('Keep Monthly')
+    keep_yearly = IntegerField('Keep Yearly')
+    keep_within = StringField('Keep Within')
+    prune = BooleanField('Prune')
+
+
+class EditForgetJobForm(BaseJobEditForm):
+    backup_set = SelectField('Backup Set', coerce=int)
+    repository = SelectField('Repository', coerce=int)
+    keep_last = IntegerField('Keep Last')
+    keep_hourly = IntegerField('Keep Hourly')
+    keep_daily = IntegerField('Keep Daily')
+    keep_weekly = IntegerField('Keep Weekly')
+    keep_monthly = IntegerField('Keep Monthly')
+    keep_yearly = IntegerField('Keep Yearly')
+    keep_within = StringField('Keep Within')
+    prune = BooleanField('Prune')
+
+
 class AddPruneJobForm(BaseJobAddForm):
     repository = SelectField('Repository to prune', coerce=int)
 

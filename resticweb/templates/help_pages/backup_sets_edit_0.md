@@ -4,7 +4,7 @@ This form is used to edit a list of files and folders to the database so that th
 
 ## Fields
 
-* Name: an arbitrary name for your backup set
+* Name: an arbitrary name for your backup set (the name also acts as a tag when the backup set is backed up to a repository, thus editing the name is not recommended after backups have been done.)
 * Source: the name of the server that the backup set was configured on. If the source differs from the current server the app is on, the file selector won't show up. The source can be changed to the name of the current machine in case the name was changed manually or other reason in which the file structure would remain the same.
 * Concurrent job uses: much like a repository, backup sets can be set up so that only a certain amount of jobs can use this backup set at one time concurrently. It might be useful if the backup set resides on a slow drive that could slow down significantly when multiple things are reading/writing.
 * Timeout (minutes): This is the timeout value in minutes for how long a job might wait for the backup set to become available before timing out. So if 2 is allocated for the concurrent job uses and there are 3 jobs attempting to use the set, one of those jobs will try to acquire the set for this many minutes. If the other two jobs are still running within the alotted time, the job times out.

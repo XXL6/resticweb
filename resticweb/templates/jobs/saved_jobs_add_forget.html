@@ -1,0 +1,224 @@
+{% extends "jobs/saved_jobs.html" %}
+{% set active_menu = "saved_jobs" %}
+{% set help_page = "saved_jobs_add_forget" %}
+{% block menu_content %}
+
+    <form class="ub-form form-style-1" method="POST" action="" enctype="multipart/form-data"><!-- enctype required for images or something -->
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group-fieldset">
+            <legend class="border-bottom">General Forget Job Attributes</legend>
+            <div class="form-group">
+                {{ form.name.label(class="form-control-label") }}
+                {% if form.name.errors %}
+                {{ form.name(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.name(class="form-control input-field") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.description.label(class="form-control-label") }}
+                {% if form.description.errors %}
+                {{ form.description(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.description.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.description(class="form-control input-field") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.backup_set.label(class="form-control-label") }}
+                {% if form.backup_set.errors %}
+                {{ form.backup_set(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.backup_set.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.backup_set(class="form-control input-field") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.repository.label(class="form-control-label") }}
+                {% if form.repository.errors %}
+                {{ form.repository(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.repository.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.repository(class="form-control input-field") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.additional_params.label(class="form-control-label") }}
+                {% if form.additional_params.errors %}
+                {{ form.additional_params(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.additional_params.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.additional_params(class="form-control input-field") }}
+                {% endif %}
+            </div>
+            <h2>
+                Specify retention policy:
+            </h2>
+            <div class="form-group">
+                {{ form.keep_last.label(class="form-control-label") }}
+                {% if form.keep_last.errors %}
+                {{ form.keep_last(class="form-control is-invalid input-field", type="number") }}
+                <div class="invalid-feedback">
+                    {% for error in form.keep_last.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.keep_last(class="form-control input-field", type="number") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.keep_hourly.label(class="form-control-label") }}
+                {% if form.keep_hourly.errors %}
+                {{ form.keep_hourly(class="form-control is-invalid input-field", type="number") }}
+                <div class="invalid-feedback">
+                    {% for error in form.keep_hourly.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.keep_hourly(class="form-control input-field", type="number") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.keep_daily.label(class="form-control-label") }}
+                {% if form.keep_daily.errors %}
+                {{ form.keep_daily(class="form-control is-invalid input-field", type="number") }}
+                <div class="invalid-feedback">
+                    {% for error in form.keep_daily.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.keep_daily(class="form-control input-field", type="number") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.keep_weekly.label(class="form-control-label") }}
+                {% if form.keep_weekly.errors %}
+                {{ form.keep_weekly(class="form-control is-invalid input-field", type="number") }}
+                <div class="invalid-feedback">
+                    {% for error in form.keep_weekly.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.keep_weekly(class="form-control input-field", type="number") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.keep_monthly.label(class="form-control-label") }}
+                {% if form.keep_monthly.errors %}
+                {{ form.keep_monthly(class="form-control is-invalid input-field", type="number") }}
+                <div class="invalid-feedback">
+                    {% for error in form.keep_monthly.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.keep_monthly(class="form-control input-field", type="number") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.keep_yearly.label(class="form-control-label") }}
+                {% if form.keep_yearly.errors %}
+                {{ form.keep_yearly(class="form-control is-invalid input-field", type="number") }}
+                <div class="invalid-feedback">
+                    {% for error in form.keep_yearly.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.keep_yearly(class="form-control input-field", type="number") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.keep_within.label(class="form-control-label") }}
+                {% if form.keep_within.errors %}
+                {{ form.keep_within(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.keep_within.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.keep_within(class="form-control input-field") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.prune.label(class="form-control-label") }}
+                {% if form.prune.errors %}
+                {{ form.prune(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.prune.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.prune(class="form-control input-field") }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="form-control input-field") }}
+        </div>
+    </form>
+    <script>
+        $(function () {
+            $('form').submit(function () {
+                /*
+                    To prevent the input=number fields from trying to submit themselves
+                    if they are empty and failing as they are not valid integers,
+                    this script disables the empty fields on submit so they don't try
+                    to get submitted.
+                */
+                var keep_last = document.getElementById("keep_last");
+                var keep_hourly = document.getElementById("keep_hourly");
+                var keep_daily = document.getElementById("keep_daily");
+                var keep_weekly = document.getElementById("keep_weekly");
+                var keep_monthly = document.getElementById("keep_monthly");
+                var keep_yearly = document.getElementById("keep_yearly");
+                
+                if (keep_last.value == "") {
+                    keep_last.disabled = true
+                }
+                if (keep_hourly.value == "") {
+                    keep_hourly.disabled = true
+                }
+                if (keep_daily.value == "") {
+                    keep_daily.disabled = true
+                }
+                if (keep_weekly.value == "") {
+                    keep_weekly.disabled = true
+                }
+                if (keep_monthly.value == "") {
+                    keep_monthly.disabled = true
+                }
+                if (keep_yearly.value == "") {
+                    keep_yearly.disabled = true
+                }
+            });
+        });
+    </script>
+{% endblock menu_content %}

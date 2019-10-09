@@ -1,6 +1,6 @@
 from resticweb.misc import job_queue
 from resticweb.tools import job_object
-from resticweb.models.general import SavedJobs, JobParameter, Repository, BackupObject
+from resticweb.models.general import SavedJobs, JobParameter, Repository, BackupObject, BackupSet
 from resticweb.tools.local_session import LocalSession
 from resticweb.misc.credential_manager import credential_manager
 from resticweb.engine_classes.class_name_map import get_class_from_name
@@ -57,6 +57,8 @@ class JobBuilder():
             self.construct_job_object_prune()
         elif self.job_class_name == 'repository_sync':
             self.construct_job_object_repository_sync()
+        elif self.job_class_name == 'forget_policy':
+            self.construct_job_object_forget_policy()
         else:
             return
 
@@ -65,11 +67,13 @@ class JobBuilder():
         if not repository:
             raise Exception("Invalid repository or repository has been deleted")
         with LocalSession() as session:
+            backup_set = session.query(BackupSet).filter_by(id=self.parameter_dictionary['backup_set']).first()
+            backup_set_tag = backup_set.name
             backup_objects = session.query(BackupObject).filter_by(backup_set_id=self.parameter_dictionary['backup_set'])
             if not backup_objects:
                 raise Exception("Backup set has been deleted or the backup is empty")
             object_list = [bak_object.data for bak_object in backup_objects]
-        process_object = self.job_class(repository=repository, object_list=object_list, additional_params=self.parameter_dictionary.get('additional_params'))
+        process_object = self.job_class(repository=repository, object_list=object_list, additional_params=self.parameter_dictionary.get('additional_params'), backup_set_tag=backup_set_tag)
         resources = [dict(resource_type='backup_set', resource_id=self.parameter_dictionary['backup_set'], amount=1),
                 dict(resource_type='repository', resource_id=self.parameter_dictionary['repository'], amount=1)]
         self.job_object = job_object.JobObject(name=self.job_name, process=process_object, resources=resources)
@@ -101,6 +105,19 @@ class JobBuilder():
         if not repository:
             raise Exception("Invalid repository or repository has been deleted")
         process_object = self.job_class(repository=repository, snapshot_id=self.parameter_dictionary['snapshot_id'])
+        resources = [dict(resource_type='repository', resource_id=self.parameter_dictionary['repository'], amount=-1)]
+        self.job_object = job_object.JobObject(name=self.job_name, process=process_object, resources=resources)
+
+    def construct_job_object_forget_policy(self):
+        repository = get_formatted_repository_interface_from_id(self.parameter_dictionary['repository'])
+        if not repository:
+            raise Exception("Invalid repository or repository has been deleted")
+        with LocalSession() as session:
+            backup_set = session.query(BackupSet).filter_by(id=self.parameter_dictionary['backup_set']).first()
+            backup_set_tag = backup_set.name
+            if not backup_set:
+                raise Exception("Backup set doesn't exist or has been deleted.")
+        process_object = self.job_class(repository=repository, backup_set_tag=backup_set_tag, policy_parameters=self.parameter_dictionary)
         resources = [dict(resource_type='repository', resource_id=self.parameter_dictionary['repository'], amount=-1)]
         self.job_object = job_object.JobObject(name=self.job_name, process=process_object, resources=resources)
 
