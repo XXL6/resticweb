@@ -6,6 +6,7 @@ Application still under development so parts are likely unfinished/broken.
 The app can be run with the following steps for now:
 
 * Install python3
+* Install git (looks like it's required in order to build the pipenv virtual environment due to some packages being on github)
 * Install pip
 * Install pipenv by using pip
 * Run ```pipenv install``` in the main project folder where the pipfiles are located. (ignore if psutil and few others fail to install on Linux, as they are only used on Windows)
