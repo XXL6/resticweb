@@ -1,7 +1,6 @@
 from .repository import Repository, RepositorySync
 from .backup import Backup
 from .restore import Restore
-from .test import Test
 from .check import Check
 from .forget import Forget
 from .prune import Prune

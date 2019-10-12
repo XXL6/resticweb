@@ -27,14 +27,17 @@ def configure_engine():
     location, throwaway = path.split(local_engine.__file__)
     Config.ENGINE_COMMAND = f'{location}{path.sep}restic'
     command = [Config.ENGINE_COMMAND, 'version']
-    finished_process = subprocess.run(
-                command, 
-                shell=False,
-                capture_output=True)
-    line = finished_process.stdout.decode('utf-8')
-    if len(line) > 0:
-        if "compiled with go" in line:
-            return_value = True
+    try:
+        finished_process = subprocess.run(
+                    command, 
+                    shell=False,
+                    capture_output=True)
+        line = finished_process.stdout.decode('utf-8')
+        if len(line) > 0:
+            if "compiled with go" in line:
+                return_value = True
+    except FileNotFoundError:
+        raise NoEngineAvailable("Unable to find a backup engine.")
     if return_value:
         return return_value
     else:
