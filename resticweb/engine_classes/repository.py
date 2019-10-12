@@ -1,5 +1,5 @@
 from resticweb.tools.rv_process import RVProcess
-from resticweb.tools.repository_tools import sync_snapshots, sync_snapshot_objects, sync_repository_info
+from resticweb.tools.repository_tools import sync_snapshots, sync_snapshot_objects, sync_repository_info, sync_single_snapshot
 import os
 import subprocess
 import traceback
@@ -111,18 +111,35 @@ class RepositorySync(RVProcess):
 
     def __init__(self, **kwargs):
         super().__init__()
+        self.name = 'RepositorySync'
         self.repository_interface = kwargs.get('repository')
         self.repo_id = kwargs.get('repo_id')
+        self.sync_type = kwargs.get('sync_type') # full or partial or None or stats (will sync just stats if None)
+        self.snapshot_id = kwargs.get('snapshot_id') # in case only a single snapshot needs to be synced
+        if not self.sync_type:
+            self.sync_type = 'stats'
 
     def run(self):
         super().__init__()
-        self.log("Started repository sync")
+        self.log(f"Started {self.sync_type} repository sync")
         self.step("Syncing repository")
         try:
+            self.step("Syncing repository info")
             sync_repository_info(self.repo_id, repository_interface=self.repository_interface)
-            snapshots = sync_snapshots(self.repo_id, repository_interface=self.repository_interface)
-            for snapshot in snapshots:
-                sync_snapshot_objects(snapshot['snap_id'], self.repo_id, repository_interface=self.repository_interface)
+            snapshots = []
+            if self.sync_type == 'partial' or self.sync_type == 'full':
+                self.step("Syncing repository snapshots")
+                if self.snapshot_id:
+                    snapshots.append(sync_single_snapshot(self.repo_id, self.snapshot_id, repository_interface=self.repository_interface))
+                else:
+                    snapshots = sync_snapshots(self.repo_id, repository_interface=self.repository_interface)
+            if self.sync_type == 'full':
+                self.step("Syncing snapshot objects.")
+                self.basic_progress_tracker.set_max_progress(len(snapshots))
+                for snapshot in snapshots:
+                    self.step(f"Syncing snapshot {snapshot['snap_short_id']}")
+                    sync_snapshot_objects(snapshot['snap_id'], self.repo_id, repository_interface=self.repository_interface)
+                    self.progress(self.basic_progress_tracker.increment())
         except Exception:
             self.log("Failed to sync repository objects")
             self.log(f'TRACE: {traceback.format_exc()}')

@@ -7,6 +7,7 @@ from resticweb.engine_classes.class_name_map import get_class_from_name
 import resticweb.tools.job_callbacks as job_callbacks
 from resticweb.dictionary.resticweb_variables import Config
 from resticweb.interfaces.repository_list import get_formatted_repository_interface_from_id
+import resticweb.engine_classes.system as system_maintenance
 
 # this class is meant to consolidate all job creation into one class.
 # job parameters get passed in via the parameters argument and are used
@@ -59,6 +60,8 @@ class JobBuilder():
             self.construct_job_object_repository_sync()
         elif self.job_class_name == 'forget_policy':
             self.construct_job_object_forget_policy()
+        elif self.job_class_name == 'clear_snapshot_objects':
+            self.construct_job_object_clear_snapshot_objects()
         else:
             return
 
@@ -107,6 +110,7 @@ class JobBuilder():
         process_object = self.job_class(repository=repository, snapshot_id=self.parameter_dictionary['snapshot_id'])
         resources = [dict(resource_type='repository', resource_id=self.parameter_dictionary['repository'], amount=-1)]
         self.job_object = job_object.JobObject(name=self.job_name, process=process_object, resources=resources)
+        self.job_object.success_callback = job_callbacks.forget_success
 
     def construct_job_object_forget_policy(self):
         repository = get_formatted_repository_interface_from_id(self.parameter_dictionary['repository'])
@@ -120,6 +124,7 @@ class JobBuilder():
         process_object = self.job_class(repository=repository, backup_set_tag=backup_set_tag, policy_parameters=self.parameter_dictionary)
         resources = [dict(resource_type='repository', resource_id=self.parameter_dictionary['repository'], amount=-1)]
         self.job_object = job_object.JobObject(name=self.job_name, process=process_object, resources=resources)
+        self.job_object.success_callback = job_callbacks.forget_policy_success
 
     def construct_job_object_check(self):
         repository = get_formatted_repository_interface_from_id(self.parameter_dictionary['repository'])
@@ -141,10 +146,14 @@ class JobBuilder():
         repository = get_formatted_repository_interface_from_id(self.parameter_dictionary['repository'])
         if not repository:
             raise Exception("Invalid repository or repository has been deleted")
-        process_object = self.job_class(repository=repository, repo_id=self.parameter_dictionary['repository'])
+        process_object = self.job_class(repository=repository, repo_id=self.parameter_dictionary['repository'], sync_type=self.parameter_dictionary.get('sync_type'), snapshot_id=self.parameter_dictionary.get('snapshot_id'))
         resources = [dict(resource_type='repository', resource_id=self.parameter_dictionary['repository'], amount=1)]
         self.job_object = job_object.JobObject(name=self.job_name, process=process_object, resources=resources)
         
+    def construct_job_object_clear_snapshot_objects(self):
+        process_object = self.job_class(repo_id=self.parameter_dictionary['repo_id'], snapshot_id=self.parameter_dictionary.get('snapshot_id'))
+        self.job_object = job_object.JobObject(name=self.job_name, process=process_object)
+
     def run_job(self, background=True):
         # if the job is set to run in the background, it will just
         # lock up the front end until the job is finished

@@ -38,16 +38,38 @@ def repository_add_to_db(job):
     # once the repository has been added successfully, we can sync the objects
     # if the 'cache_repo' was selected
     if job.process.field_dict.get('cache_repo'):
-        job_builder = JobBuilder(job_name="Repository sync", job_class="repository_sync", parameters=dict(repository=repo_id))
-        job_builder.run_job()
+        job_builder = JobBuilder(job_name="Repository full sync", job_class="repository_sync", parameters=dict(repository=repo_id, sync_type='full'))
+    else:
+        job_builder = JobBuilder(job_name="Repository partial sync", job_class="repository_sync", parameters=dict(repository=repo_id, sync_type='partial'))
+    job_builder.run_job()
 
 
 def backup_success(job):
     results = job.process.data.get('result')
     results['repository_id'] = job.repository_id
     results['backup_set_id'] = job.backup_set_id
-    backup_record_interface.add_record(results)
+    # backup_record_interface.add_record(results)
+    cache_repo = repository_interface.get_info(results['repository_id'], use_cache=True)['cache_repo']
+    if cache_repo:
+        job_builder = JobBuilder(job_name="Repository full sync", job_class="repository_sync", parameters=dict(repository=results['repository_id'], sync_type='full', snapshot_id=results['snapshot_id']))
+    else:
+        job_builder = JobBuilder(job_name="Repository partial sync", job_class="repository_sync", parameters=dict(repository=results['repository_id'], sync_type='partial', snapshot_id=results['snapshot_id']))
+    job_builder.run_job()
 
+def forget_success(job):
+    snapshot_id = job.process.snapshot_id[0:8]
+    backup_record_interface.delete_record_by_snap_id(job.process.repository_interface.resticweb_repo_id, snapshot_id)
+    repository_interface.delete_snapshot(job.process.repository_interface.resticweb_repo_id, snapshot_id)
+    job_builder = JobBuilder(job_name="Repository stats sync", job_class="repository_sync", parameters=dict(repository=job.process.repository_interface.resticweb_repo_id))
+    job_builder.run_job()
+
+def forget_policy_success(job):
+    snapshots = job.process.snapshot_list
+    for snapshot_id in snapshots:
+        backup_record_interface.delete_record_by_snap_id(job.process.repository_interface.resticweb_repo_id, snapshot_id)
+        repository_interface.delete_snapshot(job.process.repository_interface.resticweb_repo_id, snapshot_id)
+    job_builder = JobBuilder(job_name="Repository stats sync", job_class="repository_sync", parameters=dict(repository=job.process.repository_interface.resticweb_repo_id))
+    job_builder.run_job()
 
 def test_backup_callback(job):
     for key, value in job.process.data['result'].items():

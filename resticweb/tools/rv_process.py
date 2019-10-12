@@ -1,7 +1,7 @@
 import subprocess
 import traceback
 from multiprocessing import Process
-from resticweb.tools.data_trackers import ProgressTracker, DataTracker, ResultTracker
+from resticweb.tools.data_trackers import ProgressTracker, DataTracker, ResultTracker, BasicProgressTracker
 from time import sleep
 from threading import Thread, Lock
 import os
@@ -20,6 +20,7 @@ class RVProcess(Process):
         self.data = {}
         self.job_log = []
         self.progress_tracker = ProgressTracker()
+        self.basic_progress_tracker = BasicProgressTracker()
         self.data_tracker = DataTracker()
         self.result_tracker = ResultTracker()
         
@@ -120,6 +121,9 @@ class RVProcess(Process):
 
     def step(self, data):
         self.send_data('step', data)
+
+    def progress(self, progress):
+        self.send_data('progress', progress)
 
     def data_update(self):
         while True:

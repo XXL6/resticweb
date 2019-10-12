@@ -6,6 +6,7 @@ from .check import Check
 from .forget import Forget
 from .prune import Prune
 from .forget_policy import ForgetPolicy
+from .system import ClearSnapshotObjects
 
 # maps the lowercase name of a class to the actual class
 def get_class_from_name(class_name):
@@ -25,6 +26,8 @@ def get_class_from_name(class_name):
         return RepositorySync
     elif class_name == 'forget_policy':
         return ForgetPolicy
+    elif class_name == 'clear_snapshot_objects':
+        return ClearSnapshotObjects
     else:
         return None
 

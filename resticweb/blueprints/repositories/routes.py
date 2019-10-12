@@ -30,7 +30,7 @@ def repository_list():
 
 @repositories.route(f'/{repositories.name}/repository_list/<int:repository_id>')
 def repository_snapshots(repository_id):
-    snapshot_list = repository_interface.get_snapshots(repository_id)
+    snapshot_list = repository_interface.get_snapshots(repository_id, use_cache=True)
     repository_name = repository_interface.get_repository_name(repository_id)
     return render_template('repositories/snapshot_list.html', snapshots=snapshot_list, repository_name=repository_name)
 
@@ -75,7 +75,7 @@ def snapshot_list(snapshot_id):
 def get_repository_info():
     info_dict = {}
     repository_id = request.args.get('id', 0, type=int)
-    info_dict = repository_interface.get_info(repository_id)
+    info_dict = repository_interface.get_info(repository_id, use_cache=True)
     repo_size = info_dict['data'].get('total_size')
     if repo_size:
         info_dict['data']['total_size'] = humanize.naturalsize(repo_size, binary=True)
@@ -103,6 +103,22 @@ def forget_snapshot():
     else:
         return json.dumps({'success': False, 'errormsg' : f'Unable to forget snapshot. {result}'}), 500, {'ContentType': 'application/json'}
     '''
+    return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+
+
+@repositories.route(f'/{repositories.name}/repository_list/_sync', methods=['POST'])
+def sync_repo():
+    repo_ids = request.get_json().get('item_ids')
+    try:
+        for repo_id in repo_ids:
+            repository = Repository.query.filter_by(id=repo_id).first()
+            job_builder = JobBuilder(job_name=f"Sync repo {repository.name}", job_class='repository_sync', parameters=dict(repository=repository.id, sync_type=('full' if repository.cache_repo else 'partial')))
+            job_builder.run_job()
+    except Exception as e:
+        # flash(f"Items not removed: {e}", category='error')
+        return json.dumps({'success': False}), 500, {'ContentType': 'application/json'}
+        # logger.debug(group_id)
+    # flash("Successfully removed items", category="success")
     return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
 
 

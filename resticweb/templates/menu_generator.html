@@ -346,6 +346,25 @@
                     });
                 }
                 break;
+            case "sync":
+                var value = confirm("Resync the selected repository?");
+                if (value) {
+                    var itemsToSync = getCheckedItemIds();
+                    $.ajax({
+                        type: "POST",
+                        url: $SCRIPT_ROOT + "{{action_script_root + '_sync'|safe}}",
+                        contentType: "application/json",
+                        data: JSON.stringify({item_ids: itemsToSync}),
+                        dataType: "json",
+                        success: function(response) {
+                            new Noty({ theme: 'relax', text: "Sync job has been submitted for the selected repositories.", layout: 'bottomCenter', type: 'success' }).show(); 
+                        },
+                        error: function(error) {
+                            new Noty({ theme: 'relax', text: data.responseJSON.errormsg, layout: 'bottomCenter', type: 'error' }).show(); 
+                        }
+                    });
+                }
+                break;
             default:
                 alert("Unsupported function");
         }

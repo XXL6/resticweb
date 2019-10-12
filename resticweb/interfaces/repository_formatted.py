@@ -6,11 +6,12 @@ from resticweb.dateutil import parser
 
 class ResticRepositoryFormatted(ResticRepository):
 
-    def __init__(self, address, password, global_credentials=None):
+    def __init__(self, address, password, global_credentials=None, resticweb_repo_id=None):
         super().__init__(address, password, global_credentials)
+        self.resticweb_repo_id = resticweb_repo_id
 
-    def get_snapshots(self):
-        snapshots = super().get_snapshots()
+    def get_snapshots(self, snapshot_id=None):
+        snapshots = super().get_snapshots(snapshot_id=snapshot_id)
         if snapshots:
             for item in snapshots:
                 item['snap_id'] = item.pop('id')

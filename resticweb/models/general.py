@@ -193,19 +193,7 @@ class BackupRecord(db.Model):
     __tablename__ = 'backup_record'
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     snapshot_id = db.Column(db.String(64))
-    files_new = db.Column(db.Integer)
-    files_changed = db.Column(db.Integer)
-    files_unmodified = db.Column(db.Integer)
-    dirs_new = db.Column(db.Integer)
-    dirs_changed = db.Column(db.Integer)
-    dirs_unmodified = db.Column(db.Integer)
-    data_blobs = db.Column(db.Integer)
-    tree_blobs = db.Column(db.Integer)
-    data_added = db.Column(db.Integer)
-    total_files_processed = db.Column(db.Integer)
-    total_bytes_processed = db.Column(db.Integer)
-
-    time_added = db.Column(
+    snap_time = db.Column(
         db.DateTime,
         nullable=False,
         default=datetime.utcnow
@@ -267,6 +255,7 @@ class Snapshot(db.Model):
     hostname = db.Column(db.String(100))
     username = db.Column(db.String(100))
     tree = db.Column(db.String(64))
+    tags = db.Column(db.String)
 
     snapshot_objects = db.relationship(
         'SnapshotObject',

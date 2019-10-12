@@ -14,6 +14,7 @@
             <th class="ub-table-header-item table-col-05">Check</th>
             <th class="ub-table-header-item table-col-1">Snap Id</th>
             <th class="ub-table-header-item table-col-2">Snap Time</th>
+            <th class="ub-table-header-item table-col-2">Tags</th>
             <th class="ub-table-header-item table-col-2">Hostname</th>
         </tr>
         {% for snapshot in snapshots %}
@@ -25,6 +26,7 @@
                     <a href="{{ url_for('repositories.snapshot_list', snapshot_id=snapshot['snap_id']) }}" class="ub-table-anchor">{{ snapshot['snap_short_id'] }}</a>
                 </td>
                 <td class="ub-table-data table-data-item">{{ snapshot['snap_time'] }}</td>
+                <td class="ub-table-data table-data-item">{{ snapshot['tags'] }}</td>
                 <td class="ub-table-data table-data-item">{{ snapshot['hostname'] }}</td>
             </tr>
         {% endfor %}

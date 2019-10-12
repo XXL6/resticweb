@@ -91,6 +91,29 @@ class ProgressTracker:
         self.current_progress = 0.0
 
 
+class BasicProgressTracker:
+    current_progress = 0.0
+    max_progress = 0
+
+    def set_progress(self, progress):
+        self.current_progress = progress
+        return self.current_progress
+
+    def set_adjusted_progress(self, progress):
+        self.current_progress = (100.0 / self.max_progress) * progress
+        return self.current_progress
+    
+    def set_max_progress(self, max_progress):
+        self.max_progress = max_progress
+
+    def increment(self):
+        self.current_progress += 100.0 / self.max_progress
+        return self.current_progress
+
+    def get_current_progress(self):
+        return self.current_progress
+
+
 # regex based tracker of all other misc data that can be retrieved
 # from a running process in real time
 # example: Time Left

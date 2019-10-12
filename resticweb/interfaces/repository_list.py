@@ -1,11 +1,11 @@
 import os
 # from resticweb.dictionary.resticweb_constants import Repository as Rep
-from resticweb.models.general import Repository, Snapshot, SnapshotObject, JobParameter
+from resticweb.models.general import Repository, Snapshot, SnapshotObject, JobParameter, RepositoryType
 from resticweb.tools.local_session import LocalSession
 from resticweb.misc.credential_manager import credential_manager
 # from .repository import ResticRepository
 from .repository_formatted import ResticRepositoryFormatted
-from resticweb.tools.repository_tools import sync_snapshots, sync_snapshot_objects
+from resticweb.tools.repository_tools import sync_snapshots, sync_snapshot_objects, sync_single_snapshot
 import json
 import traceback
 from datetime import datetime
@@ -50,12 +50,16 @@ def update_repository(info, repo_id, sync_db=False, unsync_db=False):
         session.commit()
         from resticweb.tools.job_build import JobBuilder
         if sync_db:
-            job_builder = JobBuilder(job_name=f"Sync repo {repository.name}", job_class='repository_sync', parameters=dict(repository=repository.id))
+            job_builder = JobBuilder(job_name=f"Sync repo {repository.name}", job_class='repository_sync', parameters=dict(repository=repository.id, sync_type='full'))
             job_builder.run_job()
         if unsync_db:
+            '''
             for snapshot in repository.snapshots:
-                session.delete(snapshot)
+                snapshot.snapshot_objects = []
             session.commit()
+            '''
+            job_builder = JobBuilder(job_name=f'Clear db from repo {repository.name}', job_class='clear_snapshot_objects', parameters=dict(repo_id=repository.id))
+            job_builder.run_job()
     return repo_id
 
 
@@ -82,16 +86,22 @@ def get_repository_from_snap_id(snap_id):
         return repository
 
 
-def get_info(id, repository_interface=None):
+# gets basic info about the repository from the database. Also grabs the stats
+# from the repository itself like the total size and number of files.
+# if use_cache is set to False then the repo stats are grabbed from repo itself
+# which might take a bit of time
+def get_info(id, repository_interface=None, use_cache=False):
     info_dict = {}
+    misc_data = None
     if not repository_interface:
         repository_interface = get_formatted_repository_interface_from_id(id)
-    misc_data = None
     repo_status = repository_interface.is_offline()
-    if not repo_status:
-        misc_data = repository_interface.get_stats()
+    if not use_cache:
+        if not repo_status:
+            misc_data = repository_interface.get_stats()
     with LocalSession() as session:
         repository = session.query(Repository).filter_by(id=id).first()
+        repository_type = session.query(RepositoryType).filter_by(id=repository.repository_type_id).first()
         if misc_data:
             repository.data = json.dumps(misc_data)
             session.commit()
@@ -110,24 +120,36 @@ def get_info(id, repository_interface=None):
             repository_data=repository.data,
             concurrent_uses=repository.concurrent_uses,
             timeout=repository.timeout,
-            data=misc_data
+            data=misc_data,
+            cache_repo=repository.cache_repo,
+            repository_type=repository_type.name
         )
     return info_dict
 
+# returns a list of snapshots and places them into the database from the
+# repository if use_cache is set to False. Returns list of snapshots from
+# the database if use_cache is set to True
 def get_snapshots(id, use_cache=False):
     repository_interface = get_formatted_repository_interface_from_id(id)
     snapshots = []
     if not use_cache and repository_interface.is_online():
         snapshots = repository_interface.get_snapshots()
-        if snapshots:
-            sync_snapshots(id)
-            return snapshots
-        else:
-            return {}
+        return snapshots if snapshots else {}
     else:
         with LocalSession() as session:
             snapshots = session.query(Snapshot).filter_by(repository_id=id).all()
             return snapshots
+
+
+def get_snapshot(repo_id, snapshot_id, use_cache=False):
+    repository_interface = get_formatted_repository_interface_from_id(repo_id)
+    if not use_cache and repository_interface.is_online():
+        snapshot = repository_interface.get_snapshots(snapshot_id)[0]
+        return snapshot if snapshot else {}
+    else:
+        with LocalSession() as session:
+            snapshot = session.query(Snapshot).filter_by(repository_id=repo_id, snap_short_id=snapshot_id).first()
+            return snapshot
 
 
 def insert_snapshots(items, repo_id):
@@ -150,9 +172,17 @@ def insert_snapshots(items, repo_id):
                 username=item.get('username'),
                 tree=item.get('tree'),
                 repository_id=repo_id,
-                paths=json.dumps(item.get('paths'))
+                paths=json.dumps(item.get('paths')),
+                tags=json.dumps(item.get('tags'))
             )
             session.add(new_snapshot)
+        session.commit()
+
+
+def delete_snapshot(repo_id, snapshot_id):
+    with LocalSession() as session:
+        snapshot = session.query(Snapshot).filter_by(repository_id=repo_id, snap_short_id=snapshot_id).first()
+        session.delete(snapshot)
         session.commit()
 
 
@@ -165,14 +195,18 @@ def get_snapshot_objects(snap_id, use_cache=False):
         # if the repo is online, we can purge the snapshots from db as we will
         # just re-add them fresh from the actual repo
         object_list = repository_interface.get_snapshot_ls(snap_id)
-        if repository.cache_repo:
-            sync_snapshot_objects(repository.id, snap_id, repository_interface=repository_interface)
+        # if repository.cache_repo:
+        #    sync_snapshot_objects(repository.id, snap_id, repository_interface=repository_interface)
         return object_list
     else:
         with LocalSession() as session:
             snapshot_object_list = session.query(SnapshotObject).filter_by(snapshot_id=snap_id).all()
         snapshot_dict_list = [snapshot_object.to_dict() for snapshot_object in snapshot_object_list]
         return snapshot_dict_list
+
+
+def delete_snapshot_objects(snap_id):
+    pass
 
 
 def insert_snapshot_objects(items, snap_id):
@@ -231,6 +265,11 @@ def get_snapshot_info(id):
             snapshot.paths = json.loads(snapshot.paths)
         except ValueError:
             pass
+    if snapshot.tags:
+        try:
+            snapshot.tags = json.loads(snapshot.tags)
+        except ValueError:
+            pass
     return snapshot
 
 
@@ -278,7 +317,7 @@ def get_formatted_repository_interface_from_id(id):
                 credential_list = credential_manager.get_group_credentials(repository.credential_group_id)
                 if credential_list:
                     repo_password = credential_list.pop('repo_password')
-                    respository_interface = ResticRepositoryFormatted(repository.address, repo_password, credential_list if len(credential_list) > 0 else None)
+                    respository_interface = ResticRepositoryFormatted(repository.address, repo_password, credential_list if len(credential_list) > 0 else None, id)
                     return respository_interface
     except Exception as e:
         logger.error(e)

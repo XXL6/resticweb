@@ -9,6 +9,8 @@ import logging
 # this is a low level restic repository interface that can be used
 # by functions that need to retrieve such things as stats, and snapshots
 
+logger = logging.getLogger('mainLogger')
+
 class ResticRepository(RVProcessFG):
 
     def __init__(self, address, password, global_credentials=None):
@@ -85,10 +87,13 @@ class ResticRepository(RVProcessFG):
                     pass
             return return_json
 
-    def get_snapshots(self):
+    def get_snapshots(self, snapshot_id=None):
         with ResticCredentials(self.global_credentials):
             return_json = []
-            command = self.repo_command + ['snapshots', '--json']
+            command = self.repo_command + ['snapshots']
+            if snapshot_id:
+                command.append(snapshot_id)
+            command.append('--json')
             task = subprocess.run(
                     command,
                     capture_output=True,
@@ -99,10 +104,10 @@ class ResticRepository(RVProcessFG):
                 try:
                     line = self.clean_json_string(line)
                     return_json = json.loads(line)
-                except ValueError:
-                    pass
-                except Exception:
-                    pass
+                except ValueError as e:
+                    logger.warning(f'Failure to parse result into JSON: {e}')
+                except Exception as e:
+                    logger.error(f'Unknown failure: {e}')
             return return_json
 
     def get_snapshot_ls(self, snapshot_id):
@@ -121,10 +126,10 @@ class ResticRepository(RVProcessFG):
                     try:
                         item = self.clean_json_string(item)
                         return_json.append(json.loads(item))
-                    except ValueError:
-                        pass
-                    except Exception:
-                        pass
+                    except ValueError as e:
+                        logger.warning(f'Failure to parse result into JSON: {e}')
+                    except Exception as e:
+                        logger.error(f'Unknown failure: {e}')
             return return_json
 
 

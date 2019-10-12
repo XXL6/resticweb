@@ -3,7 +3,8 @@
 {% set menu_list = [
     (url_for('backup.saved_jobs'), 'saved_jobs', 'Saved Jobs'),
     (url_for('backup.job_history'), 'job_history', 'Job History'),
-    (url_for('backup.backup_sets'), 'backup_sets', 'Backup Sets')
+    (url_for('backup.backup_sets'), 'backup_sets', 'Backup Sets'),
+    (url_for('backup.backup_record'), 'backup_record', 'Backup Record')
 ] -%}
 {% from "menu_generator.html" import generate_menu, generate_sidebar %}
 {% block tab_content %}

@@ -2,7 +2,7 @@ from flask import render_template, Blueprint, request, redirect, url_for, flash
 import logging
 from resticweb.dictionary.resticweb_constants import BackupSetList, JobStatusFinishedMap
 from resticweb.interfaces import backup_sets as backup_sets_interface
-from resticweb.models.general import SavedJobs, JobParameter, JobHistory, BackupSet
+from resticweb.models.general import SavedJobs, JobParameter, JobHistory, BackupSet, BackupRecord
 from resticweb.interfaces.job_history import get_jobs, get_job, delete_jobs
 import resticweb.interfaces.saved_backup_jobs as saved_backup_jobs_interface
 import resticweb.interfaces.saved_jobs as saved_jobs_interface
@@ -317,6 +317,13 @@ def job_history():
     for item in items.items:
         item.status = JobStatusFinishedMap.JOB_STATUS_FINISHED[item.status]
     return render_template('backup/job_history.html', items=items)
+
+
+@backup.route(f'/{backup.name}/backup_record')
+def backup_record():
+    page = request.args.get('page', 1, type=int)
+    items = BackupRecord.query.order_by(BackupRecord.snap_time.desc()).paginate(page=page, per_page=40)
+    return render_template('backup/backup_record.html', items=items)
 
 
 @backup.route(f'/{backup.name}/job_history/_get_history_info')

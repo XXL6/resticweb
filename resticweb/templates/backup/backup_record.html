@@ -1,0 +1,36 @@
+{% extends "backup/backup.html" %}
+{% set active_menu = "backup_record" %}
+{% from "menu_generator.html" import generate_action_menu %}
+{#% from "list_generators.html" import item_select_script_table %#}
+{#% set action_menu_list = [
+    {'action_name': 'Delete', 'action': 'delete', 'icon': 'fas fa-trash', 'variant': '2'}
+]
+-%#}
+{% block menu_content %}
+    {{ generate_action_menu(action_menu_list, '/backup/backup_record/', items, 'backup.backup_record') }}
+    <table class="ub-table">
+        <thead class="ub-table-header">
+            <tr class="ub-table-header-row">
+                {#<th class="ub-table-header-item table-col-05">Check</th>#}
+                <th class="ub-table-header-item table-col-1">Backup Set</th>
+                <th class="ub-table-header-item table-col-2">Repository</th>
+                <th class="ub-table-header-item table-col-3">Snapshot Time</th>
+                <th class="ub-table-header-item table-col-3">Snapshot Id</th>
+            </tr>
+        </thead>
+        {% for item in items.items %}
+            <tr class="ub-table-data-row" id="{{ item['id'] }}">
+                {#<td class="ub-table-data table-col-05 table-checkbox-div">
+                    <input type="checkbox" class="table-checkbox list-checkbox" autocomplete="off" value="{{item['id']}}" id="{{item['id']}}-box">
+                </td>#}
+                <td class="ub-table-data table-data-item">{{ item.backup_set.name }}</td>
+                <td class="ub-table-data table-data-item">{{ item.repository.name }}</td>
+                <td class="ub-table-data table-data-item">{{ item.snap_time }}</td>
+                <td class="ub-table-data table-data-item">{{ item.snapshot_id }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    {# we can keep the same info script as the one under the jobs
+        tab #}
+    {#{ item_select_script_table('/backup/job_history/_get_history_info') }#}
+{% endblock menu_content %}

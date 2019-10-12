@@ -9,6 +9,8 @@ so that the repository resource can be allocated exclusively
 class Forget(RVProcess):
 
     def __init__(self, **kwargs):
+        super().__init__()
+        self.name = 'Forget'
         self.repository_interface = kwargs['repository']
         self.snapshot_id = kwargs['snapshot_id']
 
