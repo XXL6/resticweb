@@ -64,6 +64,15 @@ class JobQueue:
             self.lock.release()
             return None
 
+    def remove(self, value):
+        self.lock.acquire()
+        if (len(self._job_list) > 0):
+            try:
+                self._job_list.remove(value)
+            except ValueError:
+                pass
+        self.lock.release()
+
     # returns the foremost object in the queue without removing it
     def peek(self):
         return_object = None

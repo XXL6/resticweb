@@ -43,7 +43,10 @@ class ResticRepository(RVProcessFG):
             except subprocess.TimeoutExpired:
                 return False
             if len(task.stderr) > 0:
-                return False
+                if "Time may be set wrong" in task.stderr: # just in case rclone complains about wrong time
+                    return True
+                else:
+                    return task.stderr
             else:
                 return True
 
@@ -62,7 +65,10 @@ class ResticRepository(RVProcessFG):
             except subprocess.TimeoutExpired as e:
                 return f"Error getting status: {e}"
             if len(task.stderr) > 0:
-                return task.stderr
+                if "Time may be set wrong" in task.stderr: # just in case rclone complains about wrong time
+                    return False
+                else:
+                    return task.stderr
             else:
                 return False
 

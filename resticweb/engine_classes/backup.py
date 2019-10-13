@@ -41,6 +41,8 @@ class Backup(RVProcess):
         self.data_tracker.insert_tracker('seconds_remaining', 'seconds_remaining')
         if len(self.file_include_list) > 0:
             backup_object_filename = self.create_file_list()
+            if not backup_object_filename:
+                return
         else:
             self.log("Nothing to back up. Job stopping")
             self.status("warning")
@@ -49,7 +51,10 @@ class Backup(RVProcess):
         exclusion_filename = ''
         if len(self.file_exclude_list) > 0:
             exclusion_filename = self.create_exclusions_file()
-            exclusion_command = ['--exclude-file', exclusion_filename]
+            if exclusion_filename:
+                exclusion_command = ['--exclude-file', exclusion_filename]
+            else:
+                return
         command = self.repository_interface.repo_command + ['--json', "backup", "--files-from", backup_object_filename]
         if self.backup_set_tag:
             command += ['--tag', self.backup_set_tag]
@@ -148,6 +153,8 @@ class Backup(RVProcess):
         
 
     def create_file_list(self):
+        if not os.path.exists(self.temp_folder_location):
+            os.mkdir(self.temp_folder_location)
         for i in range(0,100):
             filename = f'backup_file_list_{i}'
             full_path = os.path.join(self.temp_folder_location, filename)
@@ -160,11 +167,11 @@ class Backup(RVProcess):
             except OSError as e:
                 self.log(f'Exception while creating the file list: {e}')
                 self.status('error')
-                self.terminate()
+                return False
             except Exception as e:
                 self.log(f'Exception while creating the file list: {e}')
                 self.status('error')
-                self.terminate()
+                return False
             file_list_name = full_path
             break
         if file_list_name:
@@ -172,9 +179,11 @@ class Backup(RVProcess):
         else:
             self.log(f'Unable to create a file list for Restic to read. Process exiting')
             self.status('error')
-            self.terminate()
+            return False
 
     def create_exclusions_file(self):
+        if not os.path.exists(self.temp_folder_location):
+            os.mkdir(self.temp_folder_location)
         for i in range(0,100):
             filename = f'exclusion_file_list_{i}'
             full_path = os.path.join(self.temp_folder_location, filename)
@@ -187,11 +196,11 @@ class Backup(RVProcess):
             except OSError as e:
                 self.log(f'Exception while creating the file list: {e}')
                 self.status('error')
-                self.terminate()
+                return False
             except Exception as e:
                 self.log(f'Exception while creating the file list: {e}')
                 self.status('error')
-                self.terminate()
+                return False
             exclusion_file_list_name = full_path
             break
         if exclusion_file_list_name:
@@ -199,7 +208,7 @@ class Backup(RVProcess):
         else:
             self.log(f'Unable to create an item exclusion file for Restic to read. Process exiting')
             self.status('error')
-            self.terminate()
+            return False
 
     def delete_file_list(self, file_list_name):
         try:

@@ -122,6 +122,7 @@ class RepositorySync(RVProcess):
     def run(self):
         super().__init__()
         self.log(f"Started {self.sync_type} repository sync")
+        self.log(f"Repo address: {self.repository_interface.address}")
         self.step("Syncing repository")
         try:
             self.step("Syncing repository info")

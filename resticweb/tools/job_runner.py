@@ -32,7 +32,7 @@ class JobRunner(Thread):
                         job.start()                    
                 elif job.status == JobStatus.JOB_STATUS_FINISHED:
                     # self.post_run_routine(self.queue.pop())
-                    self.queue.pop()
+                    self.queue.remove(job)
             sleep(5)
 
     
