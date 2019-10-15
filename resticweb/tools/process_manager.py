@@ -217,17 +217,18 @@ class ProcessManager:
             except QueueEmptyException:
                 continue
             process = self.get_process_object(temp_dict['process_id'])
-            self.t_lock.acquire()
-            # we update the locally known process class instance with the
-            # data that we get from the actual process of the said instance
-            if temp_dict['data_name'] == 'log':
-                process.job_log.append(temp_dict['data'])
-            elif temp_dict['data_name'] == 'progress':
-                # print('progress' + str(temp_dict['data']))
-                process.data['progress'] = temp_dict['data']
-            elif temp_dict['data_name'] == 'children':
-                process.children = temp_dict['data'] # list of children PIDs
-            else:
-                process.data[temp_dict['data_name']] = temp_dict['data']
-            self.t_lock.release()
+            if process:
+                self.t_lock.acquire()
+                # we update the locally known process class instance with the
+                # data that we get from the actual process of the said instance
+                if temp_dict['data_name'] == 'log':
+                    process.job_log.append(temp_dict['data'])
+                elif temp_dict['data_name'] == 'progress':
+                    # print('progress' + str(temp_dict['data']))
+                    process.data['progress'] = temp_dict['data']
+                elif temp_dict['data_name'] == 'children':
+                    process.children = temp_dict['data'] # list of children PIDs
+                else:
+                    process.data[temp_dict['data_name']] = temp_dict['data']
+                self.t_lock.release()
             sleep(0.01)
