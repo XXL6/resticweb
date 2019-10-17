@@ -245,6 +245,9 @@ else to update that's not a table. #}
 {% macro misc_update_script(script_location) %}
     <script type="text/javascript">
         if (typeof(EventSource)!=="undefined") {
+            if (misc_source instanceof EventSource) {
+                misc_source.close();
+            }
             var misc_source = new EventSource("{{ script_location|safe }}");
             misc_source.onmessage = function(event) {
                 var data = JSON.parse(event.data);
