@@ -76,7 +76,7 @@ class ResticRepository(RVProcessFG):
     def get_stats(self):
         with ResticCredentials(self.global_credentials):
             return_json = {}
-            command = self.repo_command + ['stats', '--json']
+            command = self.repo_command + ['stats', '--mode', 'raw-data', '--json']
             task = subprocess.run(
                     command,
                     capture_output=True,

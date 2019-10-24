@@ -31,10 +31,12 @@
                 <td>Total Size</td>
                 <td>{{ info_dict['data'].get('total_size') }}</td>
             </tr>
-            <tr>
-                <td>Total File Count</td>
-                <td>{{ info_dict['data'].get('total_file_count') }}</td>
-            </tr>
+            {#
+                <tr>
+                    <td>Total File Count</td>
+                    <td>{{ info_dict['data'].get('total_file_count') }}</td>
+                </tr>
+            #}
             {% if info_dict['data'].get('status') %}
             <tr>
                 <td>Offline Msg</td>
