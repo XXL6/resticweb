@@ -115,6 +115,8 @@ def get_history_info():
             history_info.log = [history_info.log]
     if history_info.result == 'null':
         history_info.result = None
+    else:
+        history_info.result = history_info.result.replace('\\n', '\n')
     '''
     history_info = dict(
         name=history_info.name,
