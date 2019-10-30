@@ -46,7 +46,8 @@ class ResticRepository(RVProcessFG):
                 if "Time may be set wrong" in task.stderr: # just in case rclone complains about wrong time
                     return True
                 else:
-                    return task.stderr
+                    # return task.stderr
+                    return False
             else:
                 return True
 
