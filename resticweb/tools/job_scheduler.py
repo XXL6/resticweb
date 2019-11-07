@@ -141,7 +141,8 @@ class JobScheduler(Scheduler):
                 job = self.every().saturday.do(self.populate_queue_from_schedule_id, schedule_id=schedule.id).tag(schedule.id)
             elif day == 'sunday':
                 job = self.every().sunday.do(self.populate_queue_from_schedule_id, schedule_id=schedule.id).tag(schedule.id)
-            job.interval = schedule.time_interval
+            job.interval = schedule.time_interval if schedule.time_interval else 1
+
             if schedule.time_at and len(schedule.time_at) > 0:
                 try:
                     job.at(schedule.time_at)
