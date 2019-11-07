@@ -164,7 +164,7 @@
                 var job_list = [];
                 for (var i = 0, row; row = schedule_table.rows[i]; i++) {
                     if (row.classList.contains('ub-table-data-row')) {
-                        job_list += parseInt(row.id.replace('-row', ''));
+                        job_list.push(parseInt(row.id.replace('-row', '')));
                     }
                 }
                 document.getElementById('job_list').value = JSON.stringify(job_list);
