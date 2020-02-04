@@ -90,12 +90,13 @@ def get_repository_from_snap_id(snap_id):
 # from the repository itself like the total size and number of files.
 # if use_cache is set to False then the repo stats are grabbed from repo itself
 # which might take a bit of time
-def get_info(id, repository_interface=None, use_cache=False):
+def get_info(id, repository_interface=None, use_cache=False, repo_status=True):
     info_dict = {}
     misc_data = None
-    if not repository_interface:
-        repository_interface = get_formatted_repository_interface_from_id(id)
-    repo_status = repository_interface.is_offline()
+    if repo_status:
+        if not repository_interface:
+            repository_interface = get_formatted_repository_interface_from_id(id)
+        repo_status = repository_interface.is_offline()
     if not use_cache:
         if not repo_status:
             misc_data = repository_interface.get_stats()

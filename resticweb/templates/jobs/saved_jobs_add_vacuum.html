@@ -1,0 +1,26 @@
+{% extends "jobs/saved_jobs.html" %}
+{% set active_menu = "saved_jobs" %}
+{% block menu_content %}
+    <form class="ub-form form-style-1" method="POST" action="" enctype="multipart/form-data"><!-- enctype required for images or something -->
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group-fieldset">
+            <legend class="border-bottom">General Repository Check Job Attributes</legend>
+            <div class="form-group">
+                {{ form.name.label(class="form-control-label") }}
+                {% if form.name.errors %}
+                {{ form.name(class="form-control is-invalid input-field") }}
+                <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                {{ form.name(class="form-control input-field") }}
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="form-control input-field") }}
+        </div>
+    </form>
+{% endblock menu_content %}

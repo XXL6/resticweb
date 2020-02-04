@@ -157,7 +157,7 @@ class RWResourceManager(ResourceManager):
     def get_resource_from_table(self, resource_type, resource_id):
         resource_object = None
         if resource_type == 'repository':
-            repository_info = repository_list_interface.get_info(resource_id)
+            repository_info = repository_list_interface.get_info(resource_id, None, True, False)
             if repository_info:
                 resource_object = resource_classes.RepositoryRes(repository_info['concurrent_uses'], repository_info['timeout'], name=resource_id, type=resource_type)
         elif resource_type == 'backup_set':

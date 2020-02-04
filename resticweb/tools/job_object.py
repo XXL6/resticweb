@@ -50,7 +50,7 @@ class JobObject:
         self.resource_offline_callback = None
 
     def acquire_resources(self):
-        acquisition_successfull = True
+        acquisition_successful = True
         if self.status is not JobStatus.JOB_STATUS_WAITING_RESOURCES:
             self.status = JobStatus.JOB_STATUS_ACQUIRING_RESOURCES
         if self.timed_out():
@@ -72,16 +72,16 @@ class JobObject:
                 self.logger.debug(f"Resource unavailable {resource}")
                 if callable(self.resource_unavailable_callback):
                     self.resource_unavailable_callback()
-                acquisition_successfull = False
+                acquisition_successful = False
             except ResourceOffline:
                 self.resource_offline_or_unavailable(resource)
                 if callable(self.resource_offline_callback):
                     self.resource_offline_callback()
-                acquisition_successfull = False
+                acquisition_successful = False
             except ResourceGeneralException as e:
                 self.cancel_job(f"Exception when acquiring resource: {resource['resource_type']} : {resource['resource_id']} : {e}")
-                acquisition_successfull = False
-        return acquisition_successfull
+                acquisition_successful = False
+        return acquisition_successful
 
     def release_resources(self):
         for resource_token in self.acquired_resources:

@@ -13,7 +13,7 @@ from resticweb.dictionary.resticweb_constants import JobStatusFinishedMap, \
 from resticweb.models.general import JobHistory, SavedJobs, Repository, Schedule, ScheduleJobMap
 import json
 from .forms import AddCheckJobForm, EditCheckJobForm, AddPruneJobForm, EditPruneJobForm, AddScheduleForm, EditScheduleForm, \
-    AddForgetJobForm, EditForgetJobForm
+    AddForgetJobForm, EditForgetJobForm, AddVacuumJobForm, EditVacuumJobForm
 from time import sleep
 from resticweb.misc.job_scheduler import job_scheduler
 
@@ -238,6 +238,8 @@ def add_saved_job(engine_class):
         return add_saved_job_prune()
     elif engine_class == 'forget_policy':
         return add_saved_job_forget()
+    elif engine_class == 'vacuum':
+        return add_saved_job_vacuum()
 
 
 def add_saved_job_forget():
@@ -379,6 +381,34 @@ def edit_saved_job_check(saved_job):
         form.saved_job_id.data = saved_job.id
     return render_template("jobs/saved_jobs_add_check.html", form=form)
 
+def add_saved_job_vacuum():
+    engine_class = 'vacuum'
+    form = AddVacuumJobForm()
+    if form.validate_on_submit():
+        new_info = dict(
+            name=form.name.data,
+            engine_class=engine_class
+        )
+        saved_jobs_interface.add_job(new_info)
+        flash("Vacuum job has been saved.", category='success')
+        return redirect(url_for('jobs.saved_jobs'))
+    return render_template("jobs/saved_jobs_add_vacuum.html", form=form)
+
+def edit_saved_job_vacuum(saved_job):
+    form = EditVacuumJobForm()
+    form.saved_job_id.data = saved_job.id
+    if form.validate_on_submit():
+        new_info = dict(
+            name=form.name.data,
+            saved_job_id=form.saved_job_id.data
+        )
+        saved_jobs_interface.update_job(new_info)
+        flash("Check job has been saved.", category='success')
+        return redirect(url_for('jobs.saved_jobs'))
+    else:
+        form.name.data = saved_job.name
+    return render_template("jobs/saved_jobs_add_vacuum.html", form=form)
+
 def add_saved_job_prune():
     engine_class = 'prune'
     available_repositories = repository_interface.get_engine_repositories()
@@ -510,8 +540,8 @@ def schedules_add():
                 form.time_interval.data,
                 form.time_at.data,
                 form.missed_timeout.data,
-                json.loads(form.job_list.data), # list of tuples (job_id, sort)
-                scheduled_days) 
+                json.loads(form.job_list.data), # list of job ids
+                scheduled_days)
             flash("Schedule has been saved.", category='success')
         except Exception as e:
             flash(f"Failed to add schedule: {e}", category='error')

@@ -205,10 +205,53 @@ class BackupRecord(db.Model):
     repository = db.relationship("Repository", back_populates="backup_records")
 
 
-# object contained within the snapshot
+class SnapshotObjectData(db.Model):
+    __bind_key__ = 'general'
+    __tablename__ = 'snapshot_object_data'
+    id = db.Column(db.Integer, primary_key=True, nullable=False) 
+    path = db.Column(db.String)
+        
+    snapshot_objects = db.relationship(
+        'SnapshotObject',
+        back_populates='data',
+        cascade="all, delete, delete-orphan",
+        lazy=True
+    )
+
 class SnapshotObject(db.Model):
     __bind_key__ = 'general'
     __tablename__ = 'snapshot_object' 
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    name = db.Column(db.String(150), index=True)
+    type = db.Column(db.String)
+    struct_type = db.Column(db.String(50))
+    data_id = db.Column(db.Integer, db.ForeignKey('snapshot_object_data.id'))
+    data = db.relationship("SnapshotObjectData", back_populates="snapshot_objects")
+    snapshot = db.relationship("Snapshot", back_populates="snapshot_objects")
+
+    snapshot_id = db.Column(db.String(200), db.ForeignKey('snapshot.snap_id'))
+
+    def to_dict(self):
+        return dict(
+            id=self.id,
+            name=self.name,
+            type=self.type,
+            path=self.path,
+            uid=self.uid,
+            gid=self.gid,
+            size=self.size,
+            mode=self.mode,
+            struct_type=self.struct_type,
+            modified_time=self.modified_time,
+            accessed_time=self.accessed_time,
+            created_time=self.created_time
+        )
+
+
+# object contained within the snapshot
+class SnapshotObjectOld(db.Model):
+    __bind_key__ = 'general'
+    __tablename__ = 'snapshot_object_old' 
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     name = db.Column(db.String(150), index=True)
     type = db.Column(db.String)
@@ -222,9 +265,9 @@ class SnapshotObject(db.Model):
     accessed_time = db.Column(db.DateTime)
     created_time = db.Column(db.DateTime)
     
-    snapshot = db.relationship("Snapshot", back_populates="snapshot_objects")
+    #snapshot = db.relationship("Snapshot", back_populates="snapshot_objects")
 
-    snapshot_id = db.Column(db.String(200), db.ForeignKey('snapshot.snap_id'))
+    #snapshot_id = db.Column(db.String(200), db.ForeignKey('snapshot.snap_id'))
 
     def to_dict(self):
         return dict(
@@ -256,14 +299,13 @@ class Snapshot(db.Model):
     username = db.Column(db.String(100))
     tree = db.Column(db.String(64))
     tags = db.Column(db.String)
-
+    
     snapshot_objects = db.relationship(
         'SnapshotObject',
         back_populates='snapshot',
         cascade="all, delete, delete-orphan",
         lazy=True
     )
-
     repository_id = db.Column(db.Integer, db.ForeignKey('repository.id'))
 
     def to_dict(self):

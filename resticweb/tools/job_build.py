@@ -62,6 +62,8 @@ class JobBuilder():
             self.construct_job_object_forget_policy()
         elif self.job_class_name == 'clear_snapshot_objects':
             self.construct_job_object_clear_snapshot_objects()
+        elif self.job_class_name == 'vacuum':
+            self.construct_job_object_vacuum_database()
         else:
             return
 
@@ -152,6 +154,10 @@ class JobBuilder():
         
     def construct_job_object_clear_snapshot_objects(self):
         process_object = self.job_class(repo_id=self.parameter_dictionary['repo_id'], snapshot_id=self.parameter_dictionary.get('snapshot_id'))
+        self.job_object = job_object.JobObject(name=self.job_name, process=process_object)
+
+    def construct_job_object_vacuum_database(self):
+        process_object = self.job_class()
         self.job_object = job_object.JobObject(name=self.job_name, process=process_object)
 
     def run_job(self, background=True):

@@ -32,7 +32,7 @@ class ResticRepository(RVProcessFG):
 
     def is_online(self):
         with ResticCredentials(self.global_credentials):
-            command = self.repo_command + ['list', 'locks', '--json']
+            command = self.repo_command + ['list', 'locks', '--no-lock', '--json']
             try:
                 task = subprocess.run(
                         command,

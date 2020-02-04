@@ -5,7 +5,7 @@ from .check import Check
 from .forget import Forget
 from .prune import Prune
 from .forget_policy import ForgetPolicy
-from .system import ClearSnapshotObjects
+from .system import ClearSnapshotObjects, VacuumDatabase
 
 # maps the lowercase name of a class to the actual class
 def get_class_from_name(class_name):
@@ -27,6 +27,8 @@ def get_class_from_name(class_name):
         return ForgetPolicy
     elif class_name == 'clear_snapshot_objects':
         return ClearSnapshotObjects
+    elif class_name == 'vacuum':
+        return VacuumDatabase
     else:
         return None
 
@@ -37,5 +39,6 @@ def get_available_classes():
             ('restore', 'Restore'), 
             ('check', 'Check'),
             ('prune', 'Prune'),
-            ('forget_policy', 'Forget')]
+            ('forget_policy', 'Forget'),
+            ('vacuum', 'System: Vacuum')]
     return classes

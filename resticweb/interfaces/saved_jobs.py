@@ -22,14 +22,15 @@ def add_job(info):
         )
         session.add(jobs)
         session.commit()
-        for key, value in info.get('params').items():
-            parameter = JobParameter(
-                param_name=key,
-                param_value=value,
-                job_id=jobs.id
-            )
-            session.add(parameter)
-        session.commit()
+        if info.get('params'):
+            for key, value in info.get('params').items():
+                parameter = JobParameter(
+                    param_name=key,
+                    param_value=value,
+                    job_id=jobs.id
+                )
+                session.add(parameter)
+            session.commit()
         return jobs.id
 
 def update_job(info):

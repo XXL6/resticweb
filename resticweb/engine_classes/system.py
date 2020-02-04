@@ -1,12 +1,10 @@
 from resticweb.tools.rv_process import RVProcess
+from resticweb.tools.local_session import LocalSession
 from resticweb.tools.repository_tools import clear_snapshot_objects, clear_repo_snapshot_objects
 import os
 import subprocess
 import traceback
-'''
-Since this class creates an exclusive lock on a repository, it needs to be put into the queue
-so that the repository resource can be allocated exclusively
-'''
+
 class ClearSnapshotObjects(RVProcess):
 
     def __init__(self, **kwargs):
@@ -40,3 +38,23 @@ class ClearSnapshotObjects(RVProcess):
                 self.status('error')
                 return
             self.status("success")
+
+
+class VacuumDatabase(RVProcess):
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.name = 'VacuumDatabase'
+
+    def run(self):
+        super().run()
+        with LocalSession() as session:
+            try:
+                session.execute("VACUUM")
+            except Exception as e:
+                self.log(e)
+                self.status('error')
+                return
+        self.log('Successfully vacuumed the database')
+        self.status('success')
+        return

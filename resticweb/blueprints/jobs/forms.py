@@ -47,6 +47,14 @@ class EditCheckJobForm(BaseJobEditForm):
     repository = SelectField('Repository to check', coerce=int)
 
 
+class AddVacuumJobForm(BaseJobAddForm):
+    additional_params = None
+    description = None
+
+class EditVacuumJobForm(BaseJobEditForm):
+    additional_params = None
+    description = None
+
 class AddForgetJobForm(BaseJobAddForm):
     backup_set = SelectField('Backup Set', coerce=int)
     repository = SelectField('Repository', coerce=int)
